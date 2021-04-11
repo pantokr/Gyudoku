@@ -8,7 +8,7 @@ public class GamePlay : MonoBehaviour
     public GameObject PausePanel;
     public GameObject VictoryPanel;
     
-    private Button[,] _buttons = new Button[9,9];
+    private Button[,] _buttons = new Button[9, 9];
     private Text[,] _values = new Text[9, 9];
     
     public Color normalColor;
@@ -22,7 +22,7 @@ public class GamePlay : MonoBehaviour
     private int _x;
     private int _y;
 
-    private KeyCode[] _keys =
+    private KeyCode[] _keys = // 1부터 9까지
     {
         KeyCode.Alpha1, KeyCode.Alpha2, KeyCode.Alpha3, KeyCode.Alpha4, KeyCode.Alpha5, KeyCode.Alpha6, KeyCode.Alpha7,
         KeyCode.Alpha8, KeyCode.Alpha9

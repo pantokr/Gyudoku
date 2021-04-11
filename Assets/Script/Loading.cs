@@ -14,7 +14,7 @@ public class Loading : MonoBehaviour
     
     IEnumerator  LoadYourAsyncScene()
     {
-        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("Game Play");
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("Playing Scene");
         
         while (asyncLoad.progress < 1)
         {
