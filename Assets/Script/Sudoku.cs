@@ -2,203 +2,204 @@
 
 public class Sudoku
 {
-	private int[,] _solution;
-	private int[,] _matrix;
-	private int _size; 
-	private int _squareRootOfSize; 
-	private int _toRemove;
-	
-	public Sudoku(int toRemove)
-	{
-		_size = 9;
-		_toRemove = toRemove;
-		_matrix = new int[_size,_size];
-		_solution = new int[_size, _size];
-		_squareRootOfSize = 3;
-	}
-	
-	public void FillValues()
-	{
-		FillDiagonal();
-		
-		FillRemaining(0, _squareRootOfSize);
-		
-		for(int i = 0; i<_size; i++)
-			for (int x = 0; x < _size; x++)
-				_solution[i,x] = _matrix[i, x];
-		
-		RemoveKDigits();
-	}
+    private int[,] _solution;
+    private int[,] _matrix;
+    private int _size;
+    private int _squareRootOfSize;
+    private int _toRemove;
 
-	// Fill the diagonal SRN number of SRN x SRN matrices
-	void FillDiagonal()
-	{
+    public Sudoku(int toRemove)
+    {
+        _size = 9;
+        _toRemove = toRemove;
+        _matrix = new int[_size, _size];
+        _solution = new int[_size, _size];
+        _squareRootOfSize = 3;
+    }
 
-		for (int i = 0; i<_size; i += _squareRootOfSize)
+    public void FillValues()
+    {
+        FillDiagonal();
 
-			// for diagonal box, start coordinates->i==j
-			FillBox(i, i);
-	}
+        FillRemaining(0, _squareRootOfSize);
 
-	// Returns false if given 3 x 3 block contains num.
-	bool UnUsedInBox(int rowStart, int colStart, int num)
-	{
-		for (int i = 0; i<_squareRootOfSize; i++)
-			for (int j = 0; j<_squareRootOfSize; j++)
-				if (_matrix[rowStart+i,colStart+j] == num)
-					return false;
+        for (int i = 0; i < _size; i++)
+            for (int x = 0; x < _size; x++)
+                _solution[i, x] = _matrix[i, x];
 
-		return true;
-	}
+        RemoveKDigits();
+    }
 
-	// Fill a 3 x 3 matrix.
-	void FillBox(int row,int col)
-	{
-		int num;
-		for (int i=0; i<_squareRootOfSize; i++)
-		{
-			for (int j=0; j<_squareRootOfSize; j++)
-			{
-				do
-				{
-					num = RandomGenerator(_size);
-				}
-				while (!UnUsedInBox(row, col, num));
+    // Fill the diagonal SRN number of SRN x SRN matrices
+    void FillDiagonal()
+    {
 
-				_matrix[row+i,col+j] = num;
-			}
-		}
-	}
+        for (int i = 0; i < _size; i += _squareRootOfSize)
 
-	// Random generator
-	static int RandomGenerator(int num)
-	{
-		return Random.Range(1,num+1);
-	}
+            // for diagonal box, start coordinates->i==j
+            FillBox(i, i);
+    }
 
-	// Check if safe to put in cell
-	bool CheckIfSafe(int i,int j,int num)
-	{
-		return (UnUsedInRow(i, num) &&
-				UnUsedInCol(j, num) &&
-				UnUsedInBox(i-i%_squareRootOfSize, j-j%_squareRootOfSize, num));
-	}
+    // Returns false if given 3 x 3 block contains num.
+    bool UnUsedInBox(int rowStart, int colStart, int num)
+    {
+        for (int i = 0; i < _squareRootOfSize; i++)
+            for (int j = 0; j < _squareRootOfSize; j++)
+                if (_matrix[rowStart + i, colStart + j] == num)
+                    return false;
 
-	// check in the row for existence
-	bool UnUsedInRow(int i,int num)
-	{
-		for (int j = 0; j<_size; j++)
-			if (_matrix[i,j] == num)
-				return false;
-		return true;
-	}
+        return true;
+    }
 
-	// check in the row for existence
-	bool UnUsedInCol(int j,int num)
-	{
-		for (int i = 0; i<_size; i++)
-			if (_matrix[i,j] == num)
-				return false;
-		return true;
-	}
+    // Fill a 3 x 3 matrix.
+    void FillBox(int row, int col)
+    {
+        int num;
+        for (int i = 0; i < _squareRootOfSize; i++)
+        {
+            for (int j = 0; j < _squareRootOfSize; j++)
+            {
+                do
+                { 
+                    // 1부터 9랜덤 생성
+                    num = RandomGenerator(_size);
+                }
+                while (!UnUsedInBox(row, col, num));
 
-	// A recursive function to fill remaining
-	// matrix
-	bool FillRemaining(int i, int j)
-	{
-		// System.out.println(i+" "+j);
-		if (j>=_size && i<_size-1)
-		{
-			i = i + 1;
-			j = 0;
-		}
-		if (i>=_size && j>=_size)
-			return true;
+                _matrix[row + i, col + j] = num;
+            }
+        }
+    }
 
-		if (i < _squareRootOfSize)
-		{
-			if (j < _squareRootOfSize)
-				j = _squareRootOfSize;
-		}
-		else if (i < _size-_squareRootOfSize)
-		{
-			if (j==(int)(i/_squareRootOfSize)*_squareRootOfSize)
-				j = j + _squareRootOfSize;
-		}
-		else
-		{
-			if (j == _size-_squareRootOfSize)
-			{
-				i = i + 1;
-				j = 0;
-				if (i>=_size)
-					return true;
-			}
-		}
+    // Random generator
+    static int RandomGenerator(int num)
+    {
+        return Random.Range(1, num + 1);
+    }
 
-		for (int num = 1; num<=_size; num++)
-		{
-			if (CheckIfSafe(i, j, num))
-			{
-				_matrix[i,j] = num;
-				if (FillRemaining(i, j+1))
-					return true;
+    // Check if safe to put in cell
+    bool CheckIfSafe(int i, int j, int num)
+    {
+        return (UnUsedInRow(i, num) &&
+                UnUsedInCol(j, num) &&
+                UnUsedInBox(i - i % _squareRootOfSize, j - j % _squareRootOfSize, num));
+    }
 
-				_matrix[i,j] = 0;
-			}
-		}
-		return false;
-	}
+    // check in the row for existence
+    bool UnUsedInRow(int i, int num)
+    {
+        for (int j = 0; j < _size; j++)
+            if (_matrix[i, j] == num)
+                return false;
+        return true;
+    }
 
-	// Remove the K no. of digits to
-	// complete game
-	void RemoveKDigits()
-	{
-		int count = _toRemove;
-		while (count != 0)
-		{
-			int cellId = RandomGenerator(_size*_size);
-			
-			int i = (cellId/_size) % 9;
-			int j = cellId % 9;
-			if (j != 0)
-				j = j - 1;
-			
-			if (_matrix[i,j] != 0)
-			{
-				count--;
-				_matrix[i,j] = 0;
-			}
-		}
-	}
+    // check in the row for existence
+    bool UnUsedInCol(int j, int num)
+    {
+        for (int i = 0; i < _size; i++)
+            if (_matrix[i, j] == num)
+                return false;
+        return true;
+    }
 
-	public int GETValue(int x, int y)
-	{
-		return _matrix[x, y];
-	}
-	
-	public int GETAnswer(int x, int y)
-	{
-		return _solution[x, y];
-	}
+    // A recursive function to fill remaining
+    // matrix
+    bool FillRemaining(int i, int j)
+    {
+        // System.out.println(i+" "+j);
+        if (j >= _size && i < _size - 1)
+        {
+            i = i + 1;
+            j = 0;
+        }
+        if (i >= _size && j >= _size)
+            return true;
 
-	public void SetValue(int x, int y, int value)
-	{
-		_matrix[x, y] = value;
-	}
+        if (i < _squareRootOfSize)
+        {
+            if (j < _squareRootOfSize)
+                j = _squareRootOfSize;
+        }
+        else if (i < _size - _squareRootOfSize)
+        {
+            if (j == (int)(i / _squareRootOfSize) * _squareRootOfSize)
+                j = j + _squareRootOfSize;
+        }
+        else
+        {
+            if (j == _size - _squareRootOfSize)
+            {
+                i = i + 1;
+                j = 0;
+                if (i >= _size)
+                    return true;
+            }
+        }
 
-	public bool IsCorrect(int x, int y)
-	{
-		return (_solution[x, y] == _matrix[x,y]);
-	}
+        for (int num = 1; num <= _size; num++)
+        {
+            if (CheckIfSafe(i, j, num))
+            {
+                _matrix[i, j] = num;
+                if (FillRemaining(i, j + 1))
+                    return true;
 
-	public bool Completed()
-	{
-		for(int x = 0; x<_size; x++)
-			for (int y = 0; y < _size; y++)
-				if (_matrix[x, y] != _solution[x, y])
-					return false;
+                _matrix[i, j] = 0;
+            }
+        }
+        return false;
+    }
 
-		return true;
-	}
+    // Remove the K no. of digits to
+    // complete game
+    void RemoveKDigits()
+    {
+        int count = _toRemove;
+        while (count != 0)
+        {
+            int cellId = RandomGenerator(_size * _size);
+
+            int i = (cellId / _size) % 9;
+            int j = cellId % 9;
+            if (j != 0)
+                j = j - 1;
+
+            if (_matrix[i, j] != 0)
+            {
+                count--;
+                _matrix[i, j] = 0;
+            }
+        }
+    }
+
+    public int GETValue(int x, int y)
+    {
+        return _matrix[x, y];
+    }
+
+    public int GETAnswer(int x, int y)
+    {
+        return _solution[x, y];
+    }
+
+    public void SetValue(int x, int y, int value)
+    {
+        _matrix[x, y] = value;
+    }
+
+    public bool IsCorrect(int x, int y)
+    {
+        return (_solution[x, y] == _matrix[x, y]);
+    }
+
+    public bool Completed()
+    {
+        for (int x = 0; x < _size; x++)
+            for (int y = 0; y < _size; y++)
+                if (_matrix[x, y] != _solution[x, y])
+                    return false;
+
+        return true;
+    }
 }

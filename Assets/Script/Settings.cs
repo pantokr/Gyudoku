@@ -5,7 +5,7 @@ public class Settings : MonoBehaviour
 {
     public static float Volume = 0.5f;
     public AudioSource Soruce;
-    public static int Missing;
+    public static int MissingNumberCnt = 9;
     public static Sprite Background;
 
     private void Update()
