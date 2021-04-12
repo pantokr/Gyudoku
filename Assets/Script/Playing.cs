@@ -43,7 +43,7 @@ public class Playing : MonoBehaviour
 
         sudokuMaker = new SudokuMaker();
         sudokuMaker.MakeNewSudoku();
-        
+
         for (int y = 0; y < 9; y++)
         {
             for (int x = 0; x < 9; x++)
@@ -115,6 +115,12 @@ public class Playing : MonoBehaviour
 
     private void LateUpdate()
     {
+        if (Input.GetMouseButtonDown(0))
+        {
+            curY = 0;
+            curX = 0;
+        }
+
         for (int i = 0; i < numberKeys.Length; i++)
         {
             if (Input.GetKeyDown(numberKeys[i]))
