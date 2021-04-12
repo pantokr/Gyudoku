@@ -16,7 +16,7 @@ public class GamePlay : MonoBehaviour
     public Color disabledColor;
     public Color highLightButtons;
 
-    private SudokuMaker sudokuMaker = new SudokuMaker();
+    private SudokuMaker sudokuMaker;
     public static bool GameOver;
     //private Sudoku sudoku= new su;
 
@@ -41,26 +41,25 @@ public class GamePlay : MonoBehaviour
         // 모든 버튼 사이즈 변경
         FixButtons();
 
-        //Debug.Log(Settings.Missing);
-
-        //sudoku.FillValues();
-        //sudokuMaker.FillValues();
-        //for (int y = 0; y < 9; y++)
-        //{
-        //    for (int x = 0; x < 9; x++)
-        //    {
-        //        var value = sudoku.GETValue(y, x);
-        //        if (value == 0)
-        //        {
-        //            _values[y, x].text = "-";
-        //        }
-        //        else
-        //        {
-        //            _values[y, x].text = $"{sudoku.GETValue(y, x)}";
-        //            _buttons[y, x].interactable = false;
-        //        }
-        //    }
-        //}
+        sudokuMaker = new SudokuMaker();
+        sudokuMaker.MakeNewSudoku();
+        
+        for (int y = 0; y < 9; y++)
+        {
+            for (int x = 0; x < 9; x++)
+            {
+                var value = sudokuMaker.GetValue(y, x);
+                if (value == 0)
+                {
+                    _values[y, x].text = "";
+                }
+                else
+                {
+                    _values[y, x].text = $"{sudokuMaker.GetValue(y, x)}";
+                    _buttons[y, x].interactable = false;
+                }
+            }
+        }
 
         for (int y = 0; y < 9; y++)
         {
