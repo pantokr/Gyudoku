@@ -15,7 +15,10 @@ public class SudokuMaker
         { 6, 4, 5, 9, 7, 8, 3, 1, 2 },
         { 9, 7, 8, 3, 1, 2, 6, 4, 5 }
     };
-    //readonly int MissingNumberCnt = Settings.MissingNumberCnt;
+
+    readonly int EmptyC1 = Settings.EmptyC1;
+    readonly int EmptyC2 = Settings.EmptyC2;
+    readonly int EmptyMiddle = Settings.EmptyMiddle;
 
     private MissingNumberMaker missingNumberMaker;
     private int[,] dst = new int[9, 9];
@@ -32,24 +35,12 @@ public class SudokuMaker
         }
 
         missingNumberMaker = new MissingNumberMaker(dst);
+        missingNumberMaker.EmptySubGrid(EmptyC1, EmptyC2, EmptyMiddle);
     }
 
     public int GetValue(int y, int x)
     {
-        return missingNumberMaker.[y, x];
-    }
-
-    private void PrintSudoku(int[,] sudoku)
-    {
-        for (int y = 0; y < 9; y++)
-        {
-            string tString = "";
-            for (int x = 0; x < 9; x++)
-            {
-                tString += $"{sudoku[y, x]} ";
-            }
-            Debug.Log(tString);
-        }
+        return missingNumberMaker.GetValue(y, x);
     }
 
     private void ApplyRandomConversion(int code)
@@ -214,6 +205,17 @@ public class SudokuMaker
     }
 
     #endregion
+    private void PrintSudoku(int[,] sudoku)
+    {
+        for (int y = 0; y < 9; y++)
+        {
+            string tString = "";
+            for (int x = 0; x < 9; x++)
+            {
+                tString += $"{sudoku[y, x]} ";
+            }
+            Debug.Log(tString);
+        }
+    }
 
-    
 }

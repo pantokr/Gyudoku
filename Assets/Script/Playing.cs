@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GamePlay : MonoBehaviour
+public class Playing : MonoBehaviour
 {
     public GameObject MainPanel;
     public GameObject PausePanel;
@@ -22,8 +22,8 @@ public class GamePlay : MonoBehaviour
 
 
     //현재 가리키고 있는 포인터
-    private int _x;
-    private int _y;
+    private int curX;
+    private int curY;
 
     private KeyCode[] _keys = // 1부터 9까지
     {
@@ -124,24 +124,24 @@ public class GamePlay : MonoBehaviour
 
     private void LateUpdate()
     {
-        //if (GameOver) return;
-        //for (int i = 0; i < _keys.Length; i++)
-        //{
-        //    if (Input.GetKeyDown(_keys[i]))
-        //    {
-        //        if (_x != -1 && _y != -1)
-        //        {
-        //            _values[_x, _y].text = (i + 1).ToString();
-        //            sudoku.SetValue(_x, _y, i + 1);
-        //            if (sudoku.IsCorrect(_x, _y))
-        //            {
-        //                CompleteCheck();
-        //            }
-        //        }
-        //        ButtonsHighlight(i + 1);
-        //        return;
-        //    }
-        //}
+        if (GameOver) return;
+        for (int i = 0; i < _keys.Length; i++)
+        {
+            if (Input.GetKeyDown(_keys[i]))
+            {
+                if (_x != -1 && _y != -1)
+                {
+                    _values[_x, _y].text = (i + 1).ToString();
+                    //sudoku.SetValue(_x, _y, i + 1);
+                    //if (sudoku.IsCorrect(_x, _y))
+                    //{
+                    //    CompleteCheck();
+                    //}
+                }
+                ButtonsHighlight(i + 1);
+                return;
+            }
+        }
     }
 
     private void ButtonsHighlight(int value)
