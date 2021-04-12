@@ -8,9 +8,9 @@ public class Playing : MonoBehaviour
     public GameObject PausePanel;
     public GameObject VictoryPanel;
 
-    private GameObject _numbers;
-    private Button[,] _buttons = new Button[9, 9];
-    private Text[,] _values = new Text[9, 9];
+    private GameObject numbers;
+    private Button[,] buttons = new Button[9, 9];
+    private Text[,] values = new Text[9, 9];
 
     public Color normalColor;
     public Color disabledColor;
@@ -25,7 +25,7 @@ public class Playing : MonoBehaviour
     private int curX;
     private int curY;
 
-    private KeyCode[] _keys = // 1부터 9까지
+    private KeyCode[] numberKeys = // 1부터 9까지
     {
         KeyCode.Alpha1, KeyCode.Alpha2, KeyCode.Alpha3, KeyCode.Alpha4, KeyCode.Alpha5, KeyCode.Alpha6, KeyCode.Alpha7,
         KeyCode.Alpha8, KeyCode.Alpha9
@@ -51,43 +51,34 @@ public class Playing : MonoBehaviour
                 var value = sudokuMaker.GetValue(y, x);
                 if (value == 0)
                 {
-                    _values[y, x].text = "";
+                    values[y, x].text = "";
                 }
                 else
                 {
-                    _values[y, x].text = $"{sudokuMaker.GetValue(y, x)}";
-                    _buttons[y, x].interactable = false;
+                    values[y, x].text = $"{sudokuMaker.GetValue(y, x)}";
+                    buttons[y, x].interactable = false;
                 }
-            }
-        }
-
-        for (int y = 0; y < 9; y++)
-        {
-            for (int x = 0; x < 9; x++)
-            {
-                var value = sudokuMaker.GetValue(y, x);
-                
             }
         }
 
         //GameOver = false;
-        //_x = _y = -1;
+        curX = curY = -1;
 
     }
 
     private void LoadButtons()
     {
-        _numbers = MainPanel.transform.Find("Numbers").gameObject;
+        numbers = MainPanel.transform.Find("Numbers").gameObject;
 
         for (int y = 0; y < 9; y++)
         {
             for (int x = 0; x < 9; x++)
             {
                 string toFind = $"R{y + 1}C{x + 1}";
-                _buttons[y, x] = _numbers.transform.Find(toFind).GetComponent<Button>();
+                buttons[y, x] = numbers.transform.Find(toFind).GetComponent<Button>();
 
                 AddButtonEvent(y, x);
-                _values[y, x] = _buttons[y, x].transform.Find("Text").gameObject.GetComponent<Text>();
+                values[y, x] = buttons[y, x].transform.Find("Text").gameObject.GetComponent<Text>();
             }
         }
     }
@@ -95,7 +86,7 @@ public class Playing : MonoBehaviour
     private void FixButtons()
     {
         Vector2 btnSize = new Vector2(96, 96);
-        foreach (var btn in _buttons)
+        foreach (var btn in buttons)
         {
             btn.GetComponent<RectTransform>().sizeDelta = btnSize;
         }
@@ -105,13 +96,13 @@ public class Playing : MonoBehaviour
     {
         int ny = y;
         int nx = x;
-        _buttons[y, x].onClick.AddListener(delegate { SelectButton(ny, nx); });
+        buttons[y, x].onClick.AddListener(delegate { SelectButton(ny, nx); });
     }
 
     private void SelectButton(int y, int x)
     {
-        _y = y;
-        _x = x;
+        curY = y;
+        curX = x;
     }
 
     // Update is called once per frame
@@ -124,57 +115,52 @@ public class Playing : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (GameOver) return;
-        for (int i = 0; i < _keys.Length; i++)
+        for (int i = 0; i < numberKeys.Length; i++)
         {
-            if (Input.GetKeyDown(_keys[i]))
+            if (Input.GetKeyDown(numberKeys[i]))
             {
-                if (_x != -1 && _y != -1)
+                if (curX != -1 && curY != -1) // 스도쿠 내부의 버튼을 선택하고 있으면
                 {
-                    _values[_x, _y].text = (i + 1).ToString();
-                    //sudoku.SetValue(_x, _y, i + 1);
-                    //if (sudoku.IsCorrect(_x, _y))
-                    //{
-                    //    CompleteCheck();
-                    //}
+                    values[curY, curX].text = (i + 1).ToString();
                 }
-                ButtonsHighlight(i + 1);
+                HighlightButtons(i + 1);
                 return;
             }
         }
-    }
 
-    private void ButtonsHighlight(int value)
-    {
-        string s = $"{value}";
-        for (int x = 0; x < 9; x++)
+        if (Input.GetKeyDown(KeyCode.Q))
         {
-            for (int y = 0; y < 9; y++)
+            if (curX != -1 && curY != -1) // 스도쿠 내부의 버튼을 선택하고 있으면
             {
-                if (String.Equals(s, _values[x, y].text))
-                {
-                    var colors = _buttons[x, y].colors;
-                    colors.disabledColor = highLightButtons;
-                    colors.normalColor = highLightButtons;
-                    _buttons[x, y].colors = colors;
-                }
-                else
-                {
-                    var colors = _buttons[x, y].colors;
-                    colors.disabledColor = disabledColor;
-                    colors.normalColor = normalColor;
-                    _buttons[x, y].colors = colors;
-                }
+                values[curY, curX].text = "";
             }
+            HighlightButtons(0);
+            return;
         }
     }
 
-    private void CompleteCheck()
+    private void HighlightButtons(int value)
     {
-        //if (sudoku.Completed())
-        //{
-        //    VictoryPanel.SetActive(true);
-        //    GameOver = true;
-        //}
+        string s = $"{value}";
+        for (int y = 0; y < 9; y++)
+        {
+            for (int x = 0; x < 9; x++)
+            {
+                if (String.Equals(s, values[y, x].text))
+                {
+                    var colors = buttons[y, x].colors;
+                    colors.disabledColor = highLightButtons;
+                    colors.normalColor = highLightButtons;
+                    buttons[y, x].colors = colors;
+                }
+                else
+                {
+                    var colors = buttons[y, x].colors;
+                    colors.disabledColor = disabledColor;
+                    colors.normalColor = normalColor;
+                    buttons[y, x].colors = colors;
+                }
+            }
+        }
     }
 }
