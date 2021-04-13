@@ -12,20 +12,15 @@ public class NumberButtons : MonoBehaviour
 
     private void Start()
     {
-        //nButtons = new Button[9];
-        //playing = new Playing();
-    }
+        nButtons = new Button[9];
+        playing = GameObject.Find("Playing").GetComponent<Playing>();
 
-    public void LoadNumberButtons()
-    {
-        Debug.Log(gameObject.name);
         for (int index = 0; index < 9; index++)
         {
             string tString = $"button_{index + 1}";
             nButtons[index] = gameObject.transform.Find(tString).GetComponent<Button>();
 
             int tIndex = index + 1;
-            nButtons[index].onClick.AddListener(delegate { playing.HighlightCells(tIndex); });
         }
     }
 }

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SudokuMaker : MonoBehaviour
+public class SudokuMaker
 {
     readonly int[,] sudokuSample = {
         { 1, 2, 3, 4, 5, 6, 7, 8, 9 },
@@ -23,7 +23,7 @@ public class SudokuMaker : MonoBehaviour
     private MissingNumberMaker missingNumberMaker;
     private int[,] dst = new int[9, 9];
 
-    public void MakeNewSudoku()
+    public int[,] MakeNewSudoku()
     {
         //½ºµµÄí º¹»ç
         dst = (int[,])sudokuSample.Clone();
@@ -36,6 +36,8 @@ public class SudokuMaker : MonoBehaviour
 
         missingNumberMaker = new MissingNumberMaker(dst);
         missingNumberMaker.EmptySubGrid(EmptyC1, EmptyC2, EmptyMiddle);
+
+        return dst;
     }
 
     public int GetValue(int y, int x)
