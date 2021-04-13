@@ -16,10 +16,8 @@ public class Playing : MonoBehaviour
     public Color highLightCells;
 
     private SudokuMaker sudokuMaker;
-    private NumberButtons numberButtons;
+    //private NumberButtons numberButtons;
     // public static bool GameOver;
-    //private Sudoku sudoku= new su;
-
 
     //현재 가리키고 있는 포인터
     public int curX;
@@ -38,13 +36,10 @@ public class Playing : MonoBehaviour
 
         //스도쿠 만들기
         sudokuMaker = new SudokuMaker();
-        sudokuMaker.MakeNewSudoku();
-
-        numberButtons = new NumberButtons();
 
         // 버튼 담기
         LoadCells();
-        numberButtons.LoadNumberButtons();
+        //numberButtons.LoadNumberButtons();
         
         for (int y = 0; y < 9; y++)
         {
@@ -110,9 +105,6 @@ public class Playing : MonoBehaviour
             }
         }
     }
-
-
-
     private void SelectCell(int y, int x)
     {
         curY = y;
