@@ -27608,25 +27608,9 @@ MonoBehaviour:
   MainPanel: {fileID: 1396505636}
   PausePanel: {fileID: 839931458}
   VictoryPanel: {fileID: 219367280}
-  _numbers: {fileID: 0}
-  normalColor:
-    r: 0
-    g: 0.19607843
-    b: 0.49411765
-    a: 0.33333334
-  disabledColor:
-    r: 0
-    g: 0
-    b: 0
-    a: 0
-  highLightButtons:
-    r: 0.6698113
-    g: 0.6019452
-    b: 0
-    a: 1
-  _x: 0
-  _y: 0
-  _keys: 310000003200000033000000340000003500000036000000370000003800000039000000
+  normalColor: {r: 1, g: 1, b: 1, a: 0.7529412}
+  disabledColor: {r: 1, g: 1, b: 1, a: 0.2509804}
+  highLightCells: {r: 0.9764706, g: 0.8627451, b: 0.36078432, a: 0.5019608}
 --- !u!114 &1583657345
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -28405,7 +28389,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1625343918}
   m_Layer: 5
-  m_Name: Numbers
+  m_Name: Cells
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
