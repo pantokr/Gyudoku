@@ -28,7 +28,7 @@ public class Cells : MonoBehaviour
         sudoku = sudokuMaker.MakeNewSudoku();
 
         LoadCells();
-        FillCells();
+        InitCells();
 
         playing.SetCur(-1, -1);
     }
@@ -91,23 +91,12 @@ public class Cells : MonoBehaviour
             }
         }
     }
-
-    private void LoadCells()
+    public void DeleteCell(int y, int x)
     {
-        for (int y = 0; y < 9; y++)
-        {
-            for (int x = 0; x < 9; x++)
-            {
-                string tString = $"R{y + 1}C{x + 1}";
-                btns[y, x] = transform.Find(tString).GetComponent<Button>();
-                values[y, x] = btns[y, x].transform.Find("Text").gameObject.GetComponent<Text>();
-
-                int ty = y, tx = x;
-                btns[y, x].onClick.AddListener(delegate { SelectCell(ty, tx); });
-            }
-        }
+        values[y, x].text = "";
     }
-    private void FillCells()
+
+    private void InitCells()
     {
         for (int y = 0; y < 9; y++)
         {
@@ -126,8 +115,29 @@ public class Cells : MonoBehaviour
             }
         }
     }
+    private void LoadCells()
+    {
+        for (int y = 0; y < 9; y++)
+        {
+            for (int x = 0; x < 9; x++)
+            {
+                string tString = $"R{y + 1}C{x + 1}";
+                btns[y, x] = transform.Find(tString).GetComponent<Button>();
+                values[y, x] = btns[y, x].transform.Find("Text").gameObject.GetComponent<Text>();
+
+                int ty = y, tx = x;
+                btns[y, x].onClick.AddListener(delegate { SelectCell(ty, tx); });
+            }
+        }
+    }
+
     private void SelectCell(int y, int x)
     {
         playing.SetCur(y, x);
+
+        if (ManualToolButtons.onEraser)
+        {
+            DeleteCell(y, x);
+        }
     }
 }

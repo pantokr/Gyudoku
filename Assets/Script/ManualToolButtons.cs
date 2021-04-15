@@ -1,18 +1,33 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ManualToolButtons : MonoBehaviour
 {
+    public static bool onMemo = false;
+    public static bool onEraser = false;
+
+    public GameObject memoButton;
+    public GameObject eraserButton;
     // Start is called before the first frame update
     void Start()
     {
-        
+        Button _memo = memoButton.GetComponent<Button>();
+        Button _eraser = memoButton.GetComponent<Button>();
+
+        _memo.onClick.AddListener(delegate { TurnOnMemo(); });
+        _eraser.onClick.AddListener(delegate { TurnOnEraser(); });
     }
 
-    // Update is called once per frame
-    void Update()
+    void TurnOnMemo()
     {
-        
+        onMemo = !onMemo;
+        //Debug.Log(MemoController.onMemo);
+    }
+
+    void TurnOnEraser()
+    {
+        onEraser = !onEraser;
     }
 }

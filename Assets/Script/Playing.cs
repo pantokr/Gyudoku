@@ -65,7 +65,6 @@ public class Playing : MonoBehaviour
         {
             if (curX != -1 && curY != -1) // 스도쿠 내부의 버튼을 선택하고 있으면
             {
-                values[curY, curX].text = "";
             }
             return;
         }

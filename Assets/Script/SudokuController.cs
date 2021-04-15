@@ -6,5 +6,5 @@ using System;
 
 public class SudokuController : MonoBehaviour
 {
-    
+
 }
