@@ -1,9 +1,8 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class MainMenu : MonoBehaviour
+public class MainMenuButtonManager : MonoBehaviour
 {
-
     public Sprite easy;
     public Sprite medium;
     public Sprite hard;

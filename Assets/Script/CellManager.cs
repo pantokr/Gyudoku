@@ -4,11 +4,10 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 
-public class Cells : MonoBehaviour
+public class CellManager : MonoBehaviour
 {
     public GameObject mainPanel;
-    public SudokuController sudokuController;
-    public Playing playing;
+    public PlayManager playManager;
     public Color normalColor;
     public Color highLightedColor;
     public Color pressedColor;
@@ -30,7 +29,7 @@ public class Cells : MonoBehaviour
         LoadCells();
         InitCells();
 
-        playing.SetCur(-1, -1);
+        playManager.SetCur(-1, -1);
     }
     private void Start()
     {
@@ -51,6 +50,7 @@ public class Cells : MonoBehaviour
         }
     }
 
+    #region Get sudoku data
     public int GetSudokuValue(int y, int x)
     {
         return sudoku[y, x];
@@ -67,6 +67,9 @@ public class Cells : MonoBehaviour
     {
         return btns;
     }
+    #endregion
+
+    #region Change cell status
     public void HighlightCells(int value)
     {
         string s = value.ToString();
@@ -91,10 +94,15 @@ public class Cells : MonoBehaviour
             }
         }
     }
+    public void FillCell(int y, int x, int value)
+    {
+        values[y, x].text = value.ToString();
+    }
     public void DeleteCell(int y, int x)
     {
         values[y, x].text = "";
     }
+    #endregion
 
     private void InitCells()
     {
@@ -115,6 +123,8 @@ public class Cells : MonoBehaviour
             }
         }
     }
+
+    //cells to array
     private void LoadCells()
     {
         for (int y = 0; y < 9; y++)
@@ -131,9 +141,10 @@ public class Cells : MonoBehaviour
         }
     }
 
+
     private void SelectCell(int y, int x)
     {
-        playing.SetCur(y, x);
+        playManager.SetCur(y, x);
 
         if (ManualToolButtons.onEraser)
         {

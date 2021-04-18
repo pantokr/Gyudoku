@@ -2,12 +2,11 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Playing : MonoBehaviour
+public class PlayManager : MonoBehaviour
 {
     public GameObject mainPanel;
     public GameObject pausePanel;
-    public SudokuController sudokuController;
-    public Cells cells;
+    public CellManager cellManager;
     //public GameObject VictoryPanel;
 
     //현재 가리키고 있는 포인터
@@ -24,7 +23,7 @@ public class Playing : MonoBehaviour
 
     private void Start()
     {
-        values = cells.GetSudokuValueTexts();
+        values = cellManager.GetSudokuValueTexts();
 
         // 배경화면 불러오기
         //MainPanel.GetComponent<Image>().sprite = Settings.Background;
@@ -44,7 +43,7 @@ public class Playing : MonoBehaviour
         {
             curY = -1;
             curX = -1;
-            cells.HighlightCells(0);
+            cellManager.HighlightCells(0);
         }
 
         for (int i = 0; i < numberKeys.Length; i++)
@@ -53,8 +52,8 @@ public class Playing : MonoBehaviour
             {
                 if (curX != -1 && curY != -1) // 스도쿠 내부의 버튼을 선택하고 있으면
                 {
-                    values[curY, curX].text = (i + 1).ToString();
-                    cells.HighlightCells(i + 1);
+                    cellManager.FillCell(curY, curX, i + 1);
+                    cellManager.HighlightCells(i + 1);
                 }
                 return;
             }
@@ -65,6 +64,8 @@ public class Playing : MonoBehaviour
         {
             if (curX != -1 && curY != -1) // 스도쿠 내부의 버튼을 선택하고 있으면
             {
+                cellManager.DeleteCell(curY, curX);
+                cellManager.HighlightCells(0);
             }
             return;
         }

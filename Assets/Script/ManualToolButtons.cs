@@ -14,7 +14,7 @@ public class ManualToolButtons : MonoBehaviour
     void Start()
     {
         Button _memo = memoButton.GetComponent<Button>();
-        Button _eraser = memoButton.GetComponent<Button>();
+        Button _eraser = eraserButton.GetComponent<Button>();
 
         _memo.onClick.AddListener(delegate { TurnOnMemo(); });
         _eraser.onClick.AddListener(delegate { TurnOnEraser(); });
@@ -23,11 +23,12 @@ public class ManualToolButtons : MonoBehaviour
     void TurnOnMemo()
     {
         onMemo = !onMemo;
-        //Debug.Log(MemoController.onMemo);
+        Debug.Log("Memo : " + onMemo);
     }
 
     void TurnOnEraser()
     {
         onEraser = !onEraser;
+        Debug.Log("Eraser : " + onEraser);
     }
 }
