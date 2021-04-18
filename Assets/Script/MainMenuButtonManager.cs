@@ -23,7 +23,7 @@ public class MainMenuButtonManager : MonoBehaviour
         Settings.Background = easy;
         Settings.EmptyC1 = Random.Range(5, 7);
         Settings.EmptyC2 = 11 - Settings.EmptyC1;
-        Settings.EmptyMiddle = Random.Range(1, 3);
+        Settings.EmptyMiddle = Random.Range(2, 6);
         Settings.PatternCode = Random.Range(0, 2);
         SceneManager.LoadScene("LoadingScreen");
     }
@@ -33,7 +33,7 @@ public class MainMenuButtonManager : MonoBehaviour
         Settings.Background = hard;
         Settings.EmptyC1 = Random.Range(5, 7);
         Settings.EmptyC2 = 11 - Settings.EmptyC1;
-        Settings.EmptyMiddle = Random.Range(0, 2);
+        Settings.EmptyMiddle = 5;
         Settings.PatternCode = Random.Range(0, 2);
         SceneManager.LoadScene("LoadingScreen");
     }

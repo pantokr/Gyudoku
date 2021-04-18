@@ -8,6 +8,7 @@ public class CellManager : MonoBehaviour
 {
     public GameObject mainPanel;
     public PlayManager playManager;
+    public MemoManager memoManager;
     public Color normalColor;
     public Color highLightedColor;
     public Color pressedColor;
@@ -17,6 +18,7 @@ public class CellManager : MonoBehaviour
 
     readonly private Button[,] btns = new Button[9, 9];
     readonly private Text[,] values = new Text[9, 9];
+    readonly private GameObject[,] objects = new GameObject[9, 9];
 
     private SudokuMaker sudokuMaker;
     private int[,] sudoku;
@@ -66,6 +68,10 @@ public class CellManager : MonoBehaviour
     public Button[,] GetButtons()
     {
         return btns;
+    }
+    public GameObject[,] GetObjects()
+    {
+        return objects;
     }
     #endregion
 
@@ -134,6 +140,7 @@ public class CellManager : MonoBehaviour
                 string tString = $"R{y + 1}C{x + 1}";
                 btns[y, x] = transform.Find(tString).GetComponent<Button>();
                 values[y, x] = btns[y, x].transform.Find("Text").gameObject.GetComponent<Text>();
+                objects[y, x] = transform.Find(tString).gameObject;
 
                 int ty = y, tx = x;
                 btns[y, x].onClick.AddListener(delegate { SelectCell(ty, tx); });
@@ -146,9 +153,10 @@ public class CellManager : MonoBehaviour
     {
         playManager.SetCur(y, x);
 
-        if (ManualToolButtons.onEraser)
+        if (ManualToolButtonsManager.onEraser)
         {
             DeleteCell(y, x);
+            memoManager.DeleteMemoCell(y, x);
         }
     }
 }

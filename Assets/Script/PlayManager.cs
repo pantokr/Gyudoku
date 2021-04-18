@@ -7,6 +7,8 @@ public class PlayManager : MonoBehaviour
     public GameObject mainPanel;
     public GameObject pausePanel;
     public CellManager cellManager;
+    public MemoManager memoManager;
+    public ManualToolButtonsManager manualToolButtonsManager;
     //public GameObject VictoryPanel;
 
     //현재 가리키고 있는 포인터
@@ -52,8 +54,17 @@ public class PlayManager : MonoBehaviour
             {
                 if (curX != -1 && curY != -1) // 스도쿠 내부의 버튼을 선택하고 있으면
                 {
-                    cellManager.FillCell(curY, curX, i + 1);
-                    cellManager.HighlightCells(i + 1);
+                    if (ManualToolButtonsManager.onMemo)
+                    {
+                        cellManager.DeleteCell(curY, curX);
+                        memoManager.FillMemoCell(curY, curX, i + 1);
+                    }
+                    else
+                    {
+                        memoManager.DeleteMemoCell(curY, curX);
+                        cellManager.FillCell(curY, curX, i + 1);
+                        cellManager.HighlightCells(i + 1);
+                    }
                 }
                 return;
             }
@@ -65,8 +76,23 @@ public class PlayManager : MonoBehaviour
             if (curX != -1 && curY != -1) // 스도쿠 내부의 버튼을 선택하고 있으면
             {
                 cellManager.DeleteCell(curY, curX);
+                memoManager.DeleteMemoCell(curY, curX);
                 cellManager.HighlightCells(0);
             }
+            return;
+        }
+
+        //M을 누르면 Memo on
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            manualToolButtonsManager.TurnMemo();
+            return;
+        }
+
+        //E을 누르면 Memo on
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            manualToolButtonsManager.TurnEraser();
             return;
         }
     }
