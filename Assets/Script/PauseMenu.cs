@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class Paused : MonoBehaviour
+public class PauseMenu : MonoBehaviour
 {
     public static bool Displaying;
     private void Awake()

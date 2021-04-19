@@ -21,7 +21,8 @@ public class SudokuMaker
     readonly int EmptyMiddle = Settings.EmptyMiddle;
 
     private MissingNumberMaker missingNumberMaker;
-    private int[,] dst = new int[9, 9];
+    private int[,] origin;
+    private int[,] dst;
 
     public int[,] MakeNewSudoku()
     {
@@ -39,7 +40,10 @@ public class SudokuMaker
 
         return dst;
     }
-
+    public int[,] GetOriginSudoku()
+    {
+        return origin;
+    }
     public int GetValue(int y, int x)
     {
         return missingNumberMaker.GetValue(y, x);

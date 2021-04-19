@@ -11,7 +11,7 @@ public class Settings : MonoBehaviour
     public static int EmptyMiddle = 3;
     public static int PatternCode = 0;
 
-    public static Sprite Background;
+    public static bool customizedMode = false;
 
     private void Update()
     {

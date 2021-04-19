@@ -9,6 +9,8 @@ public class PlayManager : MonoBehaviour
     public CellManager cellManager;
     public MemoManager memoManager;
     public ManualToolButtonsManager manualToolButtonsManager;
+    public NumberHighlighterManager numberHighlighterManager;
+    public SudokuController sudokuController;
     //public GameObject VictoryPanel;
 
     //현재 가리키고 있는 포인터
@@ -17,10 +19,15 @@ public class PlayManager : MonoBehaviour
 
     private Text[,] values;
 
-    private KeyCode[] numberKeys = // 1부터 9까지
+    private KeyCode[] AlphaKeys = // 1부터 9까지
     {
         KeyCode.Alpha1, KeyCode.Alpha2, KeyCode.Alpha3, KeyCode.Alpha4, KeyCode.Alpha5, KeyCode.Alpha6, KeyCode.Alpha7,
         KeyCode.Alpha8, KeyCode.Alpha9
+    };
+    private KeyCode[] KeypadKeys = // 1부터 9까지
+    {
+        KeyCode.Keypad1, KeyCode.Keypad2, KeyCode.Keypad3, KeyCode.Keypad4, KeyCode.Keypad5, KeyCode.Keypad6, KeyCode.Keypad7,
+        KeyCode.Keypad8, KeyCode.Keypad9
     };
 
     private void Start()
@@ -35,7 +42,10 @@ public class PlayManager : MonoBehaviour
     {
         // esc pause
         if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            cellManager.HighlightCells(0);
             pausePanel.SetActive(true);
+        }
     }
 
     private void LateUpdate()
@@ -48,23 +58,41 @@ public class PlayManager : MonoBehaviour
             cellManager.HighlightCells(0);
         }
 
-        for (int i = 0; i < numberKeys.Length; i++)
+        for (int i = 0; i < AlphaKeys.Length; i++)
         {
-            if (Input.GetKeyDown(numberKeys[i]))
+            if (Input.GetKeyDown(AlphaKeys[i]) || Input.GetKeyDown(KeypadKeys[i]))
             {
                 if (curX != -1 && curY != -1) // 스도쿠 내부의 버튼을 선택하고 있으면
                 {
-                    if (ManualToolButtonsManager.onMemo)
+                    if (ManualToolButtonsManager.onMemo) //memo on
                     {
-                        cellManager.DeleteCell(curY, curX);
-                        memoManager.FillMemoCell(curY, curX, i + 1);
+                        if (sudokuController.isInMemoCell(curY, curX, i + 1)) //메모 지워주기
+                        {
+                            memoManager.DeleteMemoCell(curY, curX, i + 1);
+                        }
+                        else //메모 쓰기
+                        {
+                            cellManager.DeleteCell(curY, curX);
+                            memoManager.FillMemoCell(curY, curX, i + 1);
+                        }
                     }
-                    else
+                    else // memo off
                     {
-                        memoManager.DeleteMemoCell(curY, curX);
-                        cellManager.FillCell(curY, curX, i + 1);
-                        cellManager.HighlightCells(i + 1);
+                        if (sudokuController.isInCell(curY, curX, i + 1)) //숫자 지워주기
+                        {
+                            cellManager.DeleteCell(curY, curX);
+                        }
+                        else
+                        {
+                            memoManager.DeleteMemoCell(curY, curX); //숫자 쓰기
+                            cellManager.FillCell(curY, curX, i + 1);
+                            cellManager.HighlightCells(i + 1);
+                        }
                     }
+                }
+                else // no cursor
+                {
+                    numberHighlighterManager.CallHighlightFunc(i + 1);
                 }
                 return;
             }

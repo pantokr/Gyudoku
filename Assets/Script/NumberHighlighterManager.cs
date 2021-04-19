@@ -19,13 +19,14 @@ public class NumberHighlighterManager : MonoBehaviour
             string tString = $"button_{index + 1}";
             nhs[index] = gameObject.transform.Find(tString).GetComponent<Button>();
 
-            int t = index + 1;
-            nhs[index].onClick.AddListener(delegate { CallHighlightFunc(t); });
+            int t = index;
+            nhs[index].onClick.AddListener(delegate { CallHighlightFunc(t + 1); });
         }
     }
 
-    private void CallHighlightFunc(int n)
+    public void CallHighlightFunc(int n)
     {
+        nhs[n - 1].Select();
         cellManager.HighlightCells(n);
     }
 }

@@ -11,11 +11,19 @@ public class Loading : MonoBehaviour
     {
         StartCoroutine(LoadYourAsyncScene());
     }
-    
-    IEnumerator  LoadYourAsyncScene()
+
+    IEnumerator LoadYourAsyncScene()
     {
-        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("PlayScene");
-        
+        AsyncOperation asyncLoad;
+        if (Settings.customizedMode)
+        {
+            asyncLoad = SceneManager.LoadSceneAsync("CustomizedModeScene");
+        }
+        else
+        {
+            asyncLoad = SceneManager.LoadSceneAsync("PlayScene");
+        }
+
         while (asyncLoad.progress < 1)
         {
             bar.fillAmount = asyncLoad.progress;

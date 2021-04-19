@@ -11,7 +11,7 @@ public class MissingNumberMaker
         this.dst = dst;
     }
 
-    public int GetValue(int y, int x)
+    public int GetValue(int y, int x) // includes empty cell
     {
         return dst[y, x];
     }

@@ -17,6 +17,20 @@ public class MemoManager : MonoBehaviour
 
         ApplyMemoCells();
     }
+    public GameObject GetMemoObject(int y, int x, int value)
+    {
+        GameObject parentObj = objects[y, x].transform.Find("Memo").gameObject;
+        
+        if (value == 0)
+        {
+            return null;
+        }
+        
+        int my = (value - 1) / 3 + 1;
+        int mx = (value - 1) % 3 + 1;
+
+        return parentObj.transform.Find($"y{my}x{mx}").gameObject;
+    }
 
     public GameObject[,] GetMemoObjects(int y, int x)
     {
@@ -41,16 +55,24 @@ public class MemoManager : MonoBehaviour
         parentObj.transform.Find($"y{vy}x{vx}").gameObject.SetActive(true);
     }
 
-    public void DeleteMemoCell(int y, int x)
+    public void DeleteMemoCell(int y, int x, int value = 0)
     {
         GameObject[,] memoObjs = GetMemoObjects(y, x);
-
-        for(int _y = 0; _y< 3; _y++)
+        if (value == 0)
         {
-            for(int _x = 0; _x < 3; _x++)
+            for (int _y = 0; _y < 3; _y++)
             {
-                memoObjs[_y, _x].SetActive(false);
+                for (int _x = 0; _x < 3; _x++)
+                {
+                    memoObjs[_y, _x].SetActive(false);
+                }
             }
+        }
+        else
+        {
+            int my = (value - 1) / 3;
+            int mx = (value - 1) % 3;
+            memoObjs[my, mx].SetActive(false);
         }
     }
 

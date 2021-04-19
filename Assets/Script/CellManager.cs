@@ -9,6 +9,8 @@ public class CellManager : MonoBehaviour
     public GameObject mainPanel;
     public PlayManager playManager;
     public MemoManager memoManager;
+    public SudokuController sudokuController;
+
     public Color normalColor;
     public Color highLightedColor;
     public Color pressedColor;
@@ -83,14 +85,15 @@ public class CellManager : MonoBehaviour
         {
             for (int x = 0; x < 9; x++)
             {
-                if (String.Equals(s, values[y, x].text))
+                if (String.Equals(s, values[y, x].text)
+                    || sudokuController.isInMemoCell(y, x, value))// 하이라이트
                 {
                     var colors = btns[y, x].colors;
                     colors.disabledColor = highLightCellColor;
                     colors.normalColor = highLightCellColor;
                     btns[y, x].colors = colors;
                 }
-                else
+                else //다른 숫자 원상복구
                 {
                     var colors = btns[y, x].colors;
                     colors.disabledColor = disabledColor;
@@ -103,12 +106,14 @@ public class CellManager : MonoBehaviour
     public void FillCell(int y, int x, int value)
     {
         values[y, x].text = value.ToString();
+        sudoku[y, x] = value;
     }
     public void DeleteCell(int y, int x)
     {
         values[y, x].text = "";
+        sudoku[y, x] = 0;
     }
-    #endregion
+    #endregion    
 
     private void InitCells()
     {
