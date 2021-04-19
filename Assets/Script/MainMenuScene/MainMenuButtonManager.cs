@@ -11,6 +11,7 @@ public class MainMenuButtonManager : MonoBehaviour
         Settings.EmptyC2 = 10 - Settings.EmptyC1;
         Settings.EmptyMiddle = Random.Range(2, 4);
         Settings.PatternCode = 0;
+        Settings.PlayMode = 0;
         SceneManager.LoadScene("LoadingScreen");
     }
 
@@ -20,6 +21,7 @@ public class MainMenuButtonManager : MonoBehaviour
         Settings.EmptyC2 = 11 - Settings.EmptyC1;
         Settings.EmptyMiddle = Random.Range(2, 6);
         Settings.PatternCode = Random.Range(0, 2);
+        Settings.PlayMode = 0;
         SceneManager.LoadScene("LoadingScreen");
     }
 
@@ -29,26 +31,25 @@ public class MainMenuButtonManager : MonoBehaviour
         Settings.EmptyC2 = 11 - Settings.EmptyC1;
         Settings.EmptyMiddle = 5;
         Settings.PatternCode = Random.Range(0, 2);
+        Settings.PlayMode = 0;
         SceneManager.LoadScene("LoadingScreen");
     }
 
     public void CustomizedGame()
     {
-        Settings.customizedMode = true;
+        panel.transform.Find("Customized").gameObject.SetActive(false);
         panel.transform.Find("New").gameObject.SetActive(true);
         panel.transform.Find("Open").gameObject.SetActive(true);
     }
     public void NewGame()
     {
-        Settings.customizedMode = true;
-        panel.transform.Find("New").gameObject.SetActive(true);
-        panel.transform.Find("Open").gameObject.SetActive(true);
+        Settings.PlayMode = 1;
+        SceneManager.LoadScene("LoadingScreen");
     }
     public void OpenGame()
     {
-        Settings.customizedMode = true;
-        panel.transform.Find("New").gameObject.SetActive(true);
-        panel.transform.Find("Open").gameObject.SetActive(true);
+        Settings.PlayMode = 2;
+        SceneManager.LoadScene("LoadingScreen");
     }
 
     public void ExitGame()

@@ -15,9 +15,13 @@ public class Loading : MonoBehaviour
     IEnumerator LoadYourAsyncScene()
     {
         AsyncOperation asyncLoad;
-        if (Settings.customizedMode)
+        if (Settings.PlayMode == 1)
         {
-            asyncLoad = SceneManager.LoadSceneAsync("CustomizedModeScene");
+            asyncLoad = SceneManager.LoadSceneAsync("CreatorScene");
+        }
+        else if(Settings.PlayMode ==2)
+        {
+            asyncLoad = SceneManager.LoadSceneAsync("OpenerScene");
         }
         else
         {

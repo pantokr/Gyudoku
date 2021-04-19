@@ -3,45 +3,22 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ManualToolButtonsManager : MonoBehaviour
+public class ManualToolsManager_C : MonoBehaviour
 {
-    public static bool onMemo = false;
     public static bool onEraser = false;
 
     //FB92C4 251, 196, 146
-    public GameObject memoButton;
     public GameObject eraserButton;
-    public Button _memo;
-    public Button _eraser;
 
-    private Image memoImg;
+    private Button _eraser;
     private Image eraserImg;
     private void Start()
     {
-        _memo = memoButton.GetComponent<Button>();
         _eraser = eraserButton.GetComponent<Button>();
 
-        _memo.onClick.AddListener(delegate { TurnMemo(); });
         _eraser.onClick.AddListener(delegate { TurnEraser(); });
         
-        memoImg = memoButton.transform.GetComponent<Image>();
         eraserImg = eraserButton.transform.GetComponent<Image>();
-    }
-
-    public void TurnMemo()
-    {
-        onMemo = !onMemo;
-        if (onMemo)
-        {
-            onEraser = false;
-            ApplyButtonPressed(memoImg);
-            ApplyButtonNormal(eraserImg);
-        }
-        else
-        {
-            ApplyButtonNormal(memoImg);
-            ApplyButtonPressed(eraserImg);
-        }
     }
 
     public void TurnEraser()
@@ -50,14 +27,11 @@ public class ManualToolButtonsManager : MonoBehaviour
 
         if (onEraser)
         {
-            onMemo = false;
             ApplyButtonPressed(eraserImg);
-            ApplyButtonNormal(memoImg);
         }
         else
         {
             ApplyButtonNormal(eraserImg);
-            ApplyButtonPressed(memoImg);
         }
     }
 

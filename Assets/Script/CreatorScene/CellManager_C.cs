@@ -4,32 +4,26 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 
-public class CellManager : MonoBehaviour
+public class CellManager_C : MonoBehaviour
 {
     public GameObject mainPanel;
-    public PlayManager playManager;
-    public MemoManager memoManager;
-    public SudokuController sudokuController;
+    public PlayManager_C playManager;
 
-    public Color normalColor;
-    public Color highLightedColor;
-    public Color pressedColor;
-    public Color selectedColor;
-    public Color disabledColor;
-    public Color highLightCellColor;
+    public Color normalColor; //FFFFFF 192
+    public Color highLightedColor; //00317D 32
+    public Color pressedColor; //00317D 64
+    public Color selectedColor; //00317D 64
+    public Color disabledColor; //FFFFFF 32
+    public Color highLightCellColor; //F9DC5C 192
 
     readonly private Button[,] btns = new Button[9, 9];
     readonly private Text[,] values = new Text[9, 9];
     readonly private GameObject[,] objects = new GameObject[9, 9];
 
-    private SudokuMaker sudokuMaker;
-    private int[,] sudoku;
+    private int[,] sudoku = new int[9, 9];
 
     private void Awake()
     {
-        sudokuMaker = new SudokuMaker();
-        sudoku = sudokuMaker.MakeNewSudoku();
-
         LoadCells();
         InitCells();
 
@@ -38,20 +32,7 @@ public class CellManager : MonoBehaviour
     private void Start()
     {
         //버튼 색깔 일괄 바꾸기
-        for (int y = 0; y < 9; y++)
-        {
-            for (int x = 0; x < 9; x++)
-            {
-                var colors = btns[y, x].colors;
-                colors.normalColor = normalColor;
-                colors.highlightedColor = highLightedColor;
-                colors.pressedColor = pressedColor;
-                colors.selectedColor = selectedColor;
-                colors.disabledColor = disabledColor;
-
-                btns[y, x].colors = colors;
-            }
-        }
+        SetButtonColor();
     }
 
     #region Get sudoku data
@@ -85,8 +66,7 @@ public class CellManager : MonoBehaviour
         {
             for (int x = 0; x < 9; x++)
             {
-                if (String.Equals(s, values[y, x].text)
-                    || sudokuController.isInMemoCell(y, x, value))// 하이라이트
+                if (String.Equals(s, values[y, x].text))// 하이라이트
                 {
                     var colors = btns[y, x].colors;
                     colors.disabledColor = highLightCellColor;
@@ -121,7 +101,7 @@ public class CellManager : MonoBehaviour
         {
             for (int x = 0; x < 9; x++)
             {
-                var value = GetSudokuValue(y, x);
+                int value = sudoku[y, x];
                 if (value == 0) // 비워진 칸은 interacable true
                 {
                     values[y, x].text = "";
@@ -158,10 +138,27 @@ public class CellManager : MonoBehaviour
     {
         playManager.SetCur(y, x);
 
-        if (ManualToolButtonsManager.onEraser)
+        if (ManualToolsManager_C.onEraser)
         {
             DeleteCell(y, x);
-            memoManager.DeleteMemoCell(y, x);
+        }
+    }
+
+    private void SetButtonColor()
+    {
+        for (int y = 0; y < 9; y++)
+        {
+            for (int x = 0; x < 9; x++)
+            {
+                var colors = btns[y, x].colors;
+                colors.normalColor = normalColor;
+                colors.highlightedColor = highLightedColor;
+                colors.pressedColor = pressedColor;
+                colors.selectedColor = selectedColor;
+                colors.disabledColor = disabledColor;
+
+                btns[y, x].colors = colors;
+            }
         }
     }
 }

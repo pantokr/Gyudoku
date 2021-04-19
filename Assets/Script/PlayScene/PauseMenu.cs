@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 public class PauseMenu : MonoBehaviour
@@ -8,6 +9,7 @@ public class PauseMenu : MonoBehaviour
     {
         Time.timeScale = 0;
         Displaying = true;
+        transform.Find("VolumeSlider").GetComponent<Slider>().value = Settings.Volume;
     }
 
     private void Update()

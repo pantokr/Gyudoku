@@ -8,7 +8,7 @@ public class PlayManager : MonoBehaviour
     public GameObject pausePanel;
     public CellManager cellManager;
     public MemoManager memoManager;
-    public ManualToolButtonsManager manualToolButtonsManager;
+    public ManualToolsManager manualToolsManager;
     public NumberHighlighterManager numberHighlighterManager;
     public SudokuController sudokuController;
     //public GameObject VictoryPanel;
@@ -64,7 +64,7 @@ public class PlayManager : MonoBehaviour
             {
                 if (curX != -1 && curY != -1) // 스도쿠 내부의 버튼을 선택하고 있으면
                 {
-                    if (ManualToolButtonsManager.onMemo) //memo on
+                    if (ManualToolsManager.onMemo) //memo on
                     {
                         if (sudokuController.isInMemoCell(curY, curX, i + 1)) //메모 지워주기
                         {
@@ -113,14 +113,14 @@ public class PlayManager : MonoBehaviour
         //M을 누르면 Memo on
         if (Input.GetKeyDown(KeyCode.M))
         {
-            manualToolButtonsManager.TurnMemo();
+            manualToolsManager.TurnMemo();
             return;
         }
 
         //E을 누르면 Memo on
         if (Input.GetKeyDown(KeyCode.E))
         {
-            manualToolButtonsManager.TurnEraser();
+            manualToolsManager.TurnEraser();
             return;
         }
     }
