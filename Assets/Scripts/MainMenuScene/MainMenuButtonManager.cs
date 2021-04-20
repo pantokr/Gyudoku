@@ -4,55 +4,64 @@ using UnityEngine.SceneManagement;
 public class MainMenuButtonManager : MonoBehaviour
 {
     public GameObject panel;
+    public GameObject fileNameSetter;
 
-    public void EasyGame()
+    private GameObject _customized;
+    private GameObject _new;
+    private GameObject _open;
+    private void Start()
     {
-        Settings.EmptyC1 = Random.Range(4, 7);
-        Settings.EmptyC2 = 10 - Settings.EmptyC1;
-        Settings.EmptyMiddle = Random.Range(2, 4);
-        Settings.PatternCode = 0;
+        _customized = panel.transform.Find("Customized").gameObject;
+        _new = panel.transform.Find("New").gameObject;
+        _open = panel.transform.Find("Open").gameObject;
+        
+    }
+    public void SelectEasyGame()
+    {
+
+        DifficultySetter.SetEasyMode();
         Settings.PlayMode = 0;
-        SceneManager.LoadScene("LoadingScreen");
+
+        SceneManager.LoadScene("LoadingScene");
     }
 
-    public void MediumGame()
+    public void SelectMediumGame()
     {
-        Settings.EmptyC1 = Random.Range(5, 7);
-        Settings.EmptyC2 = 11 - Settings.EmptyC1;
-        Settings.EmptyMiddle = Random.Range(2, 6);
-        Settings.PatternCode = Random.Range(0, 2);
+
+        DifficultySetter.SetMediumMode();
         Settings.PlayMode = 0;
-        SceneManager.LoadScene("LoadingScreen");
+
+        SceneManager.LoadScene("LoadingScene");
     }
 
-    public void HardGame()
+    public void SelectHardGame()
     {
-        Settings.EmptyC1 = Random.Range(5, 7);
-        Settings.EmptyC2 = 11 - Settings.EmptyC1;
-        Settings.EmptyMiddle = 5;
-        Settings.PatternCode = Random.Range(0, 2);
+
+        DifficultySetter.SetHardMode();
         Settings.PlayMode = 0;
-        SceneManager.LoadScene("LoadingScreen");
+
+        SceneManager.LoadScene("LoadingScene");
     }
 
-    public void CustomizedGame()
+    public void SelectCustomizedGame()
     {
-        panel.transform.Find("Customized").gameObject.SetActive(false);
-        panel.transform.Find("New").gameObject.SetActive(true);
-        panel.transform.Find("Open").gameObject.SetActive(true);
+        _customized.SetActive(false);
+        _new.SetActive(true);
+        _open.SetActive(true);
     }
     public void NewGame()
     {
         Settings.PlayMode = 1;
-        SceneManager.LoadScene("LoadingScreen");
+        SceneManager.LoadScene("LoadingScene");
     }
     public void OpenGame()
     {
         Settings.PlayMode = 2;
-        SceneManager.LoadScene("LoadingScreen");
+        fileNameSetter.SetActive(true);
+        //SceneManager.LoadScene("LoadingScene");
     }
 
-    public void ExitGame()
+    public void QuitGame()
     {
         Application.Quit();
     }

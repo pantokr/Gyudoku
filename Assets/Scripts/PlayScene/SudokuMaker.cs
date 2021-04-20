@@ -16,9 +16,10 @@ public class SudokuMaker
         { 9, 7, 8, 3, 1, 2, 6, 4, 5 }
     };
 
-    readonly int EmptyC1 = Settings.EmptyC1;
-    readonly int EmptyC2 = Settings.EmptyC2;
-    readonly int EmptyMiddle = Settings.EmptyMiddle;
+    readonly int EmptyC1 = DifficultySetter.EmptyC1;
+    readonly int EmptyC2 = DifficultySetter.EmptyC2;
+    readonly int EmptyMiddle = DifficultySetter.EmptyMiddle;
+    readonly int PatternCode = DifficultySetter.PatternCode;
 
     private MissingNumberMaker missingNumberMaker;
     private int[,] origin;
@@ -36,7 +37,7 @@ public class SudokuMaker
         }
 
         missingNumberMaker = new MissingNumberMaker(dst);
-        missingNumberMaker.EmptySubGrid(EmptyC1, EmptyC2, EmptyMiddle);
+        missingNumberMaker.EmptySubGrid(EmptyC1, EmptyC2, EmptyMiddle, PatternCode);
 
         return dst;
     }

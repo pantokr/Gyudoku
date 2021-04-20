@@ -10,7 +10,7 @@ public class CellManager : MonoBehaviour
     public PlayManager playManager;
     public MemoManager memoManager;
     public SudokuController sudokuController;
-    public FinisherManager finisherManager;
+    public FileManager fileManager;
 
     public Color normalColor;
     public Color highLightedColor;
@@ -24,7 +24,7 @@ public class CellManager : MonoBehaviour
     readonly private GameObject[,] objects = new GameObject[9, 9];
 
     private SudokuMaker sudokuMaker;
-    private int[,] sudoku;
+    public int[,] sudoku;
 
     private void Awake()
     {
@@ -33,9 +33,13 @@ public class CellManager : MonoBehaviour
         {
             sudoku = sudokuMaker.MakeNewSudoku();
         }
+        else if(Settings.PlayMode == 1)
+        {
+            fileManager.StartOpening();
+        }
         else
         {
-            finisherManager.StartOpening();
+            fileManager.StartOpening();
         }
 
         LoadCells();

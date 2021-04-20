@@ -11,6 +11,7 @@ public class PlayManager : MonoBehaviour
     public ManualToolsManager manualToolsManager;
     public NumberHighlighterManager numberHighlighterManager;
     public SudokuController sudokuController;
+    public GameObject dialogPass;
     //public GameObject VictoryPanel;
 
     //현재 가리키고 있는 포인터
@@ -86,6 +87,13 @@ public class PlayManager : MonoBehaviour
                         {
                             memoManager.DeleteMemoCell(curY, curX); //숫자 쓰기
                             cellManager.FillCell(curY, curX, i + 1);
+                            //Checker
+                            if (sudokuController.isSudokuComplete())
+                            {
+                                dialogPass.SetActive(true);
+                                return;
+                            }
+
                             cellManager.HighlightCells(i + 1);
                         }
                     }

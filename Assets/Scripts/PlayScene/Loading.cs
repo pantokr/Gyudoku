@@ -19,9 +19,9 @@ public class Loading : MonoBehaviour
         {
             asyncLoad = SceneManager.LoadSceneAsync("CreatorScene");
         }
-        else if(Settings.PlayMode ==2)
+        else if(Settings.PlayMode == 2)
         {
-            asyncLoad = SceneManager.LoadSceneAsync("OpenerScene");
+            asyncLoad = SceneManager.LoadSceneAsync("PlayScene");
         }
         else
         {

@@ -9,7 +9,7 @@ public class PlayManager_C : MonoBehaviour
     public CellManager_C cellManager;
     public ManualToolsManager_C manualToolsManager;
     public NumberHighlighterManager_C numberHighlighterManager;
-    public FinisherManager_C finisherManager;
+    public FileManager_C fileManager;
     //public GameObject VictoryPanel;
 
     //현재 가리키고 있는 포인터
@@ -91,13 +91,13 @@ public class PlayManager_C : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.S))
         {
-            finisherManager.StartSaving();
+            fileManager.StartSaving();
             return;
         }
 
         if (Input.GetKeyDown(KeyCode.P))
         {
-            finisherManager.StartPlaying();
+            fileManager.StartPlaying();
             return;
         }
     }
