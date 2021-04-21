@@ -73,6 +73,8 @@ public class PlayManager : MonoBehaviour
                         }
                         else //메모 쓰기
                         {
+                            sudokuController.CheckNormal(curY, curX, i + 1); //정상 확인
+
                             cellManager.DeleteCell(curY, curX);
                             memoManager.FillMemoCell(curY, curX, i + 1);
                         }
@@ -85,6 +87,8 @@ public class PlayManager : MonoBehaviour
                         }
                         else
                         {
+                            sudokuController.CheckNormal(curY, curX, i + 1); //정상 확인
+
                             memoManager.DeleteMemoCell(curY, curX); //숫자 쓰기
                             cellManager.FillCell(curY, curX, i + 1);
                             //Checker

@@ -11,6 +11,7 @@ public class CellManager : MonoBehaviour
     public MemoManager memoManager;
     public SudokuController sudokuController;
     public FileManager fileManager;
+    public AnimationClip twinkler;
 
     public Color normalColor;
     public Color highLightedColor;
@@ -33,7 +34,7 @@ public class CellManager : MonoBehaviour
         {
             sudoku = sudokuMaker.MakeNewSudoku();
         }
-        else if(Settings.PlayMode == 1)
+        else if (Settings.PlayMode == 1)
         {
             fileManager.StartOpening();
         }
@@ -46,10 +47,6 @@ public class CellManager : MonoBehaviour
         InitCells();
 
         playManager.SetCur(-1, -1);
-    }
-
-    private void Start()
-    {
         SetButtonColor();
     }
 
@@ -116,6 +113,24 @@ public class CellManager : MonoBehaviour
         values[y, x].text = "";
         sudoku[y, x] = 0;
     }
+    public void ResetCells()
+    {
+        sudoku = (int[,])sudokuMaker.GetOriginSudoku().Clone();
+        for (int y = 0; y < 9; y++)
+        {
+            for (int x = 0; x < 9; x++)
+            {
+                FillCell(y, x, sudoku[y, x]);
+            }
+        }
+    }
+
+    public void Twinkle(int y, int x)
+    {
+        Animation anim = objects[y, x].GetComponent<Animation>();
+        anim.Stop();
+        anim.Play();
+    }
     #endregion    
 
     private void InitCells()
@@ -134,10 +149,13 @@ public class CellManager : MonoBehaviour
                     values[y, x].text = $"{GetSudokuValue(y, x)}";
                     btns[y, x].interactable = false;
                 }
+
+                // 애니메이션
             }
         }
-    }
 
+
+    }
     //cells to array
     private void LoadCells()
     {
@@ -155,8 +173,6 @@ public class CellManager : MonoBehaviour
             }
         }
     }
-
-
     private void SelectCell(int y, int x)
     {
         playManager.SetCur(y, x);
@@ -167,7 +183,6 @@ public class CellManager : MonoBehaviour
             memoManager.DeleteMemoCell(y, x);
         }
     }
-
     private void SetButtonColor()
     {
         //버튼 색깔 일괄 바꾸기
