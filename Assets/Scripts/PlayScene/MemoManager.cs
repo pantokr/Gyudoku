@@ -20,12 +20,12 @@ public class MemoManager : MonoBehaviour
     public GameObject GetMemoObject(int y, int x, int value)
     {
         GameObject parentObj = objects[y, x].transform.Find("Memo").gameObject;
-        
+
         if (value == 0)
         {
             return null;
         }
-        
+
         int my = (value - 1) / 3 + 1;
         int mx = (value - 1) % 3 + 1;
 
@@ -58,7 +58,7 @@ public class MemoManager : MonoBehaviour
     public void DeleteMemoCell(int y, int x, int value = 0)
     {
         GameObject[,] memoObjs = GetMemoObjects(y, x);
-        if (value == 0)
+        if (value == 0) //Delete all
         {
             for (int _y = 0; _y < 3; _y++)
             {
@@ -68,7 +68,7 @@ public class MemoManager : MonoBehaviour
                 }
             }
         }
-        else
+        else //Delete one
         {
             int my = (value - 1) / 3;
             int mx = (value - 1) % 3;
@@ -76,6 +76,30 @@ public class MemoManager : MonoBehaviour
         }
     }
 
+    public void DeleteMemoCellsAtOnce(int y, int x, int value) //입력 시 주변 메모셀 모두 정리
+    {
+        //row
+        for (int _x = 0; _x < 9; _x++)
+        {
+            GetMemoObject(y, _x, value).SetActive(false);
+        }
+        //col
+        for (int _y = 0; _y < 9; _y++)
+        {
+            GetMemoObject(_y, x, value).SetActive(false);
+        }
+        //SG
+        for (int _y = y / 3; _y < y / 3 + 3; _y++)
+        {
+            for (int _x = x / 3; _x < x / 3 + 3; _x++)
+            {
+                GetMemoObject(_y, _x, value).SetActive(false);
+            }
+        }
+    }
+
+
+    //메모 셀 처음 생성
     private void ApplyMemoCells()
     {
         var w = memoCell.transform.GetComponent<RectTransform>().sizeDelta.x;
@@ -106,5 +130,4 @@ public class MemoManager : MonoBehaviour
             }
         }
     }
-
 }

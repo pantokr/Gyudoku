@@ -10,7 +10,7 @@ public class DifficultySetter : MonoBehaviour
     public static int EmptyMiddle = 1;
     public static int PatternCode = 0;
 
-    public static int Difficulty = 0;
+    public static int Difficulty = 1;
 
     // Update is called once per frame
     public static void SetEasyMode()

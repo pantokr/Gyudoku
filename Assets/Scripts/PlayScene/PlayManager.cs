@@ -89,7 +89,9 @@ public class PlayManager : MonoBehaviour
                         {
                             sudokuController.CheckNormal(curY, curX, i + 1); //정상 확인
 
-                            memoManager.DeleteMemoCell(curY, curX); //숫자 쓰기
+                            memoManager.DeleteMemoCell(curY, curX); //모든 메모 지우기
+                            memoManager.DeleteMemoCellsAtOnce(curY, curX, i + 1); //해당 숫자 메모 지우기
+
                             cellManager.FillCell(curY, curX, i + 1);
                             //Checker
                             if (sudokuController.isSudokuComplete())
@@ -119,20 +121,6 @@ public class PlayManager : MonoBehaviour
                 memoManager.DeleteMemoCell(curY, curX);
                 cellManager.HighlightCells(0);
             }
-            return;
-        }
-
-        //M을 누르면 Memo on
-        if (Input.GetKeyDown(KeyCode.M))
-        {
-            manualToolsManager.TurnMemo();
-            return;
-        }
-
-        //E을 누르면 Memo on
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            manualToolsManager.TurnEraser();
             return;
         }
     }

@@ -28,6 +28,23 @@ public class ManualToolsManager : MonoBehaviour
         memoImg = memoButton.transform.GetComponent<Image>();
         eraserImg = eraserButton.transform.GetComponent<Image>();
     }
+    private void Update()
+    {
+
+        //M을 누르면 Memo on
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            TurnMemo();
+            return;
+        }
+
+        //E을 누르면 Eraser on
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            TurnEraser();
+            return;
+        }
+    }
 
     public void TurnMemo()
     {

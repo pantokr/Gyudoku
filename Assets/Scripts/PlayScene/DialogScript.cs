@@ -3,11 +3,11 @@ using UnityEngine;
 
 public class DialogScript : MonoBehaviour
 {
-    public static bool isDisplayed;
+    //public static bool isDisplayed;
 
     private void Awake()
     {
-        isDisplayed = true;
+        //isDisplayed = true;
     }
 
     private void Update()
@@ -19,6 +19,6 @@ public class DialogScript : MonoBehaviour
     public void Hide()
     {
         gameObject.SetActive(false);
-        isDisplayed = false;
+        //isDisplayed = false;
     }
 }
