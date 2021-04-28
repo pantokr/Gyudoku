@@ -24,26 +24,21 @@ public class CellManager : MonoBehaviour
     readonly private Text[,] values = new Text[9, 9];
     readonly private GameObject[,] objects = new GameObject[9, 9];
 
-    private SudokuMaker sudokuMaker;
     public int[,] sudoku;
 
     private void Awake()
     {
-        sudokuMaker = new SudokuMaker();
-        if (Settings.PlayMode == 0)
-        {
-            sudoku = sudokuMaker.MakeNewSudoku();
-        }
-        else if (Settings.PlayMode == 1)
-        {
-            fileManager.StartOpening();
-        }
-        else
+        LoadCells();
+    }
+    private void Start()
+    {
+        
+        if (Settings.PlayMode == 1 || Settings.PlayMode == 2)
         {
             fileManager.StartOpening();
         }
 
-        LoadCells();
+        sudoku = SudokuManager.sudoku;
         InitCells();
 
         playManager.SetCur(-1, -1);
@@ -51,10 +46,6 @@ public class CellManager : MonoBehaviour
     }
 
     #region Get/Set sudoku data
-    public int[,] GetSudoku()
-    {
-        return (int[,])sudoku.Clone();
-    }
     public Text[,] GetSudokuValueTexts()
     {
         return values;
@@ -62,10 +53,6 @@ public class CellManager : MonoBehaviour
     public GameObject[,] GetObjects()
     {
         return objects;
-    }
-    public void SetSudoku(int[,] sudoku)
-    {
-        this.sudoku = (int[,])sudoku.Clone();
     }
     public void ApplySudoku(int[,] s)
     {
@@ -119,17 +106,6 @@ public class CellManager : MonoBehaviour
     {
         values[y, x].text = "";
         sudoku[y, x] = 0;
-    }
-    public void ResetCells()
-    {
-        sudoku = (int[,])sudokuMaker.GetOriginSudoku().Clone();
-        for (int y = 0; y < 9; y++)
-        {
-            for (int x = 0; x < 9; x++)
-            {
-                FillCell(y, x, sudoku[y, x]);
-            }
-        }
     }
 
     public void Twinkle(int y, int x)
@@ -207,20 +183,5 @@ public class CellManager : MonoBehaviour
                 btns[y, x].colors = colors;
             }
         }
-    }
-
-    public void printSudoku(int[,] s)
-    {
-        string str = "";
-        for (int y = 0; y < 9; y++)
-        {
-            for (int x = 0; x < 9; x++)
-            {
-                str += s[y, x].ToString();
-                str += ' ';
-            }
-            str += '\n';
-        }
-        print(str);
     }
 }

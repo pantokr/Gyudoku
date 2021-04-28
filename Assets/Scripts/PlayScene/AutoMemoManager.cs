@@ -11,14 +11,14 @@ public class AutoMemoManager : MonoBehaviour
     public void RunAutoMemo()
     {
         sudokuController.RecordSudokuLog();
-
+        //SudokuManager.printSudoku(SudokuManager.sudoku);
         for (int val = 0; val < 9; val++)
         {
             for (int y = 0; y < 9; y++)
             {
                 for (int x = 0; x < 9; x++)
                 {
-                    if (cellManager.sudoku[y, x] != 0)
+                    if (SudokuManager.sudoku[y, x] != 0)
                     {
                         continue;
                     }

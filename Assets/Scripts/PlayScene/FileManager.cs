@@ -39,7 +39,7 @@ public class FileManager : MonoBehaviour
     {
         int[,] cache; // 정수형 배열 생성
 
-        cache = (int[,])cellManager.GetSudoku().Clone();
+        cache = (int[,])SudokuManager.sudoku.Clone();
 
         string arr2str = ""; // 문자열 생성
 
@@ -68,7 +68,7 @@ public class FileManager : MonoBehaviour
                 cache[y, x] = str2arr[index++] - '0';
             }
         }
-        cellManager.SetSudoku(cache);
+        SudokuManager.sudoku = (int[,])cache.Clone();
         print("Opened");
     }
 

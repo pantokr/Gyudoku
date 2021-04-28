@@ -13,12 +13,13 @@ public class AutoToolsManager : MonoBehaviour
     public DialogHint dialogHint;
 
     private AutoMemoManager autoMemoManager;
+    private HintManager hintManager;
 
     private Button _autoMemo;
     private Button _hint;
     private Button _autoSingle;
 
-    void Start()
+    private void Start()
     {
         if (DifficultySetter.Difficulty == 0)
         {
@@ -27,18 +28,13 @@ public class AutoToolsManager : MonoBehaviour
         }
 
         autoMemoManager = autoMemoButton.GetComponent<AutoMemoManager>();
+        hintManager = hintButton.GetComponent<HintManager>();
 
         _autoMemo = autoMemoButton.GetComponent<Button>();
         _hint = hintButton.GetComponent<Button>();
         _autoSingle = autoSingleButton.GetComponent<Button>();
 
         _autoMemo.onClick.AddListener(delegate { autoMemoManager.RunAutoMemo(); });
-        _hint.onClick.AddListener(delegate { f(); });
-    }
-
-    void f()
-    {
-        string[] str = { "1", "2", "3" };
-        dialogHint.StartDialog(str);
+        _hint.onClick.AddListener(delegate { hintManager.RunHint(); });
     }
 }

@@ -9,13 +9,14 @@ public class MemoManager : MonoBehaviour
     public GameObject memoCell;
     public CellManager cellManager;
 
-    public bool[,,] memoSudoku = new bool[9, 9, 9];
+    public bool[,,] memoSudoku;
     private GameObject[,] objects;
 
     private void Start()
     {
         objects = cellManager.GetObjects();
 
+        this.memoSudoku = SudokuManager.memoSudoku;
         AppendMemoCellObjects();
     }
     public GameObject GetMemoObject(int y, int x, int value)
@@ -45,13 +46,9 @@ public class MemoManager : MonoBehaviour
         }
         return retObj;
     }
-    public bool[,,] GetMemoSudoku()
+    public void SetMemoSudoku(bool[,,] ms)
     {
-        return (bool[,,])memoSudoku.Clone();
-    }
-    public void SetMemoSudoku(bool[,,] memoSudoku)
-    {
-        this.memoSudoku = (bool[,,])memoSudoku.Clone();
+        this.memoSudoku = (bool[,,])ms.Clone();
     }
     public void ApplyMemoSudoku(bool[,,] memoSudoku)
     {

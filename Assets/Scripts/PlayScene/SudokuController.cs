@@ -7,6 +7,7 @@ public class SudokuController : MonoBehaviour
 {
     public CellManager cellManager;
     public MemoManager memoManager;
+    public SudokuMaker sudokuMaker;
 
     public static int undoIndex = 0;
     public List<Tuple<int[,], bool[,,]>> lateSudoku = new List<Tuple<int[,], bool[,,]>>();
@@ -198,12 +199,57 @@ public class SudokuController : MonoBehaviour
             cellManager.Twinkle(list[index].y, list[index].x);
         }
     }
+    public (bool, List<Vector2Int>) CompareWithFullSudoku()
+    {
+        sudokuMaker = new SudokuMaker();
+
+        bool isWrong = false;
+        List<Vector2Int> points = new List<Vector2Int>();
+        for (int y = 0; y < 9; y++)
+        {
+            for (int x = 0; x < 9; x++)
+            {
+                if (SudokuManager.sudoku[y, x] != 0 &&
+                    SudokuManager.sudoku[y, x] != SudokuManager.fullSudoku[y, x])
+                {
+                    points.Add(new Vector2Int(x, y));
+                    isWrong = true;
+                }
+            }
+        }
+        return (isWrong, points);
+    }
+    public (bool, List<Vector2Int>) CompareMemoWithFullSudoku()
+    {
+        sudokuMaker = new SudokuMaker();
+
+        bool isWrong = false;
+        List<Vector2Int> points = new List<Vector2Int>();
+        for (int y = 0; y < 9; y++)
+        {
+            for (int x = 0; x < 9; x++)
+            {
+                if (SudokuManager.sudoku[y, x] == 0) // 스도쿠 값이 없을 때
+                {
+                    int rightNumber = SudokuManager.fullSudoku[y, x];
+                    //print("right Number" + rightNumber.ToString());
+
+                    if (memoManager.memoSudoku[rightNumber - 1, y, x] == false)
+                    {
+                        points.Add(new Vector2Int(x, y));
+                        isWrong = true;
+                    }
+                }
+            }
+        }
+        return (isWrong, points);
+    }
     #endregion
     public void RecordSudokuLog()
     {
         undoIndex = lateSudoku.Count;
 
-        Tuple<int[,], bool[,,]> tuple = new Tuple<int[,], bool[,,]>(cellManager.GetSudoku(), memoManager.GetMemoSudoku());
+        Tuple<int[,], bool[,,]> tuple = new Tuple<int[,], bool[,,]>((int[,])SudokuManager.sudoku.Clone(), (bool[,,])SudokuManager.memoSudoku.Clone());
         lateSudoku.Add(tuple);
     }
 }

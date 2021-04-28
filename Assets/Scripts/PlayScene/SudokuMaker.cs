@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class SudokuMaker
 {
-    readonly int[,] sudokuSample = {
+    private readonly int[,] sudokuSample = {
         { 1, 2, 3, 4, 5, 6, 7, 8, 9 },
         { 4, 5, 6, 7, 8, 9, 1, 2, 3 },
         { 7, 8, 9, 1, 2, 3, 4, 5, 6 },
@@ -16,40 +16,34 @@ public class SudokuMaker
         { 9, 7, 8, 3, 1, 2, 6, 4, 5 }
     };
 
-    readonly int EmptyC1 = DifficultySetter.EmptyC1;
-    readonly int EmptyC2 = DifficultySetter.EmptyC2;
-    readonly int EmptyMiddle = DifficultySetter.EmptyMiddle;
-    readonly int PatternCode = DifficultySetter.PatternCode;
+    private readonly int EmptyC1 = DifficultySetter.EmptyC1;
+    private readonly int EmptyC2 = DifficultySetter.EmptyC2;
+    private readonly int EmptyMiddle = DifficultySetter.EmptyMiddle;
+    private readonly int PatternCode = DifficultySetter.PatternCode;
+
+    public int[,] fullSudoku;
 
     private MissingNumberMaker missingNumberMaker;
-    private int[,] origin;
     private int[,] dst;
 
-    public int[,] MakeNewSudoku()
+    public (int[,], int[,]) MakeNewSudoku()
     {
         //스도쿠 복사
         dst = (int[,])sudokuSample.Clone();
 
-        for (int exCnt = 0; exCnt < 16; exCnt++)
+        for (int exCnt = 0; exCnt < 16; exCnt++) //16번 스도쿠 변형
         {
             int exCode = Random.Range(0, 8);
             ApplyRandomConversion(exCode);
         }
 
+        fullSudoku = (int[,])dst.Clone();
+
         missingNumberMaker = new MissingNumberMaker(dst);
         missingNumberMaker.EmptySubGrid(EmptyC1, EmptyC2, EmptyMiddle, PatternCode);
 
-        return dst;
+        return ((int[,])dst.Clone(), (int[,])fullSudoku.Clone());
     }
-    public int[,] GetOriginSudoku()
-    {
-        return origin;
-    }
-    public int GetValue(int y, int x)
-    {
-        return missingNumberMaker.GetValue(y, x);
-    }
-
     private void ApplyRandomConversion(int code)
     {
         if (code == 0)

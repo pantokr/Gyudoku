@@ -11,11 +11,6 @@ public class MissingNumberMaker
         this.dst = dst;
     }
 
-    public int GetValue(int y, int x) // includes empty cell
-    {
-        return dst[y, x];
-    }
-
     #region sudoku missing number algorithm
 
     public void EmptySubGrid(int emptyC1, int emptyC2, int emptyMiddle, int patternCode = 0)
