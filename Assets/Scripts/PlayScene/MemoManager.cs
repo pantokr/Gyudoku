@@ -9,13 +9,14 @@ public class MemoManager : MonoBehaviour
     public GameObject memoCell;
     public CellManager cellManager;
 
+    public bool[,,] memoSudoku = new bool[9, 9, 9];
     private GameObject[,] objects;
 
     private void Start()
     {
         objects = cellManager.GetObjects();
 
-        ApplyMemoCells();
+        AppendMemoCellObjects();
     }
     public GameObject GetMemoObject(int y, int x, int value)
     {
@@ -31,7 +32,6 @@ public class MemoManager : MonoBehaviour
 
         return parentObj.transform.Find($"y{my}x{mx}").gameObject;
     }
-
     public GameObject[,] GetMemoObjects(int y, int x)
     {
         GameObject[,] retObj = new GameObject[9, 9];
@@ -45,6 +45,34 @@ public class MemoManager : MonoBehaviour
         }
         return retObj;
     }
+    public bool[,,] GetMemoSudoku()
+    {
+        return (bool[,,])memoSudoku.Clone();
+    }
+    public void SetMemoSudoku(bool[,,] memoSudoku)
+    {
+        this.memoSudoku = (bool[,,])memoSudoku.Clone();
+    }
+    public void ApplyMemoSudoku(bool[,,] memoSudoku)
+    {
+        for (int val = 0; val < 9; val++)
+        {
+            for (int y = 0; y < 9; y++)
+            {
+                for (int x = 0; x < 9; x++)
+                {
+                    if (memoSudoku[val, y, x] == false)
+                    {
+                        DeleteMemoCell(y, x, val + 1);
+                    }
+                    else
+                    {
+                        FillMemoCell(y, x, val + 1);
+                    }
+                }
+            }
+        }
+    }
     public void FillMemoCell(int y, int x, int value)
     {
         GameObject parentObj = objects[y, x].transform.Find("Memo").gameObject;
@@ -53,6 +81,7 @@ public class MemoManager : MonoBehaviour
         int vx = (value - 1) % 3 + 1;
 
         parentObj.transform.Find($"y{vy}x{vx}").gameObject.SetActive(true);
+        memoSudoku[value - 1, y, x] = true;
     }
 
     public void DeleteMemoCell(int y, int x, int value = 0)
@@ -65,6 +94,7 @@ public class MemoManager : MonoBehaviour
                 for (int _x = 0; _x < 3; _x++)
                 {
                     memoObjs[_y, _x].SetActive(false);
+                    memoSudoku[_y * 3 + _x, y, x] = false;
                 }
             }
         }
@@ -72,7 +102,9 @@ public class MemoManager : MonoBehaviour
         {
             int my = (value - 1) / 3;
             int mx = (value - 1) % 3;
+
             memoObjs[my, mx].SetActive(false);
+            memoSudoku[value - 1, y, x] = false;
         }
     }
 
@@ -81,26 +113,26 @@ public class MemoManager : MonoBehaviour
         //row
         for (int _x = 0; _x < 9; _x++)
         {
-            GetMemoObject(y, _x, value).SetActive(false);
+            DeleteMemoCell(y, _x, value);
         }
         //col
         for (int _y = 0; _y < 9; _y++)
         {
-            GetMemoObject(_y, x, value).SetActive(false);
+            DeleteMemoCell(_y, x, value);
         }
         //SG
-        for (int _y = y / 3; _y < y / 3 + 3; _y++)
+        for (int _y = y / 3 * 3; _y < y / 3 * 3 + 3; _y++)
         {
-            for (int _x = x / 3; _x < x / 3 + 3; _x++)
+            for (int _x = x / 3 * 3; _x < x / 3 * 3 + 3; _x++)
             {
-                GetMemoObject(_y, _x, value).SetActive(false);
+                DeleteMemoCell(_y, _x, value);
             }
         }
     }
 
 
     //메모 셀 처음 생성
-    private void ApplyMemoCells()
+    private void AppendMemoCellObjects()
     {
         var w = memoCell.transform.GetComponent<RectTransform>().sizeDelta.x;
 

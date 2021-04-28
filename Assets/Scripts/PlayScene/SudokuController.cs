@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,31 +8,33 @@ public class SudokuController : MonoBehaviour
     public CellManager cellManager;
     public MemoManager memoManager;
 
-    private GameObject[,] objects;
-    private int[,] sudoku;
+    public static int undoIndex = 0;
+    public List<Tuple<int[,], bool[,,]>> lateSudoku = new List<Tuple<int[,], bool[,,]>>();
+
+    private List<Vector2Int> list = new List<Vector2Int>();
+
 
     public bool isInCell(int y, int x, int value)
     {
-        return cellManager.GetSudokuValue(y, x) == value;
+        return cellManager.sudoku[y, x] == value;
     }
     public bool isInMemoCell(int y, int x, int value)
     {
-        GameObject obj = memoManager.GetMemoObject(y, x, value);
-        if (!obj)
+        if (value == 0)
         {
             return false;
         }
-        return obj.activeSelf;
+        return memoManager.memoSudoku[value - 1, y, x] == true;
     }
 
-    #region complete
+    #region complete 스도쿠 완성 여부 검사
     public bool isCompleteRow(int y)
     {
         bool[] tuple = new bool[9];
 
         for (int x = 0; x < 9; x++)
         {
-            int v = sudoku[y, x];
+            int v = cellManager.sudoku[y, x];
             if (v != 0)
             {
                 tuple[v - 1] = true;
@@ -54,7 +57,7 @@ public class SudokuController : MonoBehaviour
 
         for (int y = 0; y < 9; y++)
         {
-            int v = sudoku[y, x];
+            int v = cellManager.sudoku[y, x];
             if (v != 0)
             {
                 tuple[v - 1] = true;
@@ -79,7 +82,7 @@ public class SudokuController : MonoBehaviour
         {
             for (int _x = x * 3; _x < x * 3 + 3; _x++)
             {
-                int v = sudoku[_y, _x];
+                int v = cellManager.sudoku[_y, _x];
                 if (v != 0)
                 {
                     tuple[v - 1] = true;
@@ -99,7 +102,6 @@ public class SudokuController : MonoBehaviour
     }
     public bool isSudokuComplete()
     {
-        sudoku = cellManager.sudoku;
         bool t;
         for (int y = 0; y < 9; y++)
         {
@@ -136,91 +138,60 @@ public class SudokuController : MonoBehaviour
 
     #endregion
 
-    #region get/set
-    public int[] GetRow(int y)
+    #region normal 스도쿠 무결성 검사
+    public bool isNormalRow(int y, int x, int newVal)
     {
-        int[] res = new int[9];
-
-        for (int x = 0; x < 9; x++)
-        {
-            res[x] = sudoku[y, x];
-        }
-        return res;
-    }
-    public int[] GetCol(int x)
-    {
-        int[] res = new int[9];
-
-        for (int y = 0; y < 9; y++)
-        {
-            res[y] = sudoku[y, x];
-        }
-        return res;
-    }
-    public int[,] GetSG(int y, int x)
-    {
-        int[,] res = new int[3, 3];
-
-        for (int _y = 0; _y < 3; _y++)
-        {
-            for (int _x = 0; _x < 3; _x++)
-            {
-                res[_y, _x] = sudoku[y * 3 + _y, x * 3 + _x];
-            }
-        }
-
-        return res;
-    }
-    #endregion
-
-    #region normal
-    public void CheckNormalRow(int y, int x, int newVal, List<Vector2Int> list)
-    {
+        bool flag = true;
         for (int _x = 0; _x < 9; _x++)
         {
-            if (x != _x && sudoku[y, _x] == newVal)
+            if (x != _x && cellManager.sudoku[y, _x] == newVal)
             {
                 list.Add(new Vector2Int(_x, y));
                 //print("Row" + y.ToString() + _x.ToString());
+                flag = false;
             }
         }
+        return flag;
     }
-    public void CheckNormalCol(int y, int x, int newVal, List<Vector2Int> list)
+    public bool isNormalCol(int y, int x, int newVal)
     {
+        bool flag = true;
         for (int _y = 0; _y < 9; _y++)
         {
-            if (y != _y && sudoku[_y, x] == newVal)
+            if (y != _y && cellManager.sudoku[_y, x] == newVal)
             {
                 list.Add(new Vector2Int(x, _y));
                 //print("Col" + _y.ToString() + x.ToString());
-
+                flag = false;
             }
         }
+        return flag;
     }
-    public void CheckNormalSG(int y, int x, int newVal, List<Vector2Int> list)
+    public bool isNormalSG(int y, int x, int newVal)
     {
+        bool flag = true;
         int ty = y / 3;
         int tx = x / 3;
         for (int _y = ty * 3; _y < ty * 3 + 3; _y++)
         {
             for (int _x = tx * 3; _x < tx * 3 + 3; _x++)
             {
-                if (y != _y && x != _x && sudoku[_y, _x] == newVal)
+                if (y != _y && x != _x && cellManager.sudoku[_y, _x] == newVal)
                 {
                     list.Add(new Vector2Int(_x, _y));
+                    flag = false;
                     //print("SG" + _y.ToString() + _x.ToString());
                 }
             }
         }
+        return flag;
     }
     public void CheckNormal(int y, int x, int newVal)
     {
-        sudoku = cellManager.sudoku;
-
-        List<Vector2Int> list = new List<Vector2Int>();
-        CheckNormalRow(y, x, newVal, list);
-        CheckNormalCol(y, x, newVal, list);
-        CheckNormalSG(y, x, newVal, list);
+        list = new List<Vector2Int>();
+        isNormalRow(y, x, newVal);
+        isNormalCol(y, x, newVal);
+        isNormalSG(y, x, newVal);
 
         for (int index = 0; index < list.Count; index++)
         {
@@ -228,4 +199,11 @@ public class SudokuController : MonoBehaviour
         }
     }
     #endregion
+    public void RecordSudokuLog()
+    {
+        undoIndex = lateSudoku.Count;
+
+        Tuple<int[,], bool[,,]> tuple = new Tuple<int[,], bool[,,]>(cellManager.GetSudoku(), memoManager.GetMemoSudoku());
+        lateSudoku.Add(tuple);
+    }
 }

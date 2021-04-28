@@ -7,7 +7,7 @@ public class DifficultySetter : MonoBehaviour
     // Start is called before the first frame update
     public static int EmptyC1 = 0;
     public static int EmptyC2 = 0;
-    public static int EmptyMiddle = 1;
+    public static int EmptyMiddle = 5;
     public static int PatternCode = 0;
 
     public static int Difficulty = 1;

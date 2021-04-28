@@ -12,6 +12,8 @@ public class AutoToolsManager : MonoBehaviour
 
     public DialogHint dialogHint;
 
+    private AutoMemoManager autoMemoManager;
+
     private Button _autoMemo;
     private Button _hint;
     private Button _autoSingle;
@@ -24,17 +26,14 @@ public class AutoToolsManager : MonoBehaviour
             autoSingleButton.SetActive(false);
         }
 
+        autoMemoManager = autoMemoButton.GetComponent<AutoMemoManager>();
+
         _autoMemo = autoMemoButton.GetComponent<Button>();
         _hint = hintButton.GetComponent<Button>();
         _autoSingle = autoSingleButton.GetComponent<Button>();
 
+        _autoMemo.onClick.AddListener(delegate { autoMemoManager.RunAutoMemo(); });
         _hint.onClick.AddListener(delegate { f(); });
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
     }
 
     void f()

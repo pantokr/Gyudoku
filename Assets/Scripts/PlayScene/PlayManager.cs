@@ -18,8 +18,6 @@ public class PlayManager : MonoBehaviour
     private int curY;
     private int curX;
 
-    private Text[,] values;
-
     private KeyCode[] AlphaKeys = // 1부터 9까지
     {
         KeyCode.Alpha1, KeyCode.Alpha2, KeyCode.Alpha3, KeyCode.Alpha4, KeyCode.Alpha5, KeyCode.Alpha6, KeyCode.Alpha7,
@@ -30,14 +28,6 @@ public class PlayManager : MonoBehaviour
         KeyCode.Keypad1, KeyCode.Keypad2, KeyCode.Keypad3, KeyCode.Keypad4, KeyCode.Keypad5, KeyCode.Keypad6, KeyCode.Keypad7,
         KeyCode.Keypad8, KeyCode.Keypad9
     };
-
-    private void Start()
-    {
-        values = cellManager.GetSudokuValueTexts();
-
-        // 배경화면 불러오기
-        //MainPanel.GetComponent<Image>().sprite = Settings.Background;
-    }
 
     private void Update()
     {
@@ -69,10 +59,14 @@ public class PlayManager : MonoBehaviour
                     {
                         if (sudokuController.isInMemoCell(curY, curX, i + 1)) //메모 지워주기
                         {
+                            sudokuController.RecordSudokuLog();
+
                             memoManager.DeleteMemoCell(curY, curX, i + 1);
                         }
                         else //메모 쓰기
                         {
+                            sudokuController.RecordSudokuLog();
+
                             sudokuController.CheckNormal(curY, curX, i + 1); //정상 확인
 
                             cellManager.DeleteCell(curY, curX);
@@ -83,10 +77,14 @@ public class PlayManager : MonoBehaviour
                     {
                         if (sudokuController.isInCell(curY, curX, i + 1)) //숫자 지워주기
                         {
+                            sudokuController.RecordSudokuLog();
+                            
                             cellManager.DeleteCell(curY, curX);
                         }
                         else
                         {
+                            sudokuController.RecordSudokuLog();
+
                             sudokuController.CheckNormal(curY, curX, i + 1); //정상 확인
 
                             memoManager.DeleteMemoCell(curY, curX); //모든 메모 지우기
@@ -129,5 +127,7 @@ public class PlayManager : MonoBehaviour
         this.curY = curY;
         this.curX = curX;
     }
+
+
 
 }

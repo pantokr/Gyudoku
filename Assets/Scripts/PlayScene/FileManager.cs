@@ -39,7 +39,7 @@ public class FileManager : MonoBehaviour
     {
         int[,] cache; // 정수형 배열 생성
 
-        cache = (int[,])cellManager.GetSudokuValues().Clone();
+        cache = (int[,])cellManager.GetSudoku().Clone();
 
         string arr2str = ""; // 문자열 생성
 

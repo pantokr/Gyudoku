@@ -51,21 +51,13 @@ public class CellManager : MonoBehaviour
     }
 
     #region Get/Set sudoku data
-    public int GetSudokuValue(int y, int x)
+    public int[,] GetSudoku()
     {
-        return sudoku[y, x];
-    }
-    public int[,] GetSudokuValues()
-    {
-        return sudoku;
+        return (int[,])sudoku.Clone();
     }
     public Text[,] GetSudokuValueTexts()
     {
         return values;
-    }
-    public Button[,] GetButtons()
-    {
-        return btns;
     }
     public GameObject[,] GetObjects()
     {
@@ -74,6 +66,16 @@ public class CellManager : MonoBehaviour
     public void SetSudoku(int[,] sudoku)
     {
         this.sudoku = (int[,])sudoku.Clone();
+    }
+    public void ApplySudoku(int[,] s)
+    {
+        for (int y = 0; y < 9; y++)
+        {
+            for (int x = 0; x < 9; x++)
+            {
+                FillCell(y, x, s[y, x]);
+            }
+        }
     }
     #endregion
 
@@ -85,8 +87,8 @@ public class CellManager : MonoBehaviour
         {
             for (int x = 0; x < 9; x++)
             {
-                if (String.Equals(s, values[y, x].text)
-                    || sudokuController.isInMemoCell(y, x, value))// 하이라이트
+                if (String.Equals(s, values[y, x].text) ||
+                    sudokuController.isInMemoCell(y, x, value))// 하이라이트
                 {
                     var colors = btns[y, x].colors;
                     colors.disabledColor = highLightCellColor;
@@ -105,6 +107,11 @@ public class CellManager : MonoBehaviour
     }
     public void FillCell(int y, int x, int value)
     {
+        if (value == 0)
+        {
+            DeleteCell(y, x);
+            return;
+        }
         values[y, x].text = value.ToString();
         sudoku[y, x] = value;
     }
@@ -139,14 +146,14 @@ public class CellManager : MonoBehaviour
         {
             for (int x = 0; x < 9; x++)
             {
-                var value = GetSudokuValue(y, x);
+                var value = sudoku[y, x];
                 if (value == 0) // 비워진 칸은 interacable true
                 {
                     values[y, x].text = "";
                 }
                 else // 채워진 칸은 interactable false
                 {
-                    values[y, x].text = $"{GetSudokuValue(y, x)}";
+                    values[y, x].text = $"{sudoku[y, x]}";
                     btns[y, x].interactable = false;
                 }
 
@@ -200,5 +207,20 @@ public class CellManager : MonoBehaviour
                 btns[y, x].colors = colors;
             }
         }
+    }
+
+    public void printSudoku(int[,] s)
+    {
+        string str = "";
+        for (int y = 0; y < 9; y++)
+        {
+            for (int x = 0; x < 9; x++)
+            {
+                str += s[y, x].ToString();
+                str += ' ';
+            }
+            str += '\n';
+        }
+        print(str);
     }
 }
