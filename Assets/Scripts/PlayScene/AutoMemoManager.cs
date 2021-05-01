@@ -11,7 +11,7 @@ public class AutoMemoManager : MonoBehaviour
     public void RunAutoMemo()
     {
         sudokuController.RecordSudokuLog();
-        //SudokuManager.printSudoku(SudokuManager.sudoku);
+
         for (int val = 0; val < 9; val++)
         {
             for (int y = 0; y < 9; y++)
@@ -23,9 +23,9 @@ public class AutoMemoManager : MonoBehaviour
                         continue;
                     }
 
-                    if (sudokuController.isNormalRow(y, x, val + 1) &&
-                        sudokuController.isNormalCol(y, x, val + 1) &&
-                        sudokuController.isNormalSG(y, x, val + 1))
+                    if (sudokuController.IsNewValueAvailableRow(y, x, val + 1) &&
+                        sudokuController.IsNewValueAvailableCol(y, x, val + 1) &&
+                        sudokuController.IsNewValueAvailableSG(y, x, val + 1))
                     {
                         memoManager.FillMemoCell(y, x, val + 1);
                     }

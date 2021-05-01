@@ -16,10 +16,10 @@ public class Settings : MonoBehaviour
         if (Source != null)
             Source.volume = Volume;
     }
-
     public void ChangeVolume(Single volume)
     {
         Volume = volume;
     }
+
 
 }

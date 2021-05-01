@@ -9,11 +9,14 @@ public class HintDialogManager : MonoBehaviour
     public GameObject hintButton;
     public GameObject sudokuBoard;
     public GameObject mainPanel;
+    public CellManager cellManager;
     public HintLineManager hintLineManager;
+    public SudokuController sudokuController;
 
     private Animation pusher;
     private string[] texts;
     private List<Tuple<GameObject, GameObject>> hintLines;
+    private List<Tuple<Vector2Int, int>> toFill;
 
     private Text _dialogText;
     private int cur = 0;
@@ -26,7 +29,7 @@ public class HintDialogManager : MonoBehaviour
     }
 
     // hint button >> hint manager >> dialog
-    public void StartDialog(string[] texts, List<Tuple<GameObject, GameObject>> hintLines = null)
+    public void StartDialog(string[] texts, List<Tuple<GameObject, GameObject>> hintLines = null, List<Tuple<Vector2Int, int>> toFill = null)
     {
         //start animation
         pusher = sudokuBoard.GetComponent<Animation>();
@@ -42,6 +45,16 @@ public class HintDialogManager : MonoBehaviour
         {
             this.hintLines = new List<Tuple<GameObject, GameObject>>(hintLines);
         }
+
+        if (toFill == null)
+        {
+            this.toFill = null;
+        }
+        else
+        {
+            this.toFill = new List<Tuple<Vector2Int, int>>(toFill);
+        }
+
         cur = 0;
         //대화 상자 켜기
         gameObject.SetActive(true);
@@ -59,9 +72,23 @@ public class HintDialogManager : MonoBehaviour
             sudokuBoard.GetComponent<RectTransform>().localPosition = new Vector2(0, 0);
             SetVisible(true);
 
+            //정리
             gameObject.SetActive(false);
             hintButton.GetComponent<Button>().enabled = true;
             hintLineManager.EraseAllLine();
+
+            //FillCell 처리
+            if(toFill != null)
+            {
+                foreach (var l in toFill)
+                {
+                    cellManager.FillCell(l.Item1.y, l.Item1.x, l.Item2);
+                }
+            }
+
+            //게임 종료 처리
+            sudokuController.FinishSudoku();
+
             return;
         }
         //text 변경

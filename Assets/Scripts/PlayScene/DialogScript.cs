@@ -12,8 +12,10 @@ public class DialogScript : MonoBehaviour
 
     private void Update()
     {
-        if(Input.GetKeyDown(KeyCode.Return))
+        if (Input.GetKeyDown(KeyCode.Return))
+        {
             Hide();
+        }
     }
 
     public void Hide()

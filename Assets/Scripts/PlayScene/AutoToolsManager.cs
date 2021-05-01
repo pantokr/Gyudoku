@@ -10,10 +10,9 @@ public class AutoToolsManager : MonoBehaviour
     public GameObject hintButton;
     public GameObject autoSingleButton;
 
-    public HintDialogManager hintDialogManager;
-
     private AutoMemoManager autoMemoManager;
     private HintManager hintManager;
+    private AutoSingleManager autoSingleManager;
 
     private Button _autoMemo;
     private Button _hint;
@@ -29,6 +28,7 @@ public class AutoToolsManager : MonoBehaviour
 
         autoMemoManager = autoMemoButton.GetComponent<AutoMemoManager>();
         hintManager = hintButton.GetComponent<HintManager>();
+        autoSingleManager = autoSingleButton.GetComponent<AutoSingleManager>();
 
         _autoMemo = autoMemoButton.GetComponent<Button>();
         _hint = hintButton.GetComponent<Button>();
@@ -36,5 +36,6 @@ public class AutoToolsManager : MonoBehaviour
 
         _autoMemo.onClick.AddListener(delegate { autoMemoManager.RunAutoMemo(); });
         _hint.onClick.AddListener(delegate { hintManager.RunHint(); });
+        _autoSingle.onClick.AddListener(delegate { autoSingleManager.RunAutoSingle(); });
     }
 }

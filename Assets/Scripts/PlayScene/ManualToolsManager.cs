@@ -41,7 +41,7 @@ public class ManualToolsManager : MonoBehaviour
     {
 
         //M을 누르면 Memo on
-        if (Input.GetKeyDown(KeyCode.M))
+        if (Input.GetKeyDown(KeyCode.M) || Input.GetKeyDown(KeyCode.Tab))
         {
             TurnMemo();
             return;
@@ -69,10 +69,13 @@ public class ManualToolsManager : MonoBehaviour
             onEraser = false;
             ApplyButtonPressed(memoImg);
             ApplyButtonNormal(eraserImg);
+
+            GameObject.Find("MainPanel").GetComponent<Image>().color = new Color(1, 1, 1, 0.6f);
         }
         else
         {
             ApplyButtonNormal(memoImg);
+            GameObject.Find("MainPanel").GetComponent<Image>().color = new Color(1, 1, 1, 1);
         }
     }
 
@@ -85,10 +88,12 @@ public class ManualToolsManager : MonoBehaviour
             onMemo = false;
             ApplyButtonPressed(eraserImg);
             ApplyButtonNormal(memoImg);
+            GameObject.Find("MainPanel").GetComponent<Image>().color = new Color(1, 1, 1, 0.6f);
         }
         else
         {
             ApplyButtonNormal(eraserImg);
+            GameObject.Find("MainPanel").GetComponent<Image>().color = new Color(1, 1, 1, 1);
         }
     }
     
@@ -99,7 +104,7 @@ public class ManualToolsManager : MonoBehaviour
             return;
         }
         int[,] s = sudokuController.lateSudoku[SudokuController.undoIndex].Item1;
-        bool[,,] m = sudokuController.lateSudoku[SudokuController.undoIndex].Item2;
+        int[,,] m = sudokuController.lateSudoku[SudokuController.undoIndex].Item2;
 
         cellManager.ApplySudoku(s);
 

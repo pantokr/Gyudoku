@@ -9,8 +9,7 @@ public class PlayManager : MonoBehaviour
     public MemoManager memoManager;
     public NumberHighlighterManager numberHighlighterManager;
     public SudokuController sudokuController;
-    public GameObject dialogPass;
-
+    
     //현재 가리키고 있는 포인터
     public int curY;
     public int curX;
@@ -28,12 +27,16 @@ public class PlayManager : MonoBehaviour
 
     private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            pausePanel.SetActive(true);
+        }
         //클릭 시 일단 초기화
         if (Input.GetMouseButtonDown(0))
         {
             curY = -1;
             curX = -1;
-            cellManager.HighlightCells(0);
+            //cellManager.HighlightCells(0);
         }
 
         for (int i = 0; i < AlphaKeys.Length; i++)
@@ -68,12 +71,9 @@ public class PlayManager : MonoBehaviour
                             sudokuController.CheckNormal(curY, curX, i + 1); //정상 확인
 
                             cellManager.FillCell(curY, curX, i + 1);
+
                             //Checker
-                            if (sudokuController.isSudokuComplete())
-                            {
-                                dialogPass.SetActive(true);
-                                return;
-                            }
+                            sudokuController.FinishSudoku();
 
                             cellManager.HighlightCells(i + 1);
                         }

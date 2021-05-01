@@ -9,14 +9,14 @@ public class MemoManager : MonoBehaviour
     public GameObject memoCell;
     public CellManager cellManager;
 
-    public bool[,,] memoSudoku;
+    public int[,,] memoSudoku;
     private GameObject[,] objects;
 
     private void Start()
     {
         objects = cellManager.GetObjects();
 
-        this.memoSudoku = SudokuManager.memoSudoku;
+        memoSudoku = SudokuManager.memoSudoku;
         AppendMemoCellObjects();
     }
     public GameObject GetMemoObject(int y, int x, int value)
@@ -35,7 +35,7 @@ public class MemoManager : MonoBehaviour
     }
     public GameObject[,] GetMemoObjects(int y, int x)
     {
-        GameObject[,] retObj = new GameObject[9, 9];
+        GameObject[,] retObj = new GameObject[3, 3];
         GameObject parentObj = objects[y, x].transform.Find("Memo").gameObject;
         for (int _y = 0; _y < 3; _y++)
         {
@@ -46,11 +46,29 @@ public class MemoManager : MonoBehaviour
         }
         return retObj;
     }
-    public void SetMemoSudoku(bool[,,] ms)
+    public GameObject[,,,] GetWholeMemoObjects()
     {
-        this.memoSudoku = (bool[,,])ms.Clone();
+        GameObject[,,,] retObj = new GameObject[9, 9, 3, 3];
+        for (int y = 0; y < 9; y++)
+        {
+            for (int x = 0; x < 9; x++)
+            {
+                for (int _y = 0; _y < 3; _y++)
+                {
+                    for (int _x = 0; _x < 3; _x++)
+                    {
+                        retObj[y, x, _y, _x] = GetMemoObject(y, x, _y * 3 + _x + 1);
+                    }
+                }
+            }
+        }
+        return retObj;
     }
-    public void ApplyMemoSudoku(bool[,,] memoSudoku)
+    public void SetMemoSudoku(int[,,] ms)
+    {
+        this.memoSudoku = (int[,,])ms.Clone();
+    }
+    public void ApplyMemoSudoku(int[,,] memoSudoku)
     {
         for (int val = 0; val < 9; val++)
         {
@@ -58,7 +76,7 @@ public class MemoManager : MonoBehaviour
             {
                 for (int x = 0; x < 9; x++)
                 {
-                    if (memoSudoku[val, y, x] == false)
+                    if (memoSudoku[val, y, x] == 0)
                     {
                         DeleteMemoCell(y, x, val + 1);
                     }
@@ -78,7 +96,7 @@ public class MemoManager : MonoBehaviour
         int vx = (value - 1) % 3 + 1;
 
         parentObj.transform.Find($"y{vy}x{vx}").gameObject.SetActive(true);
-        memoSudoku[value - 1, y, x] = true;
+        memoSudoku[value - 1, y, x] = 1;
     }
 
     public void DeleteMemoCell(int y, int x, int value = 0)
@@ -91,7 +109,7 @@ public class MemoManager : MonoBehaviour
                 for (int _x = 0; _x < 3; _x++)
                 {
                     memoObjs[_y, _x].SetActive(false);
-                    memoSudoku[_y * 3 + _x, y, x] = false;
+                    memoSudoku[_y * 3 + _x, y, x] = 0;
                 }
             }
         }
@@ -101,7 +119,7 @@ public class MemoManager : MonoBehaviour
             int mx = (value - 1) % 3;
 
             memoObjs[my, mx].SetActive(false);
-            memoSudoku[value - 1, y, x] = false;
+            memoSudoku[value - 1, y, x] = 0;
         }
     }
 

@@ -5,18 +5,22 @@ using UnityEngine;
 
 public class SudokuController : MonoBehaviour
 {
+    public GameObject passDialog;
+    public GameObject playManager;
+    public GameObject mainPanel;
+
     public CellManager cellManager;
     public MemoManager memoManager;
     public SudokuMaker sudokuMaker;
 
     public static int undoIndex = 0;
-    public List<Tuple<int[,], bool[,,]>> lateSudoku = new List<Tuple<int[,], bool[,,]>>();
+    public List<Tuple<int[,], int[,,]>> lateSudoku = new List<Tuple<int[,], int[,,]>>();
 
     private List<Vector2Int> list = new List<Vector2Int>();
 
     private int[,] sudoku;
     private int[,] fullSudoku;
-    private bool[,,] memoSudoku;
+    private int[,,] memoSudoku;
 
     private void Start()
     {
@@ -25,6 +29,7 @@ public class SudokuController : MonoBehaviour
         memoSudoku = SudokuManager.memoSudoku;
     }
 
+    #region 값 유무 확인
     public bool IsInCell(int y, int x, int value)
     {
         return sudoku[y, x] == value;
@@ -35,11 +40,12 @@ public class SudokuController : MonoBehaviour
         {
             return false;
         }
-        return memoSudoku[value - 1, y, x] == true;
+        return memoSudoku[value - 1, y, x] == 1;
     }
+    #endregion
 
     #region complete 스도쿠 완성 여부 검사
-    public bool isCompleteRow(int y)
+    public bool IsCompleteRow(int y)
     {
         bool[] tuple = new bool[9];
 
@@ -62,7 +68,7 @@ public class SudokuController : MonoBehaviour
 
         return true;
     }
-    public bool isCompleteCol(int x)
+    public bool IsCompleteCol(int x)
     {
         bool[] tuple = new bool[9];
 
@@ -85,7 +91,7 @@ public class SudokuController : MonoBehaviour
 
         return true;
     }
-    public bool isCompleteSG(int y, int x)
+    public bool IsCompleteSG(int y, int x)
     {
         bool[] tuple = new bool[9];
 
@@ -111,12 +117,12 @@ public class SudokuController : MonoBehaviour
 
         return true;
     }
-    public bool isSudokuComplete()
+    public bool IsSudokuComplete()
     {
         bool t;
         for (int y = 0; y < 9; y++)
         {
-            t = isCompleteRow(y);
+            t = IsCompleteRow(y);
             if (!t)
             {
                 return false;
@@ -125,7 +131,7 @@ public class SudokuController : MonoBehaviour
 
         for (int x = 0; x < 9; x++)
         {
-            t = isCompleteCol(x);
+            t = IsCompleteCol(x);
             if (!t)
             {
                 return false;
@@ -136,7 +142,7 @@ public class SudokuController : MonoBehaviour
         {
             for (int x = 0; x < 3; x++)
             {
-                t = isCompleteSG(y, x);
+                t = IsCompleteSG(y, x);
                 if (!t)
                 {
                     return false;
@@ -147,10 +153,23 @@ public class SudokuController : MonoBehaviour
         return true;
     }
 
+    public void FinishSudoku()
+    {
+        if (IsSudokuComplete())
+        {
+            passDialog.SetActive(true);
+            playManager.SetActive(false);
+
+            mainPanel.transform.Find("ManualTools").gameObject.SetActive(false);
+            mainPanel.transform.Find("NumberHighlighter").gameObject.SetActive(false);
+            mainPanel.transform.Find("AutoTools").gameObject.SetActive(false);
+            mainPanel.transform.Find("Finisher").Find("MainMenuButton").gameObject.SetActive(true);
+        }
+    }
     #endregion
 
     #region normal 스도쿠 무결성 검사
-    public bool isNormalRow(int y, int x, int newVal)
+    public bool IsNewValueAvailableRow(int y, int x, int newVal)
     {
         bool flag = true;
         for (int _x = 0; _x < 9; _x++)
@@ -164,7 +183,7 @@ public class SudokuController : MonoBehaviour
         }
         return flag;
     }
-    public bool isNormalCol(int y, int x, int newVal)
+    public bool IsNewValueAvailableCol(int y, int x, int newVal)
     {
         bool flag = true;
         for (int _y = 0; _y < 9; _y++)
@@ -178,7 +197,7 @@ public class SudokuController : MonoBehaviour
         }
         return flag;
     }
-    public bool isNormalSG(int y, int x, int newVal)
+    public bool IsNewValueAvailableSG(int y, int x, int newVal)
     {
         bool flag = true;
         int ty = y / 3;
@@ -200,9 +219,9 @@ public class SudokuController : MonoBehaviour
     public void CheckNormal(int y, int x, int newVal)
     {
         list = new List<Vector2Int>();
-        isNormalRow(y, x, newVal);
-        isNormalCol(y, x, newVal);
-        isNormalSG(y, x, newVal);
+        IsNewValueAvailableRow(y, x, newVal);
+        IsNewValueAvailableCol(y, x, newVal);
+        IsNewValueAvailableSG(y, x, newVal);
 
         for (int index = 0; index < list.Count; index++)
         {
@@ -244,7 +263,7 @@ public class SudokuController : MonoBehaviour
                     int rightNumber = fullSudoku[y, x];
                     //print("right Number" + rightNumber.ToString());
 
-                    if (memoSudoku[rightNumber - 1, y, x] == false)
+                    if (memoSudoku[rightNumber - 1, y, x] == 0)
                     {
                         points.Add(new Vector2Int(x, y));
                         isWrong = true;
@@ -302,40 +321,40 @@ public class SudokuController : MonoBehaviour
     #endregion
 
     #region 빈 셀 반환
-    public List<int> GetEmptyCellInRow(int y)
+    public List<Vector2Int> GetEmptyCellInRow(int y)
     {
-        List<int> empty = new List<int>();
+        List<Vector2Int> empty = new List<Vector2Int>();
         for (int _x = 0; _x < 9; _x++)
         {
             if (sudoku[y, _x] == 0)
             {
-                empty.Add(_x);
+                empty.Add(new Vector2Int(_x, y));
             }
         }
         return empty;
     }
-    public List<int> GetEmptyCellInCol(int x)
+    public List<Vector2Int> GetEmptyCellInCol(int x)
     {
-        List<int> empty = new List<int>();
+        List<Vector2Int> empty = new List<Vector2Int>();
         for (int _y = 0; _y < 9; _y++)
         {
             if (sudoku[_y, x] == 0)
             {
-                empty.Add(_y);
+                empty.Add(new Vector2Int(x, _y));
             }
         }
         return empty;
     }
-    public List<Tuple<int, int>> GetEmptyCellInSG(int y, int x) //
+    public List<Vector2Int> GetEmptyCellInSG(int y, int x) //
     {
-        List<Tuple<int, int>> empty = new List<Tuple<int, int>>();
+        List<Vector2Int> empty = new List<Vector2Int>();
         for (int _y = y * 3; _y < y * 3 + 3; _y++)
         {
             for (int _x = x * 3; _x < x * 3 + 3; _x++)
             {
                 if (sudoku[_y, _x] == 0)
                 {
-                    empty.Add(new Tuple<int, int>(_y, _x));
+                    empty.Add(new Vector2Int(_x, _y));
                 }
             }
         }
@@ -343,11 +362,50 @@ public class SudokuController : MonoBehaviour
     }
     #endregion
 
+    #region 메모 데이터 반환
+    public int[] GetMemoRow(int value, int y)
+    {
+        int[] row = new int[9];
+        for (int _x = 0; _x < 9; _x++)
+        {
+            row[_x] = memoSudoku[value, y, _x];
+        }
+        return row;
+    }
+
+    public int[] GetMemoCol(int value, int x)
+    {
+        int[] col = new int[9];
+        for (int _y = 0; _y < 9; _y++)
+        {
+            col[_y] = memoSudoku[value, _y, x];
+        }
+        return col;
+    }
+
+    public int[] GetMemoSG(int value, int y, int x)
+    {
+        int[] SG = new int[9];
+        int cnt = 0;
+        for (int _y = y * 3; _y < y * 3 + 3; _y++)
+        {
+            for (int _x = x * 3; _x < x * 3 + 3; _x++)
+            {
+                SG[cnt++] = memoSudoku[value, _y, _x];
+            }
+        }
+        return SG;
+    }
+
+    #endregion
+
+    #region 기타
     public void RecordSudokuLog()
     {
         undoIndex = lateSudoku.Count;
 
-        Tuple<int[,], bool[,,]> tuple = new Tuple<int[,], bool[,,]>((int[,])sudoku.Clone(), (bool[,,])memoSudoku.Clone());
+        Tuple<int[,], int[,,]> tuple = new Tuple<int[,], int[,,]>((int[,])sudoku.Clone(), (int[,,])memoSudoku.Clone());
         lateSudoku.Add(tuple);
     }
+    #endregion 
 }

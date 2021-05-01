@@ -8,7 +8,7 @@ public class SudokuManager : MonoBehaviour
     public static int[,] fullSudoku;
     public static int[,] originalSudoku;
 
-    public static bool[,,] memoSudoku = new bool[9, 9, 9];
+    public static int[,,] memoSudoku = new int[9, 9, 9];
 
     private SudokuMaker sudokuMaker;
     private void Awake()
@@ -37,7 +37,7 @@ public class SudokuManager : MonoBehaviour
         string str = "";
         for (int val = 0; val < 9; val++)
         {
-            if (memoSudoku[val, y, x] == true)
+            if (memoSudoku[val, y, x] == 1)
             {
                 str += (val + 1).ToString();
             }
