@@ -6,7 +6,6 @@ using System;
 
 public class CellManager : MonoBehaviour
 {
-    public GameObject mainPanel;
     public PlayManager playManager;
     public MemoManager memoManager;
     public SudokuController sudokuController;
@@ -75,7 +74,7 @@ public class CellManager : MonoBehaviour
             for (int x = 0; x < 9; x++)
             {
                 if (String.Equals(s, values[y, x].text) ||
-                    sudokuController.isInMemoCell(y, x, value))// 하이라이트
+                    sudokuController.IsInMemoCell(y, x, value))// 하이라이트
                 {
                     var colors = btns[y, x].colors;
                     colors.disabledColor = highLightCellColor;
@@ -99,6 +98,9 @@ public class CellManager : MonoBehaviour
             DeleteCell(y, x);
             return;
         }
+        memoManager.DeleteMemoCell(y, x); //모든 메모 지우기
+        memoManager.DeleteMemoCellsAtOnce(y, x, value); //해당 숫자 메모 지우기
+
         values[y, x].text = value.ToString();
         sudoku[y, x] = value;
     }

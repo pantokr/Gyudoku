@@ -7,27 +7,24 @@ public class PauseMenu : MonoBehaviour
     public static bool Displaying;
     private void Awake()
     {
-        Time.timeScale = 0;
-        Displaying = true;
         transform.Find("VolumeSlider").GetComponent<Slider>().value = Settings.Volume;
     }
 
     private void Update()
     {
-        if(Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Escape))
-            Hide();
-    }
+        if (Input.GetKeyDown(KeyCode.Return) || (Input.GetKeyDown(KeyCode.Escape) && gameObject.activeSelf))
+        {
+            gameObject.SetActive(false);
+        }
 
-    public void Hide()
-    {
-        gameObject.SetActive(false);
-        Displaying = false;
-        Time.timeScale = 1;
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            gameObject.SetActive(true);
+        }
     }
 
     public void MainMenu()
     {
-        Time.timeScale = 1;
         SceneManager.LoadScene("MainMenuScene");
     }
 }

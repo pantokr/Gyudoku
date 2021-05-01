@@ -14,18 +14,28 @@ public class SudokuController : MonoBehaviour
 
     private List<Vector2Int> list = new List<Vector2Int>();
 
+    private int[,] sudoku;
+    private int[,] fullSudoku;
+    private bool[,,] memoSudoku;
 
-    public bool isInCell(int y, int x, int value)
+    private void Start()
     {
-        return cellManager.sudoku[y, x] == value;
+        sudoku = SudokuManager.sudoku;
+        fullSudoku = SudokuManager.fullSudoku;
+        memoSudoku = SudokuManager.memoSudoku;
     }
-    public bool isInMemoCell(int y, int x, int value)
+
+    public bool IsInCell(int y, int x, int value)
+    {
+        return sudoku[y, x] == value;
+    }
+    public bool IsInMemoCell(int y, int x, int value)
     {
         if (value == 0)
         {
             return false;
         }
-        return memoManager.memoSudoku[value - 1, y, x] == true;
+        return memoSudoku[value - 1, y, x] == true;
     }
 
     #region complete 스도쿠 완성 여부 검사
@@ -209,8 +219,8 @@ public class SudokuController : MonoBehaviour
         {
             for (int x = 0; x < 9; x++)
             {
-                if (SudokuManager.sudoku[y, x] != 0 &&
-                    SudokuManager.sudoku[y, x] != SudokuManager.fullSudoku[y, x])
+                if (sudoku[y, x] != 0 &&
+                    sudoku[y, x] != fullSudoku[y, x])
                 {
                     points.Add(new Vector2Int(x, y));
                     isWrong = true;
@@ -229,12 +239,12 @@ public class SudokuController : MonoBehaviour
         {
             for (int x = 0; x < 9; x++)
             {
-                if (SudokuManager.sudoku[y, x] == 0) // 스도쿠 값이 없을 때
+                if (sudoku[y, x] == 0) // 스도쿠 값이 없을 때
                 {
-                    int rightNumber = SudokuManager.fullSudoku[y, x];
+                    int rightNumber = fullSudoku[y, x];
                     //print("right Number" + rightNumber.ToString());
 
-                    if (memoManager.memoSudoku[rightNumber - 1, y, x] == false)
+                    if (memoSudoku[rightNumber - 1, y, x] == false)
                     {
                         points.Add(new Vector2Int(x, y));
                         isWrong = true;
@@ -245,11 +255,99 @@ public class SudokuController : MonoBehaviour
         return (isWrong, points);
     }
     #endregion
+
+    #region 빈 값 반환
+    public List<int> GetEmptyValueInRow(int y)
+    {
+        int[] n = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+        List<int> empty = new List<int>(n);
+        for (int _x = 0; _x < 9; _x++)
+        {
+            if (sudoku[y, _x] != 0)
+            {
+                empty.Remove(sudoku[y, _x]);
+            }
+        }
+        return empty;
+    }
+    public List<int> GetEmptyValueInCol(int x)
+    {
+        int[] n = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+        List<int> empty = new List<int>(n);
+        for (int _y = 0; _y < 9; _y++)
+        {
+            if (sudoku[_y, x] != 0)
+            {
+                empty.Remove(sudoku[_y, x]);
+            }
+        }
+        return empty;
+    }
+    public List<int> GetEmptyValueInSG(int y, int x) //
+    {
+        int[] n = { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+        List<int> empty = new List<int>(n);
+        for (int _y = y * 3; _y < y * 3 + 3; _y++)
+        {
+            for (int _x = x * 3; _x < x * 3 + 3; _x++)
+            {
+                if (sudoku[_y, _x] != 0)
+                {
+                    empty.Remove(sudoku[_y, _x]);
+                }
+            }
+        }
+        return empty;
+    }
+    #endregion
+
+    #region 빈 셀 반환
+    public List<int> GetEmptyCellInRow(int y)
+    {
+        List<int> empty = new List<int>();
+        for (int _x = 0; _x < 9; _x++)
+        {
+            if (sudoku[y, _x] == 0)
+            {
+                empty.Add(_x);
+            }
+        }
+        return empty;
+    }
+    public List<int> GetEmptyCellInCol(int x)
+    {
+        List<int> empty = new List<int>();
+        for (int _y = 0; _y < 9; _y++)
+        {
+            if (sudoku[_y, x] == 0)
+            {
+                empty.Add(_y);
+            }
+        }
+        return empty;
+    }
+    public List<Tuple<int, int>> GetEmptyCellInSG(int y, int x) //
+    {
+        List<Tuple<int, int>> empty = new List<Tuple<int, int>>();
+        for (int _y = y * 3; _y < y * 3 + 3; _y++)
+        {
+            for (int _x = x * 3; _x < x * 3 + 3; _x++)
+            {
+                if (sudoku[_y, _x] == 0)
+                {
+                    empty.Add(new Tuple<int, int>(_y, _x));
+                }
+            }
+        }
+        return empty;
+    }
+    #endregion
+
     public void RecordSudokuLog()
     {
         undoIndex = lateSudoku.Count;
 
-        Tuple<int[,], bool[,,]> tuple = new Tuple<int[,], bool[,,]>((int[,])SudokuManager.sudoku.Clone(), (bool[,,])SudokuManager.memoSudoku.Clone());
+        Tuple<int[,], bool[,,]> tuple = new Tuple<int[,], bool[,,]>((int[,])sudoku.Clone(), (bool[,,])memoSudoku.Clone());
         lateSudoku.Add(tuple);
     }
 }

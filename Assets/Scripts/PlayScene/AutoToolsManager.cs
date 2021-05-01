@@ -10,7 +10,7 @@ public class AutoToolsManager : MonoBehaviour
     public GameObject hintButton;
     public GameObject autoSingleButton;
 
-    public DialogHint dialogHint;
+    public HintDialogManager hintDialogManager;
 
     private AutoMemoManager autoMemoManager;
     private HintManager hintManager;

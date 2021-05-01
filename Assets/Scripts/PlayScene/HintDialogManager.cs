@@ -1,18 +1,22 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class DialogHint : MonoBehaviour
+public class HintDialogManager : MonoBehaviour
 {
-    public static int cnt;
+
     public GameObject hintButton;
     public GameObject sudokuBoard;
     public GameObject mainPanel;
+    public HintLineManager hintLineManager;
 
     private Animation pusher;
-    private string[] textstr;
+    private string[] texts;
+    private List<Tuple<GameObject, GameObject>> hintLines;
 
     private Text _dialogText;
+    private int cur = 0;
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Return))
@@ -22,16 +26,23 @@ public class DialogHint : MonoBehaviour
     }
 
     // hint button >> hint manager >> dialog
-    public void StartDialog(string[] texts)
+    public void StartDialog(string[] texts, List<Tuple<GameObject, GameObject>> hintLines = null)
     {
         //start animation
         pusher = sudokuBoard.GetComponent<Animation>();
         pusher.Play("_Pusher");
         SetVisible(false);
 
-        textstr = (string[])texts.Clone();
-        cnt = 0;
-
+        this.texts = (string[])texts.Clone();
+        if (hintLines == null)
+        {
+            this.hintLines = null;
+        }
+        else
+        {
+            this.hintLines = new List<Tuple<GameObject, GameObject>>(hintLines);
+        }
+        cur = 0;
         //대화 상자 켜기
         gameObject.SetActive(true);
         hintButton.GetComponent<Button>().enabled = false;
@@ -41,7 +52,7 @@ public class DialogHint : MonoBehaviour
     }
     public void ChangeText()
     {
-        if (cnt == textstr.Length)
+        if (cur == texts.Length)
         {
             //end animation
             pusher.Stop("_Pusher");
@@ -50,13 +61,21 @@ public class DialogHint : MonoBehaviour
 
             gameObject.SetActive(false);
             hintButton.GetComponent<Button>().enabled = true;
+            hintLineManager.EraseAllLine();
             return;
         }
-        //print(textstr[cnt]);
-        _dialogText.text = textstr[cnt];
+        //text 변경
+        _dialogText.text = texts[cur];
 
-        cnt++;
-        //isDisplayed = false;
+        if (hintLines != null)
+        {
+            //필요 시 힌트라인 생성
+            if (hintLines[cur] != null)
+            {
+                hintLineManager.DrawLine(hintLines[cur].Item1, hintLines[cur].Item2);
+            }
+        }
+        cur++;
     }
 
     private void SetVisible(bool onf)
@@ -65,7 +84,7 @@ public class DialogHint : MonoBehaviour
         mainPanel.transform.Find("ManualTools").gameObject.SetActive(onf);
         mainPanel.transform.Find("Finisher").gameObject.SetActive(onf);
         mainPanel.transform.Find("AutoTools").gameObject.SetActive(onf);
-    }
+    } //기타 오브젝트
 }
 
 

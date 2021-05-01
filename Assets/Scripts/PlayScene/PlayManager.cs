@@ -4,19 +4,16 @@ using UnityEngine.UI;
 
 public class PlayManager : MonoBehaviour
 {
-    public GameObject mainPanel;
     public GameObject pausePanel;
     public CellManager cellManager;
     public MemoManager memoManager;
-    public ManualToolsManager manualToolsManager;
     public NumberHighlighterManager numberHighlighterManager;
     public SudokuController sudokuController;
     public GameObject dialogPass;
-    //public GameObject VictoryPanel;
 
     //현재 가리키고 있는 포인터
-    private int curY;
-    private int curX;
+    public int curY;
+    public int curX;
 
     private KeyCode[] AlphaKeys = // 1부터 9까지
     {
@@ -30,16 +27,6 @@ public class PlayManager : MonoBehaviour
     };
 
     private void Update()
-    {
-        // esc pause
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            cellManager.HighlightCells(0);
-            pausePanel.SetActive(true);
-        }
-    }
-
-    private void LateUpdate()
     {
         //클릭 시 일단 초기화
         if (Input.GetMouseButtonDown(0))
@@ -55,18 +42,15 @@ public class PlayManager : MonoBehaviour
             {
                 if (curX != -1 && curY != -1) // 스도쿠 내부의 버튼을 선택하고 있으면
                 {
+                    sudokuController.RecordSudokuLog();
                     if (ManualToolsManager.onMemo) //memo on
                     {
-                        if (sudokuController.isInMemoCell(curY, curX, i + 1)) //메모 지워주기
+                        if (sudokuController.IsInMemoCell(curY, curX, i + 1)) //메모 지워주기
                         {
-                            sudokuController.RecordSudokuLog();
-
                             memoManager.DeleteMemoCell(curY, curX, i + 1);
                         }
                         else //메모 쓰기
                         {
-                            sudokuController.RecordSudokuLog();
-
                             sudokuController.CheckNormal(curY, curX, i + 1); //정상 확인
 
                             cellManager.DeleteCell(curY, curX);
@@ -75,20 +59,13 @@ public class PlayManager : MonoBehaviour
                     }
                     else // memo off
                     {
-                        if (sudokuController.isInCell(curY, curX, i + 1)) //숫자 지워주기
+                        if (sudokuController.IsInCell(curY, curX, i + 1)) //숫자 지워주기
                         {
-                            sudokuController.RecordSudokuLog();
-                            
                             cellManager.DeleteCell(curY, curX);
                         }
                         else
                         {
-                            sudokuController.RecordSudokuLog();
-
                             sudokuController.CheckNormal(curY, curX, i + 1); //정상 확인
-
-                            memoManager.DeleteMemoCell(curY, curX); //모든 메모 지우기
-                            memoManager.DeleteMemoCellsAtOnce(curY, curX, i + 1); //해당 숫자 메모 지우기
 
                             cellManager.FillCell(curY, curX, i + 1);
                             //Checker
@@ -127,7 +104,4 @@ public class PlayManager : MonoBehaviour
         this.curY = curY;
         this.curX = curX;
     }
-
-
-
 }
