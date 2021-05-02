@@ -245,6 +245,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 699f0074adfbf02458b1d48941c280bc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  fileManager: {fileID: 369545450707186582}
 --- !u!1 &110826356
 GameObject:
   m_ObjectHideFlags: 0
@@ -2946,7 +2947,6 @@ MonoBehaviour:
   playManager: {fileID: 1068923944}
   memoManager: {fileID: 1511033781}
   sudokuController: {fileID: 1435379898}
-  fileManager: {fileID: 369545450707186582}
   twinkler: {fileID: 7400000, guid: f0ab50fd59c4be642aa1859e4b4243a2, type: 2}
   normalColor: {r: 1, g: 1, b: 1, a: 0.7529412}
   highLightedColor: {r: 0, g: 0.19215687, b: 0.49019608, a: 0.1254902}

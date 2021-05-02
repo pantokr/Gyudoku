@@ -53,7 +53,7 @@ public class FileManager_M : MonoBehaviour
     {
 
         string str2arr = PlayerPrefs.GetString(name);
-        print(str2arr);
+        //print(str2arr);
 
         int index = 0;
         for (int y = 0; y < 9; y++)

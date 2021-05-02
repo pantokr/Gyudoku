@@ -12,7 +12,7 @@ public class HintManager : MonoBehaviour
     public CellManager cellManager;
     public MemoManager memoManager;
 
-    private List<Tuple<GameObject, GameObject>> tmp_hint = new List<Tuple<GameObject, GameObject>>();
+    private List<GameObject> hintCell = new List<GameObject>();
     private bool breaker = false;
     private GameObject[,] objects;
     private GameObject[,,,] memoObjects;
@@ -33,7 +33,8 @@ public class HintManager : MonoBehaviour
         {
             if (!sudokuController.IsNormalSudoku())
             {
-                
+                string[] _str = { "오류가 있습니다." };
+                hintDialogManager.StartDialog(_str);
             }
         }
         if (breaker)
@@ -53,9 +54,19 @@ public class HintManager : MonoBehaviour
             return;
         }
 
-        FindFromFullSudoku();
-        if (breaker)
+        if (Settings.PlayMode == 0)
         {
+            FindFromFullSudoku();
+            if (breaker)
+            {
+                return;
+            }
+        }
+        else
+        {
+            string[] str = { "더 이상 힌트가 없습니다.\n" +
+                "(메모가 작동되고 있다면 다른 힌트를 얻을 수 있습니다.)"};
+            hintDialogManager.StartDialog(str);
             return;
         }
     }
@@ -120,15 +131,15 @@ public class HintManager : MonoBehaviour
 
                 //대사
                 string[] str = { "풀 하우스", $"가로 행에 한 값 {ev[0]}만 비어 있습니다." };
-                tmp_hint.Clear();
-                tmp_hint.Add(null);
-                tmp_hint.Add(new Tuple<GameObject, GameObject>(objects[cell.y, cell.x], objects[cell.y, cell.x]));
+                hintCell.Clear();
+                hintCell.Add(null);
+                hintCell.Add(objects[cell.y, cell.x]);
 
                 //처방
                 List<Tuple<Vector2Int, int>> toFill = new List<Tuple<Vector2Int, int>>();
                 toFill.Add(new Tuple<Vector2Int, int>(cell, val));
 
-                hintDialogManager.StartDialog(str, tmp_hint, toFill);
+                hintDialogManager.StartDialogAndFillCell(str, hintCell, toFill);
                 return;
             }
         }
@@ -145,15 +156,15 @@ public class HintManager : MonoBehaviour
 
                 //대사
                 string[] str = { "풀 하우스", $"세로 열에 한 값 {ev[0]}만 비어 있습니다." };
-                tmp_hint.Clear();
-                tmp_hint.Add(null);
-                tmp_hint.Add(new Tuple<GameObject, GameObject>(objects[cell.y, cell.x], objects[cell.y, cell.x]));
+                hintCell.Clear();
+                hintCell.Add(null);
+                hintCell.Add(objects[cell.y, cell.x]);
 
                 //처방
                 List<Tuple<Vector2Int, int>> toFill = new List<Tuple<Vector2Int, int>>();
                 toFill.Add(new Tuple<Vector2Int, int>(cell, val));
 
-                hintDialogManager.StartDialog(str, tmp_hint, toFill);
+                hintDialogManager.StartDialogAndFillCell(str, hintCell, toFill);
                 return;
             }
         }
@@ -172,15 +183,15 @@ public class HintManager : MonoBehaviour
 
                     //대사
                     string[] str = { "풀 하우스", $"3X3 서브그리드에 한 값 {ev[0]}만 비어 있습니다." };
-                    tmp_hint.Clear();
-                    tmp_hint.Add(null);
-                    tmp_hint.Add(new Tuple<GameObject, GameObject>(objects[cell.y, cell.x], objects[cell.y, cell.x]));
+                    hintCell.Clear();
+                    hintCell.Add(null);
+                    hintCell.Add(objects[cell.y, cell.x]);
 
                     //처방
                     List<Tuple<Vector2Int, int>> toFill = new List<Tuple<Vector2Int, int>>();
                     toFill.Add(new Tuple<Vector2Int, int>(cell, val));
 
-                    hintDialogManager.StartDialog(str, tmp_hint, toFill);
+                    hintDialogManager.StartDialogAndFillCell(str, hintCell, toFill);
                     return;
                 }
             }
@@ -208,17 +219,16 @@ public class HintManager : MonoBehaviour
                     else // 일반
                     {
                         //대사
-                        string[] str = { "히든 싱글", $"가로 행에서 이 셀에 들어갈 수 있는 값은 {val + 1}하나입니다." };
-                        tmp_hint.Clear();
-                        tmp_hint.Add(null);
-                        tmp_hint.Add(new Tuple<GameObject, GameObject>(
-                            objects[_y, _x], objects[_y, _x]));
+                        string[] str = { "히든 싱글", $"가로 행에서 이 셀에 들어갈 수 있는 값은 {val + 1} 하나입니다." };
+                        hintCell.Clear();
+                        hintCell.Add(null);
+                        hintCell.Add(objects[_y, _x]);
 
                         //처방
                         List<Tuple<Vector2Int, int>> toFill = new List<Tuple<Vector2Int, int>>();
                         toFill.Add(new Tuple<Vector2Int, int>(new Vector2Int(_x, _y), val + 1));
 
-                        hintDialogManager.StartDialog(str, tmp_hint, toFill);
+                        hintDialogManager.StartDialogAndFillCell(str, hintCell, toFill);
                         return true;
 
                     }
@@ -246,16 +256,15 @@ public class HintManager : MonoBehaviour
                     {
                         //대사
                         string[] str = { "히든 싱글", $"세로 열에서 이 셀에 들어갈 수 있는 값은 {val + 1} 하나입니다." };
-                        tmp_hint.Clear();
-                        tmp_hint.Add(null);
-                        tmp_hint.Add(new Tuple<GameObject, GameObject>(
-                            objects[_y, _x], objects[_y, _x]));
+                        hintCell.Clear();
+                        hintCell.Add(null);
+                        hintCell.Add(objects[_y, _x]);
 
                         //처방
                         List<Tuple<Vector2Int, int>> toFill = new List<Tuple<Vector2Int, int>>();
                         toFill.Add(new Tuple<Vector2Int, int>(new Vector2Int(_x, _y), val + 1));
 
-                        hintDialogManager.StartDialog(str, tmp_hint, toFill);
+                        hintDialogManager.StartDialogAndFillCell(str, hintCell, toFill);
                         return true;
 
                     }
@@ -284,16 +293,15 @@ public class HintManager : MonoBehaviour
                         {
                             //대사
                             string[] str = { "히든 싱글", $"3X3 서브그리드에서 이 셀에 들어갈 수 있는 값은 {val + 1} 하나입니다." };
-                            tmp_hint.Clear();
-                            tmp_hint.Add(null);
-                            tmp_hint.Add(new Tuple<GameObject, GameObject>(
-                                objects[_y, _x], objects[_y, _x]));
+                            hintCell.Clear();
+                            hintCell.Add(null);
+                            hintCell.Add(objects[_y, _x]);
 
                             //처방
                             List<Tuple<Vector2Int, int>> toFill = new List<Tuple<Vector2Int, int>>();
                             toFill.Add(new Tuple<Vector2Int, int>(new Vector2Int(_x, _y), val + 1));
 
-                            hintDialogManager.StartDialog(str, tmp_hint, toFill);
+                            hintDialogManager.StartDialogAndFillCell(str, hintCell, toFill);
                             return true;
 
                         }
@@ -341,16 +349,15 @@ public class HintManager : MonoBehaviour
                         {
                             //대사
                             string[] str = { "네이키드 싱글", $"이 셀에 {val + 1} 말고는 들어갈 수 있는 값이 없습니다." };
-                            tmp_hint.Clear();
-                            tmp_hint.Add(null);
-                            tmp_hint.Add(new Tuple<GameObject, GameObject>(
-                                objects[_y, _x], objects[_y, _x]));
+                            hintCell.Clear();
+                            hintCell.Add(null);
+                            hintCell.Add(objects[_y, _x]);
 
                             //처방
                             List<Tuple<Vector2Int, int>> toFill = new List<Tuple<Vector2Int, int>>();
                             toFill.Add(new Tuple<Vector2Int, int>(new Vector2Int(_x, _y), val + 1));
 
-                            hintDialogManager.StartDialog(str, tmp_hint, toFill);
+                            hintDialogManager.StartDialogAndFillCell(str, hintCell, toFill);
                             return true;
 
                         }
@@ -375,15 +382,14 @@ public class HintManager : MonoBehaviour
                     //대사
                     string[] str = { "길라잡이", $"{_y + 1}행 {_x + 1}열의 값은 {val} 입니다." };
 
-                    tmp_hint.Clear();
-                    tmp_hint.Add(null);
-                    tmp_hint.Add(new Tuple<GameObject, GameObject>(
-                        objects[_y, _x], objects[_y, _x]));
+                    hintCell.Clear();
+                    hintCell.Add(null);
+                    hintCell.Add(objects[_y, _x]);
 
                     //처방
                     List<Tuple<Vector2Int, int>> toFill = new List<Tuple<Vector2Int, int>>();
                     toFill.Add(new Tuple<Vector2Int, int>(new Vector2Int(_x, _y), val));
-                    hintDialogManager.StartDialog(str, tmp_hint, toFill);
+                    hintDialogManager.StartDialogAndFillCell(str, hintCell, toFill);
                 }
             }
         }

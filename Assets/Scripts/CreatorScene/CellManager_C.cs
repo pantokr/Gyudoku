@@ -20,7 +20,7 @@ public class CellManager_C : MonoBehaviour
     readonly private Text[,] values = new Text[9, 9];
     readonly private GameObject[,] objects = new GameObject[9, 9];
 
-    private int[,] sudoku = new int[9, 9];
+    public int[,] sudoku = new int[9, 9];
 
     private void Awake()
     {

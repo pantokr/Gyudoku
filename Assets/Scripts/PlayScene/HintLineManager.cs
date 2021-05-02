@@ -95,4 +95,20 @@ public class HintLineManager : MonoBehaviour
         }
         highlightedObjectList.Clear();
     }
+
+    public void HighlightCell(GameObject g)
+    {
+        g.transform.GetComponent<Image>().color = new Color(0, 1, 0, 0.5f);
+        highlightedObjectList.Add(g);
+    }
+
+    public void EraseAllCell()
+    {
+        //강조 지우기
+        foreach (var obj in highlightedObjectList)
+        {
+            obj.transform.GetComponent<Image>().color = new Color(1, 1, 1, 1);
+        }
+        highlightedObjectList.Clear();
+    }
 }

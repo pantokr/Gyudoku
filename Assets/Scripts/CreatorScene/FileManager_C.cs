@@ -8,6 +8,7 @@ public class FileManager_C : MonoBehaviour
 {
     public static string fname = "default";
     public CellManager_C cellManager;
+    public MultipurposeDialogManager_C multipurposeDialogManager;
     public GameObject playManager;
     public GameObject saveButton;
     public GameObject playButton;
@@ -37,6 +38,7 @@ public class FileManager_C : MonoBehaviour
     }
     public void StartSaving(string name = "default")
     {
+        
 
         int[,] cache; // 정수형 배열 생성
 
@@ -58,12 +60,23 @@ public class FileManager_C : MonoBehaviour
     }
     public void StartPlaying()
     {
+        if (!IsNormalSudoku())
+        {
+            multipurposeDialogManager.RunDialog("오류를 모두 수정해주세요.");
+            return;
+        }
         StartSaving();
         SceneManager.LoadScene("PlayScene");
     }
 
     public void DisplayDialog()
     {
+        if (!IsNormalSudoku())
+        {
+            multipurposeDialogManager.RunDialog("오류를 모두 수정해주세요.");
+            return;
+        }
+
         playManager.SetActive(false);
         dialog.SetActive(true);
         TurnObjects(false);
@@ -94,5 +107,91 @@ public class FileManager_C : MonoBehaviour
         mainPanel.transform.Find("SudokuBoard").gameObject.SetActive(onf);
         mainPanel.transform.Find("NumberHighlighter").gameObject.SetActive(onf);
         mainPanel.transform.Find("ManualTools").gameObject.SetActive(onf);
+    }
+
+    public bool IsNormalRow(int y)
+    {
+        List<int> nums = new List<int>();
+        for (int _x = 0; _x < 9; _x++)
+        {
+            int val = cellManager.sudoku[y, _x];
+            if (val != 0 && nums.Contains(val))
+            {
+                return false;
+            }
+            else
+            {
+                nums.Add(val);
+            }
+        }
+        return true;
+    }
+    public bool IsNormalCol(int x)
+    {
+        List<int> nums = new List<int>();
+        for (int _y = 0; _y < 9; _y++)
+        {
+            int val = cellManager.sudoku[_y, x];
+            if (val != 0 && nums.Contains(val))
+            {
+                return false;
+            }
+            else
+            {
+                nums.Add(val);
+            }
+        }
+        return true;
+    }
+    public bool IsNormalSG(int y, int x)
+    {
+        List<int> nums = new List<int>();
+        for (int _y = y * 3; _y < y * 3 + 3; _y++)
+        {
+            for (int _x = x * 3; _x < x * 3 + 3; _x++)
+            {
+                int val = cellManager.sudoku[_y, _x];
+                if (val != 0 && nums.Contains(val))
+                {
+                    return false;
+                }
+                else
+                {
+                    nums.Add(val);
+                }
+            }
+        }
+        return true;
+    }
+
+    public bool IsNormalSudoku()
+    {
+        for (int y = 0; y < 9; y++)
+        {
+            if (!IsNormalRow(y))
+            {
+                return false;
+            }
+        }
+
+        for (int x = 0; x < 9; x++)
+        {
+            if (!IsNormalCol(x))
+            {
+                return false;
+            }
+        }
+        for (int y = 0; y < 3; y++)
+        {
+            for (int x = 0; x < 3; x++)
+            {
+                if (!IsNormalSG(y, x))
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 }

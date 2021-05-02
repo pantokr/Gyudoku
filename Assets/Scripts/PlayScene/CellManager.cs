@@ -9,7 +9,6 @@ public class CellManager : MonoBehaviour
     public PlayManager playManager;
     public MemoManager memoManager;
     public SudokuController sudokuController;
-    public FileManager fileManager;
     public AnimationClip twinkler;
 
     public Color normalColor;
@@ -31,12 +30,6 @@ public class CellManager : MonoBehaviour
     }
     private void Start()
     {
-        
-        if (Settings.PlayMode == 1 || Settings.PlayMode == 2)
-        {
-            fileManager.StartOpening();
-        }
-
         sudoku = SudokuManager.sudoku;
         InitCells();
 

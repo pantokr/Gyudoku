@@ -10,13 +10,20 @@ public class SudokuManager : MonoBehaviour
 
     public static int[,,] memoSudoku = new int[9, 9, 9];
 
+    public FileManager fileManager;
     private SudokuMaker sudokuMaker;
     private void Awake()
     {
-        sudokuMaker = new SudokuMaker();
-
-        (sudoku, fullSudoku) = sudokuMaker.MakeNewSudoku();
-        originalSudoku = (int[,])sudoku.Clone();
+        if (Settings.PlayMode == 0)
+        {
+            sudokuMaker = new SudokuMaker();
+            (sudoku, fullSudoku) = sudokuMaker.MakeNewSudoku();
+            originalSudoku = (int[,])sudoku.Clone();
+        }
+        else if (Settings.PlayMode == 1 || Settings.PlayMode == 2)
+        {
+            fileManager.StartOpening();
+        }
     }
     public static void printSudoku(int[,] s)
     {
