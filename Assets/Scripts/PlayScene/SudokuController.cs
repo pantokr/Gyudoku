@@ -34,6 +34,7 @@ public class SudokuController : MonoBehaviour
     {
         return sudoku[y, x] == value;
     }
+
     public bool IsInMemoCell(int y, int x, int value)
     {
         if (value == 0)
@@ -42,9 +43,18 @@ public class SudokuController : MonoBehaviour
         }
         return memoSudoku[value - 1, y, x] == 1;
     }
+
+    public bool IsEmptyCell(int y, int x)
+    {
+        if (sudoku[y, x] == 0)
+        {
+            return true;
+        }
+        return false;
+    }
     #endregion
 
-    #region complete 스도쿠 완성 여부 검사
+    #region 스도쿠 완성 여부 검사
     public bool IsCompleteRow(int y)
     {
         bool[] tuple = new bool[9];
@@ -153,7 +163,7 @@ public class SudokuController : MonoBehaviour
         return true;
     }
 
-    public void FinishSudoku()
+    public bool FinishSudoku()
     {
         if (IsSudokuComplete())
         {
@@ -164,11 +174,103 @@ public class SudokuController : MonoBehaviour
             mainPanel.transform.Find("NumberHighlighter").gameObject.SetActive(false);
             mainPanel.transform.Find("AutoTools").gameObject.SetActive(false);
             mainPanel.transform.Find("Finisher").Find("MainMenuButton").gameObject.SetActive(true);
+            mainPanel.transform.Find("Finisher").Find("SaveButton").gameObject.SetActive(false);
+
+            return true;
         }
+        return false;
     }
     #endregion
 
-    #region normal 스도쿠 무결성 검사
+    #region 스도쿠 정상 여부 검사
+    public bool IsNormalRow(int y)
+    {
+        List<int> nums = new List<int>();
+        for (int _x = 0; _x < 9; _x++)
+        {
+            int val = sudoku[y, _x];
+            if (val != 0 && nums.Contains(val))
+            {
+                return false;
+            }
+            else
+            {
+                nums.Add(val);
+            }
+        }
+        return true;
+    }
+    public bool IsNormalCol(int x)
+    {
+        List<int> nums = new List<int>();
+        for (int _y = 0; _y < 9; _y++)
+        {
+            int val = sudoku[_y, x];
+            if (val != 0 && nums.Contains(val))
+            {
+                return false;
+            }
+            else
+            {
+                nums.Add(val);
+            }
+        }
+        return true;
+    }
+    public bool IsNormalSG(int y, int x)
+    {
+        List<int> nums = new List<int>();
+        for (int _y = y * 3; _y < y * 3 + 3; _y++)
+        {
+            for (int _x = x * 3; _x < x * 3 + 3; _x++)
+            {
+                int val = sudoku[_y, _x];
+                if (val != 0 && nums.Contains(val))
+                {
+                    return false;
+                }
+                else
+                {
+                    nums.Add(val);
+                }
+            }
+        }
+        return true;
+    }
+
+    public bool IsNormalSudoku()
+    {
+        for (int y = 0; y < 9; y++)
+        {
+            if (!IsNormalRow(y))
+            {
+                return false;
+            }
+        }
+
+        for (int x = 0; x < 9; x++)
+        {
+            if (!IsNormalCol(x))
+            {
+                return false;
+            }
+        }
+        for (int y = 0; y < 3; y++)
+        {
+            for (int x = 0; x < 3; x++)
+            {
+                if (!IsNormalSG(y, x))
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+    #endregion
+
+    #region normal 스도쿠 무결성 검사 newval == 1~9
     public bool IsNewValueAvailableRow(int y, int x, int newVal)
     {
         bool flag = true;
@@ -216,7 +318,7 @@ public class SudokuController : MonoBehaviour
         }
         return flag;
     }
-    public void CheckNormal(int y, int x, int newVal)
+    public void CheckNewValueNormal(int y, int x, int newVal)
     {
         list = new List<Vector2Int>();
         IsNewValueAvailableRow(y, x, newVal);

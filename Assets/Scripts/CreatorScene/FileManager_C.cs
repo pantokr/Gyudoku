@@ -9,14 +9,13 @@ public class FileManager_C : MonoBehaviour
     public static string fname = "default";
     public CellManager_C cellManager;
     public GameObject playManager;
-
     public GameObject saveButton;
     public GameObject playButton;
-
     public GameObject dialog;
-    public InputField inputField;
     public GameObject cancelButton;
     public GameObject submitButton;
+    public GameObject mainPanel;
+    public InputField inputField;
 
     private Button _save;
     private Button _play;
@@ -63,10 +62,11 @@ public class FileManager_C : MonoBehaviour
         SceneManager.LoadScene("PlayScene");
     }
 
-    private void DisplayDialog()
+    public void DisplayDialog()
     {
-        GameObject.Find("PlayManager").SetActive(false);
+        playManager.SetActive(false);
         dialog.SetActive(true);
+        TurnObjects(false);
     }
 
 
@@ -74,6 +74,7 @@ public class FileManager_C : MonoBehaviour
     {
         dialog.SetActive(false);
         playManager.SetActive(true);
+        TurnObjects(true);
     }
 
     private void Submit()
@@ -85,5 +86,13 @@ public class FileManager_C : MonoBehaviour
 
         dialog.SetActive(false);
         playManager.SetActive(true);
+        TurnObjects(true);
+    }
+    private void TurnObjects(bool onf)
+    {
+        playManager.SetActive(onf);
+        mainPanel.transform.Find("SudokuBoard").gameObject.SetActive(onf);
+        mainPanel.transform.Find("NumberHighlighter").gameObject.SetActive(onf);
+        mainPanel.transform.Find("ManualTools").gameObject.SetActive(onf);
     }
 }

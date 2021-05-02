@@ -9,6 +9,7 @@ public class AutoToolsManager : MonoBehaviour
     public GameObject autoMemoButton;
     public GameObject hintButton;
     public GameObject autoSingleButton;
+    public HintDialogManager hintDialogManager;
 
     private AutoMemoManager autoMemoManager;
     private HintManager hintManager;
@@ -36,6 +37,7 @@ public class AutoToolsManager : MonoBehaviour
 
         _autoMemo.onClick.AddListener(delegate { autoMemoManager.RunAutoMemo(); });
         _hint.onClick.AddListener(delegate { hintManager.RunHint(); });
+
         _autoSingle.onClick.AddListener(delegate { autoSingleManager.RunAutoSingle(); });
     }
 }

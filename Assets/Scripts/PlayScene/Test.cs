@@ -4,15 +4,14 @@ using UnityEngine;
 
 public class Test : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    private HintManager hintManager;
+    private void Start()
     {
-        
+        hintManager = GameObject.Find("HintButton").GetComponent<HintManager>();
     }
-
-    // Update is called once per frame
-    void Update()
+    public void Tester()
     {
-        
+
+        hintManager.FindNakedSingle(false);
     }
 }

@@ -25,7 +25,17 @@ public class HintManager : MonoBehaviour
     public void RunHint()
     {
         breaker = false;
-        RunBasicHint();
+        if (Settings.PlayMode == 0)
+        {
+            RunBasicHint();
+        }
+        else
+        {
+            if (!sudokuController.IsNormalSudoku())
+            {
+                
+            }
+        }
         if (breaker)
         {
             return;
@@ -293,7 +303,7 @@ public class HintManager : MonoBehaviour
         }
 
         return false;
-    }
+    } //히든 싱글
 
     public bool FindNakedSingle(bool isAutoSingle = false)
     {
@@ -301,11 +311,56 @@ public class HintManager : MonoBehaviour
         {
             for (int _x = 0; _x < 9; _x++)
             {
+                if (sudokuController.IsEmptyCell(_y, _x))
+                {
+                    List<int> vals = new List<int>();
+                    for (int val = 0; val < 9; val++)
+                    {
+                        if (sudokuController.IsNewValueAvailableRow(_y, _x, val + 1) == true &&
+                            sudokuController.IsNewValueAvailableCol(_y, _x, val + 1) == true &&
+                            sudokuController.IsNewValueAvailableSG(_y, _x, val + 1) == true)
+                        {
+                            vals.Add(val);
+                        }
+                        if (vals.Count == 2)
+                        {
+                            break;
+                        }
+                    }
+                    if (vals.Count == 1)
+                    {
+                        breaker = true;
+                        int val = vals[0];
 
+                        if (isAutoSingle)
+                        {
+                            cellManager.FillCell(_y, _x, val + 1);
+                            return true;
+                        }
+                        else // 일반
+                        {
+                            //대사
+                            string[] str = { "네이키드 싱글", $"이 셀에 {val + 1} 말고는 들어갈 수 있는 값이 없습니다." };
+                            tmp_hint.Clear();
+                            tmp_hint.Add(null);
+                            tmp_hint.Add(new Tuple<GameObject, GameObject>(
+                                objects[_y, _x], objects[_y, _x]));
+
+                            //처방
+                            List<Tuple<Vector2Int, int>> toFill = new List<Tuple<Vector2Int, int>>();
+                            toFill.Add(new Tuple<Vector2Int, int>(new Vector2Int(_x, _y), val + 1));
+
+                            hintDialogManager.StartDialog(str, tmp_hint, toFill);
+                            return true;
+
+                        }
+                    }
+                }
             }
         }
         return false;
-    }
+    } //다른 영역과의 교차점
+
     private void FindFromFullSudoku()
     {
         for (int _y = 0; _y < 9; _y++)
@@ -318,7 +373,7 @@ public class HintManager : MonoBehaviour
                     int val = SudokuManager.fullSudoku[_y, _x];
 
                     //대사
-                    string[] str = { "길라잡이", $"{_y + 1}행 {_x + 1}열에는 {val}가 들어가야 합니다." };
+                    string[] str = { "길라잡이", $"{_y + 1}행 {_x + 1}열의 값은 {val} 입니다." };
 
                     tmp_hint.Clear();
                     tmp_hint.Add(null);
@@ -328,6 +383,7 @@ public class HintManager : MonoBehaviour
                     //처방
                     List<Tuple<Vector2Int, int>> toFill = new List<Tuple<Vector2Int, int>>();
                     toFill.Add(new Tuple<Vector2Int, int>(new Vector2Int(_x, _y), val));
+                    hintDialogManager.StartDialog(str, tmp_hint, toFill);
                 }
             }
         }

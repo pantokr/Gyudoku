@@ -13,8 +13,8 @@ public class PlayManager_C : MonoBehaviour
     //public GameObject VictoryPanel;
 
     //현재 가리키고 있는 포인터
-    private int curY;
-    private int curX;
+    public int curY;
+    public int curX;
 
     private KeyCode[] AlphaKeys = // 1부터 9까지
     {
@@ -35,16 +35,47 @@ public class PlayManager_C : MonoBehaviour
             cellManager.HighlightCells(0);
             pausePanel.SetActive(true);
         }
-    }
 
-    private void LateUpdate()
-    {
+        #region arrowkeys
+        if (Input.GetKeyDown(KeyCode.RightArrow) && curX < 9)
+        {
+            curX++;
+            if (curX >= 9)
+            {
+                curX = 8;
+            }
+        }
+        if (Input.GetKeyDown(KeyCode.LeftArrow) && curX >= 0)
+        {
+            curX--;
+            if (curX < 0)
+            {
+                curX = 0;
+            }
+        }
+        if (Input.GetKeyDown(KeyCode.UpArrow) && curY >= 0)
+        {
+            curY--;
+            if (curY < 0)
+            {
+                curY = 0;
+            }
+        }
+        if (Input.GetKeyDown(KeyCode.DownArrow)  && curY < 9)
+        {
+            curY++;
+            if (curY >= 9)
+            {
+                curY = 8;
+            }
+        }
+        #endregion
+
         //클릭 시 일단 초기화
         if (Input.GetMouseButtonDown(0))
         {
             curY = -1;
             curX = -1;
-            cellManager.HighlightCells(0);
         }
 
         for (int i = 0; i < AlphaKeys.Length; i++)
@@ -56,6 +87,7 @@ public class PlayManager_C : MonoBehaviour
                     if (cellManager.GetSudokuValue(curY, curX) == i + 1) //숫자 지워주기
                     {
                         cellManager.DeleteCell(curY, curX);
+                        cellManager.HighlightCells(i + 1);
                     }
                     else
                     {
@@ -82,22 +114,10 @@ public class PlayManager_C : MonoBehaviour
             return;
         }
 
-        //E을 누르면 Memo on
+        //E을 누르면 Eraser on
         if (Input.GetKeyDown(KeyCode.E))
         {
             manualToolsManager.TurnEraser();
-            return;
-        }
-
-        if (Input.GetKeyDown(KeyCode.S))
-        {
-            fileManager.StartSaving();
-            return;
-        }
-
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            fileManager.StartPlaying();
             return;
         }
     }

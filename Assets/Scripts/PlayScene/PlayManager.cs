@@ -9,7 +9,7 @@ public class PlayManager : MonoBehaviour
     public MemoManager memoManager;
     public NumberHighlighterManager numberHighlighterManager;
     public SudokuController sudokuController;
-    
+
     //현재 가리키고 있는 포인터
     public int curY;
     public int curX;
@@ -32,11 +32,47 @@ public class PlayManager : MonoBehaviour
             pausePanel.SetActive(true);
         }
         //클릭 시 일단 초기화
+
+        #region arrowkeys
+        if (Input.GetKeyDown(KeyCode.RightArrow) && curX < 9)
+        {
+            curX++;
+            if (curX >= 9)
+            {
+                curX = 8;
+            }
+        }
+        if (Input.GetKeyDown(KeyCode.LeftArrow) && curX >= 0)
+        {
+            curX--;
+            if (curX < 0)
+            {
+                curX = 0;
+            }
+        }
+        if (Input.GetKeyDown(KeyCode.UpArrow) && curY >= 0)
+        {
+            curY--;
+            if (curY < 0)
+            {
+                curY = 0;
+            }
+        }
+        if (Input.GetKeyDown(KeyCode.DownArrow) && curY < 9)
+        {
+            curY++;
+            if (curY >= 9)
+            {
+                curY = 8;
+            }
+        }
+        #endregion
+
+
         if (Input.GetMouseButtonDown(0))
         {
             curY = -1;
             curX = -1;
-            //cellManager.HighlightCells(0);
         }
 
         for (int i = 0; i < AlphaKeys.Length; i++)
@@ -51,10 +87,11 @@ public class PlayManager : MonoBehaviour
                         if (sudokuController.IsInMemoCell(curY, curX, i + 1)) //메모 지워주기
                         {
                             memoManager.DeleteMemoCell(curY, curX, i + 1);
+                            cellManager.HighlightCells(i + 1);
                         }
                         else //메모 쓰기
                         {
-                            sudokuController.CheckNormal(curY, curX, i + 1); //정상 확인
+                            sudokuController.CheckNewValueNormal(curY, curX, i + 1); //정상 확인
 
                             cellManager.DeleteCell(curY, curX);
                             memoManager.FillMemoCell(curY, curX, i + 1);
@@ -65,10 +102,11 @@ public class PlayManager : MonoBehaviour
                         if (sudokuController.IsInCell(curY, curX, i + 1)) //숫자 지워주기
                         {
                             cellManager.DeleteCell(curY, curX);
+                            cellManager.HighlightCells(i + 1);
                         }
                         else
                         {
-                            sudokuController.CheckNormal(curY, curX, i + 1); //정상 확인
+                            sudokuController.CheckNewValueNormal(curY, curX, i + 1); //정상 확인
 
                             cellManager.FillCell(curY, curX, i + 1);
 
