@@ -10,6 +10,7 @@ public class HintDialogManager : MonoBehaviour
     public GameObject sudokuBoard;
     public GameObject mainPanel;
     public CellManager cellManager;
+    public MemoManager memoManager;
     public HintLineManager hintLineManager;
     public SudokuController sudokuController;
 
@@ -17,6 +18,7 @@ public class HintDialogManager : MonoBehaviour
     private string[] texts;
 
     private List<GameObject> hintCells;
+    private List<List<GameObject>> hintCellsList;
     private List<Tuple<GameObject, GameObject>> hintLines;
 
     private List<Tuple<Vector2Int, int>> toFill;
@@ -63,6 +65,30 @@ public class HintDialogManager : MonoBehaviour
         else
         {
             this.hintCells = new List<GameObject>(hintCells);
+        }
+
+        if (toFill == null)
+        {
+            this.toFill = null;
+        }
+        else
+        {
+            this.toFill = new List<Tuple<Vector2Int, int>>(toFill);
+        }
+
+        StartDialog(texts);
+    }
+    public void StartDialogAndFillCell(string[] texts, List<List<GameObject>> hintCellsList, List<Tuple<Vector2Int, int>> toFill) // 오버라이드
+    {
+
+        this.texts = (string[])texts.Clone();
+        if (hintCellsList == null)
+        {
+            this.hintCellsList = null;
+        }
+        else
+        {
+            this.hintCellsList = new List<List<GameObject>>(hintCellsList);
         }
 
         if (toFill == null)
@@ -124,6 +150,15 @@ public class HintDialogManager : MonoBehaviour
                 foreach (var l in toFill)
                 {
                     cellManager.FillCell(l.Item1.y, l.Item1.x, l.Item2);
+                }
+                toFill = null;
+            }
+
+            if (toDelete != null)
+            {
+                foreach (var l in toDelete)
+                {
+                    memoManager.DeleteMemoCell(l.Item1.y, l.Item1.x, l.Item2);
                 }
                 toFill = null;
             }

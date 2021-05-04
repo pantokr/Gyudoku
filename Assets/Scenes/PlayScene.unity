@@ -1845,6 +1845,7 @@ MonoBehaviour:
   sudokuBoard: {fileID: 822733245}
   mainPanel: {fileID: 1396505636}
   cellManager: {fileID: 1625343919}
+  memoManager: {fileID: 1511033781}
   hintLineManager: {fileID: 1527513820}
   sudokuController: {fileID: 1435379898}
 --- !u!114 &961736336

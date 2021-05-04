@@ -16,8 +16,11 @@ public class HintManager : MonoBehaviour
     private bool breaker = false;
     private GameObject[,] objects;
     private GameObject[,,,] memoObjects;
+
+    private int[,] sudoku;
     private void Start()
     {
+        sudoku = SudokuManager.sudoku;
         objects = cellManager.GetObjects();
         memoObjects = memoManager.GetWholeMemoObjects();
     }
@@ -49,6 +52,12 @@ public class HintManager : MonoBehaviour
         }
 
         FindHiddenSingle();
+        if (breaker)
+        {
+            return;
+        }
+
+        FindCrossPointing();
         if (breaker)
         {
             return;
@@ -368,6 +377,64 @@ public class HintManager : MonoBehaviour
         return false;
     } //다른 영역과의 교차점
 
+    public void FindCrossPointing()
+    {
+        for (int y = 0; y < 3; y++)
+        {
+            for (int x = 0; x < 3; x++)
+            {
+                for (int val = 0; val < 9; val++)
+                {
+                    var (rows, cols) = sudokuController.GetLinesDisabledBySG(y, x, val);
+                    foreach (var r_ in rows)
+                    {
+
+                        print($"y:{y + 1},x:{x + 1},val:{val + 1},r:{r_}");
+                    }
+                    if (rows.Count == 1)
+                    {
+                        int r = rows[0];
+                        //print($"y:{y + 1},x:{x + 1},val:{val + 1},r:{r}");
+                        List<int> crosses = new List<int>();
+                        for (int _x = 0; _x < 9; _x++)
+                        {
+                            if (_x >= x * 3 && _x < x * 3 + 3)
+                            {
+                                continue;
+                            }
+
+                            if (sudoku[r, _x] == val)
+                            {
+                                crosses.Add(_x);
+                            }
+                        }
+
+                        if (crosses.Count != 0)
+                        {
+                            breaker = true;
+                            //대사
+
+                            string[] str = { "교차점(Pointing)", $"{r + 1}행은  {y * 3 + x + 1}번 째 서브그리드 외엔 {val + 1} 값이 들어갈 수 없습니다. " };
+                            hintCell.Clear();
+                            hintCell.Add(null);
+
+                            //처방
+                            List<Tuple<Vector2Int, int>> toDelete = new List<Tuple<Vector2Int, int>>();
+                            foreach (var cx in crosses)
+                            {
+                                toDelete.Add(new Tuple<Vector2Int, int>(new Vector2Int(cx, r), val + 1));
+                            }
+
+                            hintDialogManager.StartDialogAndDeleteMemo(str, hintCell, toDelete);
+
+
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+    }
     private void FindFromFullSudoku()
     {
         for (int _y = 0; _y < 9; _y++)

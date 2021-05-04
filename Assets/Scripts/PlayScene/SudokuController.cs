@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using System.Linq;
 public class SudokuController : MonoBehaviour
 {
     public GameObject passDialog;
@@ -500,6 +500,30 @@ public class SudokuController : MonoBehaviour
     }
 
     #endregion
+
+    public (List<int>, List<int>) GetLinesDisabledBySG(int y, int x, int value) //서브그리드 좌표 매개변수, row, col 순으로 반환, 
+    {
+        List<int> rows = new List<int>();
+        List<int> cols = new List<int>();
+        for (int _y = y * 3; _y < y * 3 + 3; _y++)
+        {
+            for (int _x = x * 3; _x < x * 3 + 3; _x++)
+            {
+                if(memoSudoku[_y, _x] == value)
+                {
+                    rows.Add(_y);
+                    cols.Add(_x);
+                }
+            }
+        }
+        rows = rows.Distinct().ToList();
+        rows.Sort();
+        
+        cols = cols.Distinct().ToList();
+        cols.Sort();
+
+        return (rows, cols);
+    }
 
     #region 기타
     public void RecordSudokuLog()
