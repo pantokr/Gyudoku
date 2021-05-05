@@ -17,12 +17,12 @@ public class HintDialogManager : MonoBehaviour
     private Animation pusher;
     private string[] texts;
 
-    private List<GameObject> hintCells;
-    private List<List<GameObject>> hintCellsList;
-    private List<Tuple<GameObject, GameObject>> hintLines;
+    private List<GameObject> hintCells = null;
+    private List<List<GameObject>> hintCellsList = null;
+    private List<Tuple<GameObject, GameObject>> hintLines = null;
 
-    private List<Tuple<Vector2Int, int>> toFill;
-    private List<GameObject> toDelete;
+    private List<Tuple<Vector2Int, int>> toFill = null;
+    private List<GameObject> toDelete = null;
 
     private Text _dialogText;
     private int cur = 0;
@@ -58,23 +58,11 @@ public class HintDialogManager : MonoBehaviour
     {
 
         this.texts = (string[])texts.Clone();
-        if (hintCells == null)
-        {
-            this.hintCells = null;
-        }
-        else
-        {
-            this.hintCells = new List<GameObject>(hintCells);
-        }
 
-        if (toFill == null)
-        {
-            this.toFill = null;
-        }
-        else
-        {
-            this.toFill = new List<Tuple<Vector2Int, int>>(toFill);
-        }
+        this.hintCells = new List<GameObject>(hintCells);
+
+        this.toFill = new List<Tuple<Vector2Int, int>>(toFill);
+
 
         StartDialog(texts);
     }
@@ -82,46 +70,20 @@ public class HintDialogManager : MonoBehaviour
     {
 
         this.texts = (string[])texts.Clone();
-        if (hintCellsList == null)
-        {
-            this.hintCellsList = null;
-        }
-        else
-        {
-            this.hintCellsList = new List<List<GameObject>>(hintCellsList);
-        }
 
-        if (toFill == null)
-        {
-            this.toFill = null;
-        }
-        else
-        {
-            this.toFill = new List<Tuple<Vector2Int, int>>(toFill);
-        }
+        this.hintCellsList = new List<List<GameObject>>(hintCellsList);
+
+        this.toFill = null;
+
+        this.toFill = new List<Tuple<Vector2Int, int>>(toFill);
+
 
         StartDialog(texts);
     }
     public void StartDialogAndDeleteMemo(string[] texts, List<GameObject> hintCells, List<GameObject> toDelete) //line
     {
-
-        if (hintCells == null)
-        {
-            this.hintCells = null;
-        }
-        else
-        {
-            this.hintCells = new List<GameObject>(hintCells);
-        }
-
-        if (toDelete == null)
-        {
-            this.toDelete = null;
-        }
-        else
-        {
-            this.toDelete = new List<GameObject>(toDelete);
-        }
+        this.hintCells = new List<GameObject>(hintCells);
+        this.toDelete = new List<GameObject>(toDelete);
 
         cur = 0;
 
@@ -129,24 +91,8 @@ public class HintDialogManager : MonoBehaviour
     }
     public void StartDialogAndDeleteMemo(string[] texts, List<List<GameObject>> hintCellsList, List<GameObject> toDelete) // 오버라이드
     {
-
-        if (hintCellsList == null)
-        {
-            this.hintCellsList = null;
-        }
-        else
-        {
-            this.hintCellsList = new List<List<GameObject>>(hintCellsList);
-        }
-
-        if (toDelete == null)
-        {
-            this.toDelete = null;
-        }
-        else
-        {
-            this.toDelete = new List<GameObject>(toDelete);
-        }
+        this.hintCellsList = new List<List<GameObject>>(hintCellsList);
+        this.toDelete = new List<GameObject>(toDelete);
 
         cur = 0;
 
@@ -166,7 +112,7 @@ public class HintDialogManager : MonoBehaviour
             sudokuBoard.GetComponent<RectTransform>().localPosition = new Vector2(0, 0);
             SetVisible(true);
 
-            //정리
+            //대사화면 정리
             gameObject.SetActive(false);
             hintButton.GetComponent<Button>().enabled = true;
 
@@ -188,6 +134,14 @@ public class HintDialogManager : MonoBehaviour
                     memoManager.DeleteMemoCell(obj);
                 }
             }
+
+            //null 처리
+            hintCells = null;
+            hintCellsList = null;
+            hintLines = null;
+
+            toFill = null;
+            toDelete = null;
 
             //게임 종료 처리
             sudokuController.FinishSudoku();

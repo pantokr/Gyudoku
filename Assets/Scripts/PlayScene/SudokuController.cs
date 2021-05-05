@@ -51,7 +51,6 @@ public class SudokuController : MonoBehaviour
     {
         var l1 = GetActiveMemoValue(c1.y, c1.x);
         var l2 = GetActiveMemoValue(c2.y, c2.x);
-
         if (l1.Count != l2.Count)
         {
             return false;
@@ -295,7 +294,6 @@ public class SudokuController : MonoBehaviour
             if (x != _x && cellManager.sudoku[y, _x] == newVal)
             {
                 list.Add(new Vector2Int(_x, y));
-                //print("Row" + y.ToString() + _x.ToString());
                 flag = false;
             }
         }
@@ -309,7 +307,6 @@ public class SudokuController : MonoBehaviour
             if (y != _y && cellManager.sudoku[_y, x] == newVal)
             {
                 list.Add(new Vector2Int(x, _y));
-                //print("Col" + _y.ToString() + x.ToString());
                 flag = false;
             }
         }
@@ -328,7 +325,6 @@ public class SudokuController : MonoBehaviour
                 {
                     list.Add(new Vector2Int(_x, _y));
                     flag = false;
-                    //print("SG" + _y.ToString() + _x.ToString());
                 }
             }
         }
@@ -379,7 +375,6 @@ public class SudokuController : MonoBehaviour
                 if (sudoku[y, x] == 0) // 스도쿠 값이 없을 때
                 {
                     int rightNumber = fullSudoku[y, x];
-                    //print("right Number" + rightNumber.ToString());
 
                     if (memoSudoku[rightNumber - 1, y, x] == 0)
                     {
@@ -535,7 +530,6 @@ public class SudokuController : MonoBehaviour
         {
             for (int _x = x * 3; _x < x * 3 + 3; _x++)
             {
-                //print($"{value}, {_y}, {_x}");
                 if (memoSudoku[value, _y, _x] == 1)
                 {
                     rows.Add(_y);
@@ -555,12 +549,12 @@ public class SudokuController : MonoBehaviour
     #endregion
 
     #region 활성화된 메모값 반환
-    public List<int> GetActiveMemoValue(int y, int x)
+    public List<int> GetActiveMemoValue(int y, int x) //1~9
     {
         List<int> memoValueList = new List<int>();
         for (int val = 1; val <= 9; val++)
         {
-            if (!IsInMemoCell(y, x, val))
+            if (IsInMemoCell(y, x, val))
             {
                 memoValueList.Add(val);
             }
