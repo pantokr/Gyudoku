@@ -44,14 +44,30 @@ public class SudokuController : MonoBehaviour
         return memoSudoku[value - 1, y, x] == 1;
     }
 
-    public bool IsEmptyCell(int y, int x)
+    #endregion
+
+    #region 두 셀 비교
+    public bool IsEqualMemoCell(Vector2Int c1, Vector2Int c2)
     {
-        if (sudoku[y, x] == 0)
+        var l1 = GetActiveMemoValue(c1.y, c1.x);
+        var l2 = GetActiveMemoValue(c2.y, c2.x);
+
+        if (l1.Count != l2.Count)
         {
-            return true;
+            return false;
         }
-        return false;
+
+        for (int pin = 0; pin < l1.Count; pin++)
+        {
+            if (l1[pin] != l2[pin])
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
+
     #endregion
 
     #region 스도쿠 완성 여부 검사
@@ -423,38 +439,47 @@ public class SudokuController : MonoBehaviour
     #endregion
 
     #region 빈 셀 반환
-    public List<Vector2Int> GetEmptyCellInRow(int y)
+    public bool IsEmptyCell(int y, int x)
     {
-        List<Vector2Int> empty = new List<Vector2Int>();
+        if (sudoku[y, x] == 0)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    public List<int> GetEmptyCellsInRow(int y)
+    {
+        List<int> empty = new List<int>();
         for (int _x = 0; _x < 9; _x++)
         {
-            if (sudoku[y, _x] == 0)
+            if (IsEmptyCell(y, _x))
             {
-                empty.Add(new Vector2Int(_x, y));
+                empty.Add(_x);
             }
         }
         return empty;
     }
-    public List<Vector2Int> GetEmptyCellInCol(int x)
+    public List<int> GetEmptyCellsInCol(int x)
     {
-        List<Vector2Int> empty = new List<Vector2Int>();
+        List<int> empty = new List<int>();
         for (int _y = 0; _y < 9; _y++)
         {
-            if (sudoku[_y, x] == 0)
+            if (IsEmptyCell(_y, x))
             {
-                empty.Add(new Vector2Int(x, _y));
+                empty.Add(_y);
             }
         }
         return empty;
     }
-    public List<Vector2Int> GetEmptyCellInSG(int y, int x) //
+    public List<Vector2Int> GetEmptyCellsInSG(int y, int x) //
     {
         List<Vector2Int> empty = new List<Vector2Int>();
         for (int _y = y * 3; _y < y * 3 + 3; _y++)
         {
             for (int _x = x * 3; _x < x * 3 + 3; _x++)
             {
-                if (sudoku[_y, _x] == 0)
+                if (IsEmptyCell(_y, _x))
                 {
                     empty.Add(new Vector2Int(_x, _y));
                 }
@@ -501,6 +526,7 @@ public class SudokuController : MonoBehaviour
 
     #endregion
 
+    #region 서브그리드의 셀에서 한 값이 차지하는 라인 영역 반환
     public (List<int>, List<int>) GetLinesDisabledBySG(int y, int x, int value) //서브그리드 좌표 매개변수, row, col 순으로 반환, 
     {
         List<int> rows = new List<int>();
@@ -509,7 +535,8 @@ public class SudokuController : MonoBehaviour
         {
             for (int _x = x * 3; _x < x * 3 + 3; _x++)
             {
-                if(memoSudoku[_y, _x] == value)
+                //print($"{value}, {_y}, {_x}");
+                if (memoSudoku[value, _y, _x] == 1)
                 {
                     rows.Add(_y);
                     cols.Add(_x);
@@ -518,12 +545,68 @@ public class SudokuController : MonoBehaviour
         }
         rows = rows.Distinct().ToList();
         rows.Sort();
-        
+
         cols = cols.Distinct().ToList();
         cols.Sort();
 
-        return (rows, cols);
+        return (rows, cols); //끔찍해
     }
+
+    #endregion
+
+    #region 활성화된 메모값 반환
+    public List<int> GetActiveMemoValue(int y, int x)
+    {
+        List<int> memoValueList = new List<int>();
+        for (int val = 1; val <= 9; val++)
+        {
+            if (!IsInMemoCell(y, x, val))
+            {
+                memoValueList.Add(val);
+            }
+        }
+        return memoValueList;
+    }
+    public List<List<int>> GetMemoValuesInRow(int y)
+    {
+        List<List<int>> mv = new List<List<int>>();
+        for (int _x = 0; _x < 9; _x++)
+        {
+            if (IsEmptyCell(y, _x))
+            {
+                mv.Add(GetActiveMemoValue(y, _x));
+            }
+        }
+        return mv;
+    }
+    public List<List<int>> GetMemoValuesInCol(int x)
+    {
+        List<List<int>> mv = new List<List<int>>();
+        for (int _y = 0; _y < 9; _y++)
+        {
+            if (IsEmptyCell(_y, x))
+            {
+                mv.Add(GetActiveMemoValue(_y, x));
+            }
+        }
+        return mv;
+    }
+    public List<List<int>> GetMemoValuesInSG(int y, int x)
+    {
+        List<List<int>> mv = new List<List<int>>();
+        for (int _y = y * 3; _y < y * 3 + 3; _y++)
+        {
+            for (int _x = x * 3; _x < x * 3 + 3; _x++)
+            {
+                if (IsEmptyCell(_y, _x))
+                {
+                    mv.Add(GetActiveMemoValue(_y, _x));
+                }
+            }
+        }
+        return mv;
+    }
+    #endregion
 
     #region 기타
     public void RecordSudokuLog()

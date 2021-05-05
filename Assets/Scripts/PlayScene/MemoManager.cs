@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -46,7 +47,7 @@ public class MemoManager : MonoBehaviour
         }
         return retObj;
     }
-    public GameObject[,,,] GetWholeMemoObjects()
+    public GameObject[,,,] GetWholeMemoObjects() //(y,x)의 (3x3 메모스도쿠)
     {
         GameObject[,,,] retObj = new GameObject[9, 9, 3, 3];
         for (int y = 0; y < 9; y++)
@@ -98,7 +99,6 @@ public class MemoManager : MonoBehaviour
         parentObj.transform.Find($"y{vy}x{vx}").gameObject.SetActive(true);
         memoSudoku[value - 1, y, x] = 1;
     }
-
     public void DeleteMemoCell(int y, int x, int value = 0)
     {
         GameObject[,] memoObjs = GetMemoObjects(y, x);
@@ -122,7 +122,17 @@ public class MemoManager : MonoBehaviour
             memoSudoku[value - 1, y, x] = 0;
         }
     }
+    public void DeleteMemoCell(GameObject obj)
+    {
+        obj.SetActive(false);
+        int value = int.Parse(obj.transform.Find("Text").GetComponent<Text>().text);
 
+        GameObject parent = obj.transform.parent.parent.gameObject;
+        string parentName = parent.name;
+        int y = parentName[1] - '0' - 1;
+        int x = parentName[3] - '0' - 1;
+        memoSudoku[value - 1, y, x] = 0;
+    }
     public void DeleteMemoCellsAtOnce(int y, int x, int value) //입력 시 주변 메모셀 모두 정리
     {
         //row

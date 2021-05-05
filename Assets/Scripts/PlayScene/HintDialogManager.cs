@@ -22,7 +22,7 @@ public class HintDialogManager : MonoBehaviour
     private List<Tuple<GameObject, GameObject>> hintLines;
 
     private List<Tuple<Vector2Int, int>> toFill;
-    private List<Tuple<Vector2Int, int>> toDelete;
+    private List<GameObject> toDelete;
 
     private Text _dialogText;
     private int cur = 0;
@@ -102,7 +102,7 @@ public class HintDialogManager : MonoBehaviour
 
         StartDialog(texts);
     }
-    public void StartDialogAndDeleteMemo(string[] texts, List<GameObject> hintCells, List<Tuple<Vector2Int, int>> toDelete) //line
+    public void StartDialogAndDeleteMemo(string[] texts, List<GameObject> hintCells, List<GameObject> toDelete) //line
     {
 
         if (hintCells == null)
@@ -120,7 +120,32 @@ public class HintDialogManager : MonoBehaviour
         }
         else
         {
-            this.toDelete = new List<Tuple<Vector2Int, int>>(toDelete);
+            this.toDelete = new List<GameObject>(toDelete);
+        }
+
+        cur = 0;
+
+        StartDialog(texts);
+    }
+    public void StartDialogAndDeleteMemo(string[] texts, List<List<GameObject>> hintCellsList, List<GameObject> toDelete) // 오버라이드
+    {
+
+        if (hintCellsList == null)
+        {
+            this.hintCellsList = null;
+        }
+        else
+        {
+            this.hintCellsList = new List<List<GameObject>>(hintCellsList);
+        }
+
+        if (toDelete == null)
+        {
+            this.toDelete = null;
+        }
+        else
+        {
+            this.toDelete = new List<GameObject>(toDelete);
         }
 
         cur = 0;
@@ -130,6 +155,10 @@ public class HintDialogManager : MonoBehaviour
 
     public void ChangeText()
     {
+
+        hintLineManager.EraseAllLine();
+        hintLineManager.EraseAllCell();
+
         if (cur == texts.Length)
         {
             //end animation
@@ -141,9 +170,6 @@ public class HintDialogManager : MonoBehaviour
             gameObject.SetActive(false);
             hintButton.GetComponent<Button>().enabled = true;
 
-            hintLineManager.EraseAllLine();
-            hintLineManager.EraseAllCell();
-
             //FillCell 처리
             if (toFill != null)
             {
@@ -154,13 +180,13 @@ public class HintDialogManager : MonoBehaviour
                 toFill = null;
             }
 
+            //DeleteCell 처리
             if (toDelete != null)
             {
-                foreach (var l in toDelete)
+                foreach (var obj in toDelete)
                 {
-                    memoManager.DeleteMemoCell(l.Item1.y, l.Item1.x, l.Item2);
+                    memoManager.DeleteMemoCell(obj);
                 }
-                toFill = null;
             }
 
             //게임 종료 처리
@@ -186,9 +212,20 @@ public class HintDialogManager : MonoBehaviour
                 hintLineManager.HighlightCell(hintCells[cur]);
             }
         }
+
+        if (hintCellsList != null) //필요 시 셀 강조
+        {
+            if (hintCellsList[cur] != null)
+            {
+                foreach (var hc in hintCellsList[cur])
+                {
+                    hintLineManager.HighlightCell(hc);
+                }
+            }
+        }
+
         cur++;
     }
-
     private void SetVisible(bool onf)
     {
         mainPanel.transform.Find("NumberHighlighter").gameObject.SetActive(onf);
