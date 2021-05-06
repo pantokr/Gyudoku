@@ -283,7 +283,7 @@ public class SudokuController : MonoBehaviour
     }
     #endregion
 
-    #region normal 스도쿠 무결성 검사 newval == 1~9
+    #region 스도쿠 무결성 검사 newval == 1~9
     public bool IsNewValueAvailableRow(int y, int x, int newVal, List<(int, int)> list = null)
     {
         bool flag = true;
@@ -519,6 +519,49 @@ public class SudokuController : MonoBehaviour
         }
         return SG;
     }
+    #endregion
+
+    #region 값이 존재하는 메모 셀 반환
+    public List<int> GetMemoCellInRow(int y, int value)
+    {
+        List<int> list = new List<int>();
+        for (int _x = 0; _x < 9; _x++)
+        {
+            if (IsInMemoCell(y, _x, value))
+            {
+                list.Add(_x);
+            }
+        }
+        return list;
+    }
+    public List<int> GetMemoCellInCol(int x, int value)
+    {
+        List<int> list = new List<int>();
+        for (int _y = 0; _y < 9; _y++)
+        {
+            if (IsInMemoCell(_y, x, value))
+            {
+                list.Add(_y);
+            }
+        }
+        return list;
+    }
+    public List<(int, int)> GetMemoCellInSG(int y, int x, int value)
+    {
+        List<(int, int)> list = new List<(int, int)>();
+
+        for (int _y = y * 3; _y < y * 3 + 3; _y++)
+        {
+            for (int _x = x * 3; _x < x * 3 + 3; _x++)
+            {
+                if (IsInMemoCell(_y, _x, value))
+                {
+                    list.Add((_y, _x));
+                }
+            }
+        }
+        return list;
+    }
 
     #endregion
 
@@ -545,6 +588,38 @@ public class SudokuController : MonoBehaviour
         cols.Sort();
 
         return (rows, cols); //끔찍해
+    }
+
+    public List<(int, int)> GetSGsDisbledByRow(int y, int value)
+    {
+        List<(int, int)> SGs = new List<(int, int)>();
+        for (int _x = 0; _x < 9; _x++)
+        {
+            if (memoSudoku[value - 1, y, _x] == 1)
+            {
+                SGs.Add((y / 3, _x / 3));
+            }
+        }
+        SGs = SGs.Distinct().ToList();
+        SGs.Sort();
+
+        return SGs;
+    }
+
+    public List<(int, int)> GetSGsDisbledByCol(int x, int value)
+    {
+        List<(int, int)> SGs = new List<(int, int)>();
+        for (int _y = 0; _y < 9; _y++)
+        {
+            if (memoSudoku[value - 1, _y, x] == 1)
+            {
+                SGs.Add((_y / 3, x / 3));
+            }
+        }
+        SGs = SGs.Distinct().ToList();
+        SGs.Sort();
+
+        return SGs;
     }
 
     #endregion
@@ -610,6 +685,16 @@ public class SudokuController : MonoBehaviour
 
         Tuple<int[,], int[,,]> tuple = new Tuple<int[,], int[,,]>((int[,])sudoku.Clone(), (int[,,])memoSudoku.Clone());
         lateSudoku.Add(tuple);
+    }
+
+    public int ValToY(int value)
+    {
+        return (value - 1) / 3;
+    }
+
+    public int ValToX(int value)
+    {
+        return (value - 1) % 3;
     }
     #endregion 
 }

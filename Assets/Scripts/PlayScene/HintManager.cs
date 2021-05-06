@@ -40,6 +40,7 @@ public class HintManager : MonoBehaviour
                 hintDialogManager.StartDialog(_str);
             }
         }
+
         if (breaker)
         {
             return;
@@ -69,7 +70,19 @@ public class HintManager : MonoBehaviour
             return;
         }
 
+        FindCrossClaiming();
+        if (breaker)
+        {
+            return;
+        }
+
         FindNakedPair();
+        if (breaker)
+        {
+            return;
+        }
+
+        FindXWing();
         if (breaker)
         {
             return;
@@ -205,6 +218,46 @@ public class HintManager : MonoBehaviour
                 }
             }
         }
+    }
+
+    public bool FindNakedSingle(bool isAutoSingle = false) //네이키드 싱글
+    {
+        for (int _y = 0; _y < 9; _y++)
+        {
+            for (int _x = 0; _x < 9; _x++)
+            {
+                if (sudokuController.IsEmptyCell(_y, _x))
+                {
+                    var mv = sudokuController.GetActiveMemoValue(_y, _x);
+
+                    if (mv.Count == 1)
+                    {
+                        breaker = true;
+                        int val = mv[0];
+
+                        if (isAutoSingle)
+                        {
+                            cellManager.FillCell(_y, _x, val);
+                            return true;
+                        }
+                        else // 일반
+                        {
+                            //대사
+                            string[] str = { "네이키드 싱글", $"이 셀에 {val} 말고는 들어갈 수 있는 값이 없습니다." };
+
+                            //처방
+                            var hc = MakeHC(null, objects[_y, _x]);
+                            var toFill = MakeTuple((_y, _x), val);
+
+                            hintDialogManager.StartDialogAndFillCell(str, hc, toFill);
+                            return true;
+
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     public bool FindHiddenSingle(bool isAutoSingle = false) //히든 싱글
@@ -409,46 +462,116 @@ public class HintManager : MonoBehaviour
                 }
             }
         }
-    }// 인터섹션
+    }//인터섹션
 
-    public bool FindNakedSingle(bool isAutoSingle = false)
+    private void FindCrossClaiming()
     {
-        for (int _y = 0; _y < 9; _y++)
+        //row
+        for (int y = 0; y < 9; y++)
         {
-            for (int _x = 0; _x < 9; _x++)
+            var evs = sudokuController.GetEmptyValueInRow(y);
+            foreach (var ev in evs)
             {
-                if (sudokuController.IsEmptyCell(_y, _x))
+                var SGs = sudokuController.GetSGsDisbledByRow(y, ev);
+                //rows
+                if (SGs.Count == 1)
                 {
-                    var mv = sudokuController.GetActiveMemoValue(_y, _x);
+                    var sg = SGs[0];
+                    //교차점
+                    List<GameObject> hc = new List<GameObject>();
+                    List<GameObject> dc = new List<GameObject>();
 
-                    if (mv.Count == 1)
+                    for (int _y = sg.Item1 * 3; _y < sg.Item1 * 3 + 3; _y++)
+                    {
+                        for (int _x = sg.Item2 * 3; _x < sg.Item2 * 3 + 3; _x++)
+                        {
+                            if (_y == y) //교차점 영역이 아닐 시
+                            {
+                                if (sudokuController.IsInMemoCell(_y, _x, ev))
+                                {
+                                    hc.Add(memoObjects[_y, _x, (ev - 1) / 3, (ev - 1) % 3]);
+                                }
+                                continue;
+                            }
+
+                            if (sudokuController.IsInMemoCell(_y, _x, ev) == true) //교차점 영역일 시 
+                            {
+                                dc.Add(memoObjects[_y, _x, (ev - 1) / 3, (ev - 1) % 3]);
+                            }
+                        }
+                    }
+
+                    if (dc.Count != 0)
                     {
                         breaker = true;
-                        int val = mv[0];
 
-                        if (isAutoSingle)
-                        {
-                            cellManager.FillCell(_y, _x, val);
-                            return true;
-                        }
-                        else // 일반
-                        {
-                            //대사
-                            string[] str = { "네이키드 싱글", $"이 셀에 {val} 말고는 들어갈 수 있는 값이 없습니다." };
+                        //대사
+                        string[] str = {
+                                "인터섹션", $"{sg.Item1+1}-{sg.Item1+1} 서브그리드는 (행 조건을 충족하기 위해)강조된 셀들 중 하나에 무조건 {ev} 값이 들어가야 합니다",
+                                $"따라서 이 셀들에는 {ev} 값이 들어갈 수 없습니다."
+                            };
 
-                            //처방
-                            var hc = MakeHC(null, objects[_y, _x]);
-                            var toFill = MakeTuple((_y, _x), val);
-
-                            hintDialogManager.StartDialogAndFillCell(str, hc, toFill);
-                            return true;
-
-                        }
+                        //처방
+                        var hcList = MakeHCList(null, hc, dc);
+                        hintDialogManager.StartDialogAndDeleteMemo(str, hcList, dc);
+                        return;
                     }
                 }
             }
         }
-        return false;
+
+        //col
+        for (int x = 0; x < 9; x++)
+        {
+            var evs = sudokuController.GetEmptyValueInCol(x);
+            foreach (var ev in evs)
+            {
+                var SGs = sudokuController.GetSGsDisbledByCol(x, ev);
+                //rows
+                if (SGs.Count == 1)
+                {
+                    var sg = SGs[0];
+                    List<GameObject> hc = new List<GameObject>();
+                    List<GameObject> dc = new List<GameObject>();
+
+                    for (int _y = sg.Item1 * 3; _y < sg.Item1 * 3 + 3; _y++)
+                    {
+                        for (int _x = sg.Item2 * 3; _x < sg.Item2 * 3 + 3; _x++)
+                        {
+                            if (_x == x) //교차점 영역이 아닐 시
+                            {
+                                if (sudokuController.IsInMemoCell(_y, _x, ev))
+                                {
+                                    hc.Add(memoObjects[_y, _x, (ev - 1) / 3, (ev - 1) % 3]);
+                                }
+                                continue;
+                            }
+
+                            if (sudokuController.IsInMemoCell(_y, _x, ev) == true) //교차점 영역일 시 
+                            {
+                                dc.Add(memoObjects[_y, _x, (ev - 1) / 3, (ev - 1) % 3]);
+                            }
+                        }
+                    }
+
+                    if (dc.Count != 0)
+                    {
+                        breaker = true;
+
+                        //대사
+                        string[] str = {
+                                "인터섹션", $"{sg.Item1+1}-{sg.Item1+1} 서브그리드는 (행 조건을 충족하기 위해)강조된 셀들 중 하나에 무조건 {ev} 값이 들어가야 합니다",
+                                $"따라서 이 셀들에는 {ev} 값이 들어갈 수 없습니다."
+                            };
+
+                        //처방
+                        var hcList = MakeHCList(null, hc, dc);
+                        hintDialogManager.StartDialogAndDeleteMemo(str, hcList, dc);
+                        return;
+                    }
+                }
+            }
+        }
     }
 
     private void FindNakedPair()
@@ -498,8 +621,8 @@ public class HintManager : MonoBehaviour
 
                             foreach (var mv in mvs)
                             {
-                                hc.Add(memoObjects[y, emptyXList[_x1], (mv - 1) / 3, (mv - 1) % 3]);
-                                hc.Add(memoObjects[y, emptyXList[_x2], (mv - 1) / 3, (mv - 1) % 3]);
+                                hc.Add(objects[y, emptyXList[_x1]]);
+                                hc.Add(objects[y, emptyXList[_x2]]);
                             }
 
                             //대사
@@ -659,8 +782,172 @@ public class HintManager : MonoBehaviour
                 }
             }
         }
-    }
+    } 
 
+    private void FindXWing()
+    {
+        //row
+        for (int y1 = 0; y1 < 8; y1++)
+        {
+            for (int y2 = y1 + 1; y2 < 9; y2++)
+            {
+                for (int val = 1; val <= 9; val++)
+                {
+                    var mcr1 = sudokuController.GetMemoCellInRow(y1, val);
+                    var mcr2 = sudokuController.GetMemoCellInRow(y2, val);
+
+                    if (mcr1.Count != 2 || mcr2.Count != 2)
+                    {
+                        continue;
+                    }
+
+                    if (mcr1[0] != mcr2[0] || mcr1[1] != mcr2[1])
+                    {
+                        continue;
+                    }
+
+                    //Xwing 발견
+                    var mcc1 = sudokuController.GetMemoCellInCol(mcr1[0], val);
+                    var mcc2 = sudokuController.GetMemoCellInCol(mcr1[1], val);
+
+
+                    if (mcc1.Count == 2 && mcc2.Count == 2)
+                    {
+                        continue;
+                    }
+                    //조건 충족
+                    breaker = true;
+                    List<GameObject> hc = new List<GameObject>();
+                    List<GameObject> dc = new List<GameObject>();
+                    List<GameObject> hdc = new List<GameObject>();
+
+                    //강조
+                    for (int i = 0; i < 2; i++)
+                    {
+                        hc.Add(objects[y1, mcr1[i]]);
+                        hc.Add(objects[y2, mcr1[i]]);
+                    }
+
+                    //삭제
+                    foreach (var mc in mcc1)
+                    {
+                        if (mc == y1 || mc == y2)
+                        {
+                            continue;
+                        }
+                        dc.Add(memoObjects[mc, mcr1[0], sudokuController.ValToY(val), sudokuController.ValToX(val)]);
+                        hdc.Add(objects[mc, mcr1[0]]);
+                    }
+
+                    foreach (var mc in mcc2)
+                    {
+                        if (mc == y1 || mc == y2)
+                        {
+                            continue;
+                        }
+                        dc.Add(memoObjects[mc, mcr1[1], sudokuController.ValToY(val), sudokuController.ValToX(val)]);
+                        hdc.Add(objects[mc, mcr1[1]]);
+                    }
+
+
+                    //대사
+                    string[] str = {
+                    "X-윙",
+                    $"{y1+1}행과 {y2+1}행에는 각각 같은 열에 두 셀씩 {val}이 들어갈 수 있습니다.",
+                    $"이렇게 강조된 네 셀 안에만 {val} 값이 들어갈 수 있습니다.",
+                    $"따라서 다음 셀들엔 {val} 값이 들어갈 수 없습니다."
+                };
+
+                    //처방
+                    var hcList = MakeHCList(null, hc, hc, hdc);
+                    hintDialogManager.StartDialogAndDeleteMemo(str, hcList, dc);
+
+                    return;
+                }
+            }
+        }
+
+        //col
+        for (int x1 = 0; x1 < 8; x1++)
+        {
+            for (int x2 = x1 + 1; x2 < 9; x2++)
+            {
+                for (int val = 1; val <= 9; val++)
+                {
+                    var mcc1 = sudokuController.GetMemoCellInCol(x1, val);
+                    var mcc2 = sudokuController.GetMemoCellInCol(x2, val);
+
+                    if (mcc1.Count != 2 || mcc2.Count != 2)
+                    {
+                        continue;
+                    }
+                    if (mcc1[0] != mcc2[0] || mcc1[1] != mcc2[1])
+                    {
+                        continue;
+                    }
+
+                    //Xwing 발견
+                    var mcr1 = sudokuController.GetMemoCellInRow(mcc1[0], val);
+                    var mcr2 = sudokuController.GetMemoCellInRow(mcc1[1], val);
+
+                    if (mcr1.Count == 2 && mcr2.Count == 2)
+                    {
+                        continue;
+                    }
+
+                    //조건 충족
+                    breaker = true;
+                    List<GameObject> hc = new List<GameObject>();
+                    List<GameObject> dc = new List<GameObject>();
+                    List<GameObject> hdc = new List<GameObject>();
+
+                    //강조
+                    for (int i = 0; i < 2; i++)
+                    {
+                        hc.Add(objects[mcc1[i], x1]);
+                        hc.Add(objects[mcc1[i], x2]);
+                    }
+
+                    //삭제
+                    foreach (var mc in mcr1)
+                    {
+                        if (mc == x1 || mc == x2)
+                        {
+                            continue;
+                        }
+                        dc.Add(memoObjects[mcc1[0], mc, sudokuController.ValToY(val), sudokuController.ValToX(val)]);
+                        hdc.Add(objects[mcc1[0], mc]);
+                    }
+
+                    foreach (var mc in mcr2)
+                    {
+                        if (mc == x1 || mc == x2)
+                        {
+                            continue;
+                        }
+                        dc.Add(memoObjects[mcc1[1], mc, sudokuController.ValToY(val), sudokuController.ValToX(val)]);
+                        hdc.Add(objects[mcc1[1], mc]);
+                    }
+
+
+                    //대사
+                    string[] str = {
+                    "X-윙",
+                    $"{x1+1}열과 {x2+1}열에는 각각 같은 행에 두 셀씩 {val}이 들어갈 수 있습니다.",
+                    $"이렇게 강조된 네 셀 안에만 {val} 값이 들어갈 수 있습니다.",
+                    $"따라서 다음 셀들엔 {val} 값이 들어갈 수 없습니다."
+                };
+
+                    //처방
+                    var hcList = MakeHCList(null, hc, hc, hdc);
+                    hintDialogManager.StartDialogAndDeleteMemo(str, hcList, dc);
+
+                    return;
+                }
+            }
+        }
+    }
+    
     private void FindFromFullSudoku()
     {
         for (int _y = 0; _y < 9; _y++)
