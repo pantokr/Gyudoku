@@ -21,7 +21,7 @@ public class HintDialogManager : MonoBehaviour
     private List<List<GameObject>> hintCellsList = null;
     private List<Tuple<GameObject, GameObject>> hintLines = null;
 
-    private List<Tuple<Vector2Int, int>> toFill = null;
+    private Tuple<(int, int), int> toFill = null;
     private List<GameObject> toDelete = null;
 
     private Text _dialogText;
@@ -54,29 +54,25 @@ public class HintDialogManager : MonoBehaviour
 
         ChangeText();
     }
-    public void StartDialogAndFillCell(string[] texts, List<GameObject> hintCells, List<Tuple<Vector2Int, int>> toFill) //
+    public void StartDialogAndFillCell(string[] texts, List<GameObject> hintCells, Tuple<(int, int), int> toFill) //
     {
 
         this.texts = (string[])texts.Clone();
 
         this.hintCells = new List<GameObject>(hintCells);
 
-        this.toFill = new List<Tuple<Vector2Int, int>>(toFill);
-
+        this.toFill = new Tuple<(int, int), int>((toFill.Item1.Item1, toFill.Item1.Item2), toFill.Item2);
 
         StartDialog(texts);
     }
-    public void StartDialogAndFillCell(string[] texts, List<List<GameObject>> hintCellsList, List<Tuple<Vector2Int, int>> toFill) // 오버라이드
+    public void StartDialogAndFillCell(string[] texts, List<List<GameObject>> hintCellsList, Tuple<(int, int), int> toFill) // 오버라이드
     {
 
         this.texts = (string[])texts.Clone();
 
         this.hintCellsList = new List<List<GameObject>>(hintCellsList);
 
-        this.toFill = null;
-
-        this.toFill = new List<Tuple<Vector2Int, int>>(toFill);
-
+        this.toFill = new Tuple<(int, int), int>((toFill.Item1.Item1, toFill.Item1.Item2), toFill.Item2);
 
         StartDialog(texts);
     }
@@ -119,10 +115,8 @@ public class HintDialogManager : MonoBehaviour
             //FillCell 처리
             if (toFill != null)
             {
-                foreach (var l in toFill)
-                {
-                    cellManager.FillCell(l.Item1.y, l.Item1.x, l.Item2);
-                }
+                cellManager.FillCell(toFill.Item1.Item1, toFill.Item1.Item2, toFill.Item2);
+
                 toFill = null;
             }
 
