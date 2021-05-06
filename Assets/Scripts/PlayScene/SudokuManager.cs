@@ -25,7 +25,7 @@ public class SudokuManager : MonoBehaviour
             fileManager.StartOpening();
         }
     }
-    public static void PrintSudoku(int[,] s)
+    public static void printSudoku(int[,] s)
     {
         string str = "";
         for (int y = 0; y < 9; y++)
@@ -39,7 +39,7 @@ public class SudokuManager : MonoBehaviour
         }
         print(str);
     }
-    public static void PrintMemoYX(int y, int x)
+    public static void printMemoYX(int y, int x)
     {
         string str = "";
         for (int val = 0; val < 9; val++)
@@ -51,7 +51,7 @@ public class SudokuManager : MonoBehaviour
         }
         print(str);
     }
-    public static void PrintMemoVal(int val)
+    public static void printMemoVal(int val)
     {
         string str = "";
         for (int y = 0; y < 9; y++)
@@ -66,13 +66,4 @@ public class SudokuManager : MonoBehaviour
         print(str);
     }
 
-    public static void PrintListInt(List<int> list)
-    {
-        string str = "";
-        foreach(var l in list)
-        {
-            str += $"{l} ";
-        }
-        print(str);
-    }
 }
