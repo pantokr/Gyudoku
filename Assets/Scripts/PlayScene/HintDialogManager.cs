@@ -11,15 +11,16 @@ public class HintDialogManager : MonoBehaviour
     public GameObject mainPanel;
     public CellManager cellManager;
     public MemoManager memoManager;
-    public HintLineManager hintLineManager;
+    public HintVisualManager hintVisualManager;
     public SudokuController sudokuController;
 
     private Animation pusher;
     private string[] texts;
 
-    private List<GameObject> hintCells = null;
-    private List<List<GameObject>> hintCellsList = null;
-    private List<Tuple<GameObject, GameObject>> hintLines = null;
+    private List<GameObject> hc = null;
+    private List<List<GameObject>> hcList = null;
+    private List<List<int>> hbList = null;
+    private List<Tuple<GameObject, GameObject>> hlList = null;
 
     private Tuple<(int, int), int> toFill = null;
     private List<GameObject> toDelete = null;
@@ -54,43 +55,61 @@ public class HintDialogManager : MonoBehaviour
 
         ChangeText();
     }
-    public void StartDialogAndFillCell(string[] texts, List<GameObject> hintCells, Tuple<(int, int), int> toFill) //
+    public void StartDialogAndFillCell(string[] texts, List<GameObject> hc, Tuple<(int, int), int> toFill, List<List<int>> hbList = null) //
     {
 
         this.texts = (string[])texts.Clone();
 
-        this.hintCells = new List<GameObject>(hintCells);
+        this.hc = new List<GameObject>(hc);
 
         this.toFill = new Tuple<(int, int), int>((toFill.Item1.Item1, toFill.Item1.Item2), toFill.Item2);
 
+        if (hbList != null)
+        {
+            this.hbList = hbList;
+        }
+
         StartDialog(texts);
     }
-    public void StartDialogAndFillCell(string[] texts, List<List<GameObject>> hintCellsList, Tuple<(int, int), int> toFill) // 오버라이드
+    public void StartDialogAndFillCell(string[] texts, List<List<GameObject>> hcList, Tuple<(int, int), int> toFill, List<List<int>> hbList = null) // 오버라이드
     {
 
         this.texts = (string[])texts.Clone();
 
-        this.hintCellsList = new List<List<GameObject>>(hintCellsList);
+        this.hcList = new List<List<GameObject>>(hcList);
 
         this.toFill = new Tuple<(int, int), int>((toFill.Item1.Item1, toFill.Item1.Item2), toFill.Item2);
 
-        StartDialog(texts);
-    }
-    public void StartDialogAndDeleteMemo(string[] texts, List<GameObject> hintCells, List<GameObject> toDelete) //line
-    {
-        this.hintCells = new List<GameObject>(hintCells);
-        this.toDelete = new List<GameObject>(toDelete);
-
-        cur = 0;
+        if (hbList != null)
+        {
+            this.hbList = hbList;
+        }
 
         StartDialog(texts);
     }
-    public void StartDialogAndDeleteMemo(string[] texts, List<List<GameObject>> hintCellsList, List<GameObject> toDelete) // 오버라이드
+    public void StartDialogAndDeleteMemo(string[] texts, List<GameObject> hc, List<GameObject> toDelete, List<List<int>> hbList = null) //line
     {
-        this.hintCellsList = new List<List<GameObject>>(hintCellsList);
+        this.hc = new List<GameObject>(hc);
+
         this.toDelete = new List<GameObject>(toDelete);
 
-        cur = 0;
+        if (hbList != null)
+        {
+            this.hbList = hbList;
+        }
+
+        StartDialog(texts);
+    }
+    public void StartDialogAndDeleteMemo(string[] texts, List<List<GameObject>> hcList, List<GameObject> toDelete, List<List<int>> hbList = null) // 오버라이드
+    {
+        this.hcList = new List<List<GameObject>>(hcList);
+
+        this.toDelete = new List<GameObject>(toDelete);
+
+        if (hbList != null)
+        {
+            this.hbList = hbList;
+        }
 
         StartDialog(texts);
     }
@@ -98,8 +117,8 @@ public class HintDialogManager : MonoBehaviour
     public void ChangeText()
     {
 
-        hintLineManager.EraseAllLine();
-        hintLineManager.EraseAllCell();
+        hintVisualManager.EraseAllLine();
+        hintVisualManager.EraseAllCell();
 
         if (cur == texts.Length)
         {
@@ -130,9 +149,10 @@ public class HintDialogManager : MonoBehaviour
             }
 
             //null 처리
-            hintCells = null;
-            hintCellsList = null;
-            hintLines = null;
+            hc = null;
+            hcList = null;
+            hlList = null;
+            hbList = null;
 
             toFill = null;
             toDelete = null;
@@ -145,29 +165,40 @@ public class HintDialogManager : MonoBehaviour
         //text 변경
         _dialogText.text = texts[cur];
 
-        if (hintLines != null) //필요 시 힌트라인 생성
+        if (hlList != null) //필요 시 힌트라인 생성
         {
-            if (hintLines[cur] != null)
+            if (hlList[cur] != null)
             {
-                hintLineManager.DrawLine(hintLines[cur].Item1, hintLines[cur].Item2);
+                hintVisualManager.DrawLine(hlList[cur].Item1, hlList[cur].Item2);
             }
         }
 
-        if (hintCells != null) //필요 시 셀 강조
+        if (hbList != null)
         {
-            if (hintCells[cur] != null)
+            if (hbList[cur] != null)
             {
-                hintLineManager.HighlightCell(hintCells[cur]);
-            }
-        }
-
-        if (hintCellsList != null) //필요 시 셀 강조
-        {
-            if (hintCellsList[cur] != null)
-            {
-                foreach (var hc in hintCellsList[cur])
+                foreach (var hb in hbList[cur])
                 {
-                    hintLineManager.HighlightCell(hc);
+                    hintVisualManager.HighlightBundle(hb);
+                }
+            }
+        }
+
+        if (hc != null) //필요 시 셀 강조
+        {
+            if (hc[cur] != null)
+            {
+                hintVisualManager.HighlightCell(hc[cur]);
+            }
+        }
+
+        if (hcList != null) //필요 시 셀 강조
+        {
+            if (hcList[cur] != null)
+            {
+                foreach (var hc in hcList[cur])
+                {
+                    hintVisualManager.HighlightCell(hc);
                 }
             }
         }

@@ -64,13 +64,13 @@ public class HintManager : MonoBehaviour
             return;
         }
 
-        FindCrossPointing();
+        FindIntersectPointing();
         if (breaker)
         {
             return;
         }
 
-        FindCrossClaiming();
+        FindIntersectClaiming();
         if (breaker)
         {
             return;
@@ -165,9 +165,11 @@ public class HintManager : MonoBehaviour
 
                 //처방
                 var hc = MakeHC(null, objects[_y, _x]);
+                var hb = MakeBundle(_y);
+                var hbl = MakeBundleList(null, hb);
                 var toFill = MakeTuple((_y, _x), val);
 
-                hintDialogManager.StartDialogAndFillCell(str, hc, toFill);
+                hintDialogManager.StartDialogAndFillCell(str, hc, toFill, hbl);
                 return;
             }
         }
@@ -187,9 +189,11 @@ public class HintManager : MonoBehaviour
 
                 //처방
                 var hc = MakeHC(null, objects[_y, _x]);
+                var hb = MakeBundle(9 + _x);
+                var hbl = MakeBundleList(null, hb);
                 var toFill = MakeTuple((_y, _x), val);
 
-                hintDialogManager.StartDialogAndFillCell(str, hc, toFill);
+                hintDialogManager.StartDialogAndFillCell(str, hc, toFill, hbl);
                 return;
             }
         }
@@ -211,9 +215,11 @@ public class HintManager : MonoBehaviour
 
                     //처방
                     var hc = MakeHC(null, objects[_y, _x]);
+                    var hb = MakeBundle(18 + _y * 3 + _x);
+                    var hbl = MakeBundleList(null, hb);
                     var toFill = MakeTuple((_y, _x), val);
 
-                    hintDialogManager.StartDialogAndFillCell(str, hc, toFill);
+                    hintDialogManager.StartDialogAndFillCell(str, hc, toFill, hbl);
                     return;
                 }
             }
@@ -281,13 +287,15 @@ public class HintManager : MonoBehaviour
                     else // 일반
                     {
                         //대사
-                        string[] str = { "히든 싱글", $"가로 행에서 이 셀에 들어갈 수 있는 값은 {val} 하나입니다." };
+                        string[] str = { "히든 싱글", $"가로 행에서 {val}은 이 셀에만 들어갈 수 있습니다." };
 
                         //처방
                         var hc = MakeHC(null, objects[_y, _x]);
+                        var hb = MakeBundle(_y);
+                        var hbl = MakeBundleList(null, hb);
                         var toFill = MakeTuple((_y, _x), val);
 
-                        hintDialogManager.StartDialogAndFillCell(str, hc, toFill);
+                        hintDialogManager.StartDialogAndFillCell(str, hc, toFill, hbl);
                         return true;
 
                     }
@@ -314,13 +322,15 @@ public class HintManager : MonoBehaviour
                     else // 일반
                     {
                         //대사
-                        string[] str = { "히든 싱글", $"세로 열에서 이 셀에 들어갈 수 있는 값은 {val} 하나입니다." };
+                        string[] str = { "히든 싱글", $"세로 열에서 {val}은 이 셀에만 들어갈 수 있습니다." };
 
                         //처방
                         var hc = MakeHC(null, objects[_y, _x]);
+                        var hb = MakeBundle(9 + _x);
+                        var hbl = MakeBundleList(null, hb);
                         var toFill = MakeTuple((_y, _x), val);
 
-                        hintDialogManager.StartDialogAndFillCell(str, hc, toFill);
+                        hintDialogManager.StartDialogAndFillCell(str, hc, toFill, hbl);
                         return true;
 
                     }
@@ -339,22 +349,27 @@ public class HintManager : MonoBehaviour
                     if (ev.Sum() == 1)
                     {
                         breaker = true;
+                        int sg = Array.IndexOf(ev, 1);
+                        int sgy = sg / 3;
+                        int sgx = sg % 3;
 
                         if (isAutoSingle)
                         {
-                            cellManager.FillCell(_y, _x, val);
+                            cellManager.FillCell(_y * 3 + sgy, _x * 3 + sgx, val);
                             return true;
                         }
                         else // 일반
                         {
                             //대사
-                            string[] str = { "히든 싱글", $"3X3 서브그리드에서 이 셀에 들어갈 수 있는 값은 {val} 하나입니다." };
+                            string[] str = { "히든 싱글", $"3X3 서브그리드에서 {val}은 이 셀에만 들어갈 수 있습니다." };
 
                             //처방
-                            var hc = MakeHC(null, objects[_y, _x]);
-                            var toFill = MakeTuple((_y, _x), val);
+                            var hc = MakeHC(null, objects[_y * 3 + sgy, _x * 3 + sgx]);
+                            var hb = MakeBundle(18 + _y * 3 + sgy + _x * 3 + sgx);
+                            var hbl = MakeBundleList(null, hb);
+                            var toFill = MakeTuple((_y * 3 + sgy, _x * 3 + sgx), val);
 
-                            hintDialogManager.StartDialogAndFillCell(str, hc, toFill);
+                            hintDialogManager.StartDialogAndFillCell(str, hc, toFill, hbl);
                             return true;
 
                         }
@@ -366,7 +381,7 @@ public class HintManager : MonoBehaviour
         return false;
     }
 
-    private void FindCrossPointing()
+    private void FindIntersectPointing()
     {
         for (int y = 0; y < 3; y++)
         {
@@ -384,19 +399,21 @@ public class HintManager : MonoBehaviour
                         //교차점
                         List<GameObject> hc = new List<GameObject>();
                         List<GameObject> dc = new List<GameObject>();
+                        List<GameObject> hdc = new List<GameObject>();
                         for (int _x = 0; _x < 9; _x++)
                         {
                             if (_x >= x * 3 && _x < x * 3 + 3) //교차점 영역이 아닐 시
                             {
                                 if (sudokuController.IsInMemoCell(r, _x, ev))
                                 {
-                                    hc.Add(memoObjects[r, _x, (ev - 1) / 3, (ev - 1) % 3]);
+                                    hc.Add(objects[r, _x]);
                                 }
                                 continue;
                             }
 
                             if (sudokuController.IsInMemoCell(r, _x, ev) == true) //교차점 영역일 시 
                             {
+                                hdc.Add(objects[r, _x]);
                                 dc.Add(memoObjects[r, _x, (ev - 1) / 3, (ev - 1) % 3]);
                             }
                         }
@@ -412,8 +429,10 @@ public class HintManager : MonoBehaviour
                             };
 
                             //처방
-                            var hcList = MakeHCList(null, hc, dc);
-                            hintDialogManager.StartDialogAndDeleteMemo(str, hcList, dc);
+                            var hcList = MakeHCList(null, hc, hdc);
+                            var hb = MakeBundle(r);
+                            var hbl = MakeBundleList(null, hb, null);
+                            hintDialogManager.StartDialogAndDeleteMemo(str, hcList, dc, hbl);
                             return;
                         }
                     }
@@ -426,19 +445,21 @@ public class HintManager : MonoBehaviour
                         //교차점
                         List<GameObject> hc = new List<GameObject>();
                         List<GameObject> dc = new List<GameObject>();
+                        List<GameObject> hdc = new List<GameObject>();
                         for (int _y = 0; _y < 9; _y++)
                         {
                             if (_y >= y * 3 && _y < y * 3 + 3) //교차점 영역이 아닐 시
                             {
                                 if (sudokuController.IsInMemoCell(_y, c, ev))
                                 {
-                                    hc.Add(memoObjects[_y, c, (ev - 1) / 3, (ev - 1) % 3]);
+                                    hc.Add(objects[_y, c]);
                                 }
                                 continue;
                             }
 
                             if (sudokuController.IsInMemoCell(_y, c, ev) == true) //교차점 영역일 시 
                             {
+                                hdc.Add(objects[_y, c]);
                                 dc.Add(memoObjects[_y, c, (ev - 1) / 3, (ev - 1) % 3]);
                             }
                         }
@@ -454,8 +475,10 @@ public class HintManager : MonoBehaviour
                             };
 
                             //처방
-                            var hcList = MakeHCList(null, hc, dc);
-                            hintDialogManager.StartDialogAndDeleteMemo(str, hcList, dc);
+                            var hcList = MakeHCList(null, hc, hdc);
+                            var hb = MakeBundle(9 + c);
+                            var hbl = MakeBundleList(null, hb, null);
+                            hintDialogManager.StartDialogAndDeleteMemo(str, hcList, dc, hbl);
                             return;
                         }
                     }
@@ -464,7 +487,7 @@ public class HintManager : MonoBehaviour
         }
     }//인터섹션
 
-    private void FindCrossClaiming()
+    private void FindIntersectClaiming() //인터섹션
     {
         //row
         for (int y = 0; y < 9; y++)
@@ -480,6 +503,7 @@ public class HintManager : MonoBehaviour
                     //교차점
                     List<GameObject> hc = new List<GameObject>();
                     List<GameObject> dc = new List<GameObject>();
+                    List<GameObject> hdc = new List<GameObject>();
 
                     for (int _y = sg.Item1 * 3; _y < sg.Item1 * 3 + 3; _y++)
                     {
@@ -489,13 +513,14 @@ public class HintManager : MonoBehaviour
                             {
                                 if (sudokuController.IsInMemoCell(_y, _x, ev))
                                 {
-                                    hc.Add(memoObjects[_y, _x, (ev - 1) / 3, (ev - 1) % 3]);
+                                    hc.Add(objects[_y, _x]);
                                 }
                                 continue;
                             }
 
                             if (sudokuController.IsInMemoCell(_y, _x, ev) == true) //교차점 영역일 시 
                             {
+                                hdc.Add(objects[_y, _x]);
                                 dc.Add(memoObjects[_y, _x, (ev - 1) / 3, (ev - 1) % 3]);
                             }
                         }
@@ -507,13 +532,15 @@ public class HintManager : MonoBehaviour
 
                         //대사
                         string[] str = {
-                                "인터섹션", $"{sg.Item1+1}-{sg.Item1+1} 서브그리드는 (행 조건을 충족하기 위해)강조된 셀들 중 하나에 무조건 {ev} 값이 들어가야 합니다",
+                                "인터섹션", $"{sg.Item1+1}-{sg.Item2+1} 서브그리드는 (행 조건을 충족하기 위해)강조된 셀들 중 하나에 무조건 {ev} 값이 들어가야 합니다",
                                 $"따라서 이 셀들에는 {ev} 값이 들어갈 수 없습니다."
                             };
 
                         //처방
-                        var hcList = MakeHCList(null, hc, dc);
-                        hintDialogManager.StartDialogAndDeleteMemo(str, hcList, dc);
+                        var hcList = MakeHCList(null, hc, hdc);
+                        var hb = MakeBundle(18 + sg.Item1 * 3 + sg.Item2);
+                        var hbl = MakeBundleList(null, hb, null);
+                        hintDialogManager.StartDialogAndDeleteMemo(str, hcList, dc, hbl);
                         return;
                     }
                 }
@@ -533,6 +560,7 @@ public class HintManager : MonoBehaviour
                     var sg = SGs[0];
                     List<GameObject> hc = new List<GameObject>();
                     List<GameObject> dc = new List<GameObject>();
+                    List<GameObject> hdc = new List<GameObject>();
 
                     for (int _y = sg.Item1 * 3; _y < sg.Item1 * 3 + 3; _y++)
                     {
@@ -542,13 +570,14 @@ public class HintManager : MonoBehaviour
                             {
                                 if (sudokuController.IsInMemoCell(_y, _x, ev))
                                 {
-                                    hc.Add(memoObjects[_y, _x, (ev - 1) / 3, (ev - 1) % 3]);
+                                    hc.Add(objects[_y, _x]);
                                 }
                                 continue;
                             }
 
                             if (sudokuController.IsInMemoCell(_y, _x, ev) == true) //교차점 영역일 시 
                             {
+                                hdc.Add(objects[_y, _x]);
                                 dc.Add(memoObjects[_y, _x, (ev - 1) / 3, (ev - 1) % 3]);
                             }
                         }
@@ -560,13 +589,15 @@ public class HintManager : MonoBehaviour
 
                         //대사
                         string[] str = {
-                                "인터섹션", $"{sg.Item1+1}-{sg.Item1+1} 서브그리드는 (행 조건을 충족하기 위해)강조된 셀들 중 하나에 무조건 {ev} 값이 들어가야 합니다",
+                                "인터섹션", $"{sg.Item1+1}-{sg.Item2+1} 서브그리드는 (행 조건을 충족하기 위해)강조된 셀들 중 하나에 무조건 {ev} 값이 들어가야 합니다",
                                 $"따라서 이 셀들에는 {ev} 값이 들어갈 수 없습니다."
                             };
 
                         //처방
-                        var hcList = MakeHCList(null, hc, dc);
-                        hintDialogManager.StartDialogAndDeleteMemo(str, hcList, dc);
+                        var hcList = MakeHCList(null, hc, hdc);
+                        var hb = MakeBundle(18 + sg.Item1 * 3 + sg.Item2);
+                        var hbl = MakeBundleList(null, hb, null);
+                        hintDialogManager.StartDialogAndDeleteMemo(str, hcList, dc, hbl);
                         return;
                     }
                 }
@@ -782,7 +813,7 @@ public class HintManager : MonoBehaviour
                 }
             }
         }
-    } 
+    }
 
     private void FindXWing()
     {
@@ -947,7 +978,7 @@ public class HintManager : MonoBehaviour
             }
         }
     }
-    
+
     private void FindFromFullSudoku()
     {
         for (int _y = 0; _y < 9; _y++)
@@ -990,6 +1021,27 @@ public class HintManager : MonoBehaviour
         }
         return list;
     }
+
+    private List<int> MakeBundle(params int[] codes)
+    {
+        List<int> list = new List<int>();
+        foreach (var code in codes)
+        {
+            list.Add(code);
+        }
+        return list;
+    }
+
+    private List<List<int>> MakeBundleList(params List<int>[] bundles)
+    {
+        List<List<int>> list = new List<List<int>>();
+        foreach (var bundle in bundles)
+        {
+            list.Add(bundle);
+        }
+        return list;
+    }
+
 
     private Tuple<(int, int), int> MakeTuple((int, int) YX, int value)
     {

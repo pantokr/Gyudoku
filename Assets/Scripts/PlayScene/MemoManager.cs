@@ -47,6 +47,41 @@ public class MemoManager : MonoBehaviour
         }
         return retObj;
     }
+    public List<GameObject> GetActiveMemoObjects(int y, int x)
+    {
+        List<GameObject> list = new List<GameObject>();
+        var objs = GetMemoObjects(y, x);
+        foreach (var obj in objs)
+        {
+            if (obj.activeSelf == true)
+            {
+                list.Add(obj);
+            }
+        }
+        return list;
+    }
+
+    public List<GameObject> GetActiveMemoObjects(GameObject parent)
+    {
+        List<GameObject> list = new List<GameObject>();
+        if(parent.transform.Find("Memo") == null)
+        {
+            return null;
+        }
+        var name = parent.name;
+        int y = name[1] - '0' - 1;
+        int x = name[3] - '0' - 1;
+
+        var objs = GetMemoObjects(y, x);
+        foreach (var obj in objs)
+        {
+            if (obj.activeSelf == true)
+            {
+                list.Add(obj);
+            }
+        }
+        return list;
+    }
     public GameObject[,,,] GetWholeMemoObjects() //(y,x)의 (3x3 메모스도쿠)
     {
         GameObject[,,,] retObj = new GameObject[9, 9, 3, 3];
@@ -174,10 +209,13 @@ public class MemoManager : MonoBehaviour
                 {
                     for (int mx = 0; mx < 3; mx++)
                     {
-                        GameObject mCell = GameObject.Instantiate(memoCell, parentObj.transform);
+                        GameObject mCell = Instantiate(memoCell, parentObj.transform);
 
                         Text tText = mCell.transform.Find("Text").GetComponent<Text>();
                         tText.text = (my * 3 + mx + 1).ToString();
+
+                        Image tImage = mCell.GetComponent<Image>();
+                        tImage.sprite = null;
 
                         mCell.transform.localPosition = new Vector2((mx - 1) * w, -1 * (my - 1) * w);
                         mCell.name = $"y{my + 1}x{mx + 1}";

@@ -8,12 +8,14 @@ public class SudokuManager : MonoBehaviour
     public static int[,] fullSudoku;
     public static int[,] originalSudoku;
 
-    public static int[,,] memoSudoku = new int[9, 9, 9];
+    public static int[,,] memoSudoku;
 
     public FileManager fileManager;
     private SudokuMaker sudokuMaker;
     private void Awake()
     {
+        memoSudoku = new int[9, 9, 9];
+
         if (Settings.PlayMode == 0)
         {
             sudokuMaker = new SudokuMaker();
@@ -69,7 +71,7 @@ public class SudokuManager : MonoBehaviour
     public static void PrintListInt(List<int> list)
     {
         string str = "";
-        foreach(var l in list)
+        foreach (var l in list)
         {
             str += $"{l} ";
         }
