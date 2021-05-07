@@ -287,7 +287,11 @@ public class SudokuController : MonoBehaviour
     #endregion
 
     #region normal 스도쿠 무결성 검사 newval == 1~9
+<<<<<<< HEAD
     public bool IsNewValueAvailableRow(int y, int x, int newVal)
+=======
+    public bool IsNewValueAvailableRow(int y, int x, int newVal, List<(int, int)> list = null)
+>>>>>>> parent of 4e49a48 (update intersect claiming)
     {
         bool flag = true;
         for (int _x = 0; _x < 9; _x++)

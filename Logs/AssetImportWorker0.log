@@ -268,6 +268,7 @@ System memory in use after: 85.6 MB.
 Unloading 7 unused Assets to reduce memory usage. Loaded Objects now: 2321.
 Total: 3.347100 ms (FindLiveObjects: 0.341700 ms CreateObjectMapping: 0.112000 ms MarkObjects: 2.865500 ms  DeleteObjects: 0.025500 ms)
 
+<<<<<<< HEAD
 ========================================================================
 Received Prepare
 Registering precompiled user dll's ...
@@ -1219,3 +1220,5 @@ Unloading 7 unused Assets to reduce memory usage. Loaded Objects now: 2485.
 Total: 4.468500 ms (FindLiveObjects: 0.649700 ms CreateObjectMapping: 0.172000 ms MarkObjects: 3.615400 ms  DeleteObjects: 0.029100 ms)
 
 AssetImportWorkerClient::OnTransportError - code=2 error=End of file
+=======
+>>>>>>> parent of 4e49a48 (update intersect claiming)

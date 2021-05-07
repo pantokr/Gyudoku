@@ -212,7 +212,11 @@ public class HintManager : MonoBehaviour
         }
     }
 
+<<<<<<< HEAD
     public bool FindHiddenSingle(bool isAutoSingle = false)
+=======
+    public bool FindHiddenSingle(bool isAutoSingle = false) //히든 싱글
+>>>>>>> parent of 4e49a48 (update intersect claiming)
     {
         //row 검사
         for (int val = 0; val < 9; val++)
@@ -490,6 +494,49 @@ public class HintManager : MonoBehaviour
                 }
             }
         }
+<<<<<<< HEAD
+=======
+    }// 인터섹션
+
+    public bool FindNakedSingle(bool isAutoSingle = false)
+    {
+        for (int _y = 0; _y < 9; _y++)
+        {
+            for (int _x = 0; _x < 9; _x++)
+            {
+                if (sudokuController.IsEmptyCell(_y, _x))
+                {
+                    var mv = sudokuController.GetActiveMemoValue(_y, _x);
+
+                    if (mv.Count == 1)
+                    {
+                        breaker = true;
+                        int val = mv[0];
+
+                        if (isAutoSingle)
+                        {
+                            cellManager.FillCell(_y, _x, val);
+                            return true;
+                        }
+                        else // 일반
+                        {
+                            //대사
+                            string[] str = { "네이키드 싱글", $"이 셀에 {val} 말고는 들어갈 수 있는 값이 없습니다." };
+
+                            //처방
+                            var hc = MakeHC(null, objects[_y, _x]);
+                            var toFill = MakeTuple((_y, _x), val);
+
+                            hintDialogManager.StartDialogAndFillCell(str, hc, toFill);
+                            return true;
+
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+>>>>>>> parent of 4e49a48 (update intersect claiming)
     }
 
     public void FindNakedPair()
@@ -538,6 +585,14 @@ public class HintManager : MonoBehaviour
                             hc.Add(objects[y, _x1]);
                             hc.Add(objects[y, _x2]);
 
+<<<<<<< HEAD
+=======
+                            foreach (var mv in mvs)
+                            {
+                                hc.Add(memoObjects[y, emptyXList[_x1], (mv - 1) / 3, (mv - 1) % 3]);
+                                hc.Add(memoObjects[y, emptyXList[_x2], (mv - 1) / 3, (mv - 1) % 3]);
+                            }
+>>>>>>> parent of 4e49a48 (update intersect claiming)
 
                             //대사
                             string[] str = {
@@ -561,6 +616,82 @@ public class HintManager : MonoBehaviour
                 }
             }
         }
+<<<<<<< HEAD
+=======
+
+        //SG
+        for (int y = 0; y < 3; y++)
+        {
+            for (int x = 0; x < 3; x++)
+            {
+                var emptyYXList = sudokuController.GetEmptyCellsInSG(y, x); //비어 있는 y좌표
+                var mvList = sudokuController.GetMemoValuesInSG(y, x); //메모 안에 들어있는 값들의 모음
+                for (int _sg1 = 0; _sg1 < emptyYXList.Count - 1; _sg1++)
+                {
+                    for (int _sg2 = _sg1 + 1; _sg2 < emptyYXList.Count; _sg2++)
+                    {
+                        if (mvList[_sg1].Count != 2 || mvList[_sg2].Count != 2)
+                        {
+                            continue;
+                        }
+
+                        if (sudokuController.IsEqualMemoCell(
+                            (emptyYXList[_sg1].Item1, emptyYXList[_sg1].Item2),
+                            (emptyYXList[_sg2].Item1, emptyYXList[_sg2].Item2))) // 네이키드 페어 발견
+                        {
+                            var mvs = mvList[_sg1]; // 선택된 셀들 안에 들어있는 메모값들
+
+                            // 선택된 셀들 안에 들어있는 메모값들
+                            List<GameObject> dc = new List<GameObject>();
+
+                            foreach (var emptyYX in emptyYXList) // 네이키드 페어 외의 나머지 셀들 조사
+                            {
+                                if ((emptyYX.Item1 == emptyYXList[_sg1].Item1) && (emptyYX.Item2 == emptyYXList[_sg1].Item2) ||
+                                    (emptyYX.Item1 == emptyYXList[_sg2].Item1) && (emptyYX.Item2 == emptyYXList[_sg2].Item2))
+                                {
+                                    continue;
+                                }
+
+                                foreach (var mv in mvs)
+                                {
+                                    if (sudokuController.IsInMemoCell(emptyYX.Item1, emptyYX.Item2, mv))
+                                    {
+                                        dc.Add(memoObjects[emptyYX.Item1, emptyYX.Item2, (mv - 1) / 3, (mv - 1) % 3]);
+                                    }
+                                }
+                            }
+
+                            if (dc.Count != 0)
+                            {
+                                breaker = true;
+
+                                List<GameObject> hc = new List<GameObject>();
+
+                                foreach (var mv in mvs)
+                                {
+                                    hc.Add(memoObjects[emptyYXList[_sg1].Item1, emptyYXList[_sg1].Item2, (mv - 1) / 3, (mv - 1) % 3]);
+                                    hc.Add(memoObjects[emptyYXList[_sg2].Item1, emptyYXList[_sg2].Item2, (mv - 1) / 3, (mv - 1) % 3]);
+                                }
+
+                                //대사
+                                string[] str = {
+                                "네이키드 페어",
+                            $"{y*3+x+1} 번째 서브그리드의 강조된 두 셀은 값 {mvs[0]}, {mvs[1]}으로 이루어진 똑같은 구성의 메모 셀들입니다.",
+                            $"이는 값 {mvs[0]}, {mvs[1]}이 이 열의 강조된 두 셀에서만 존재해야만 한다는 것을 의미합니다.",
+                            "따라서 다음 메모 셀들을 삭제합니다."};
+
+                                //처방
+                                var hcList = MakeHCList(null, hc, hc, dc);
+                                hintDialogManager.StartDialogAndDeleteMemo(str, hcList, dc);
+
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+>>>>>>> parent of 4e49a48 (update intersect claiming)
     }
 
     private void FindFromFullSudoku()
