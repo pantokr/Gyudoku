@@ -8,9 +8,12 @@ public class AutoMemoManager : MonoBehaviour
     public MemoManager memoManager;
     public SudokuController sudokuController;
 
-    public void RunAutoMemo()
+    public void RunAutoMemo(bool flag = true)
     {
-        sudokuController.RecordSudokuLog();
+        if (flag)
+        {
+            sudokuController.RecordSudokuLog();
+        }
 
         for (int val = 0; val < 9; val++)
         {

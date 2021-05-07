@@ -16,7 +16,7 @@ public class ManualToolsManager : MonoBehaviour
     public GameObject memoButton;
     public GameObject eraserButton;
     public GameObject undoButton;
-    
+
     private Button _memo;
     private Button _eraser;
     private Button _undo;
@@ -33,7 +33,7 @@ public class ManualToolsManager : MonoBehaviour
         _memo.onClick.AddListener(delegate { TurnMemo(); });
         _eraser.onClick.AddListener(delegate { TurnEraser(); });
         _undo.onClick.AddListener(delegate { Undo(); });
-        
+
         memoImg = memoButton.transform.GetComponent<Image>();
         eraserImg = eraserButton.transform.GetComponent<Image>();
     }
@@ -96,21 +96,19 @@ public class ManualToolsManager : MonoBehaviour
             GameObject.Find("MainPanel").GetComponent<Image>().color = new Color(1, 1, 1, 1);
         }
     }
-    
+
     public void Undo()
     {
-        if(SudokuController.undoIndex < 0)
+        cellManager.HighlightCells(0);
+        var (s, m) = sudokuController.CallSudokuLog();
+
+        if (s == null && m == null)
         {
             return;
         }
-        int[,] s = sudokuController.lateSudoku[SudokuController.undoIndex].Item1;
-        int[,,] m = sudokuController.lateSudoku[SudokuController.undoIndex].Item2;
 
         cellManager.ApplySudoku(s);
-
         memoManager.ApplyMemoSudoku(m);
-
-        SudokuController.undoIndex--;
     }
 
     private void ApplyButtonPressed(Image img)

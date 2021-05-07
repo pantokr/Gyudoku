@@ -13,14 +13,15 @@ public class SudokuController : MonoBehaviour
     public MemoManager memoManager;
     public SudokuMaker sudokuMaker;
 
-    public static int undoIndex = 0;
-    public List<Tuple<int[,], int[,,]>> lateSudoku = new List<Tuple<int[,], int[,,]>>();
 
-    private int[,] sudoku;
-    private int[,] fullSudoku;
-    private int[,,] memoSudoku;
+    public int[,] sudoku;
+    public int[,] fullSudoku;
+    public int[,,] memoSudoku;
 
-    private void Start()
+    private List<Tuple<int[,], int[,,]>> lateSudoku = new List<Tuple<int[,], int[,,]>>();
+    private int undoIndex = -1;
+
+    protected virtual void Start()
     {
         sudoku = SudokuManager.sudoku;
         fullSudoku = SudokuManager.fullSudoku;
@@ -681,10 +682,25 @@ public class SudokuController : MonoBehaviour
     #region ±‚≈∏
     public void RecordSudokuLog()
     {
-        undoIndex = lateSudoku.Count;
+        cellManager.HighlightCells(0);
 
         Tuple<int[,], int[,,]> tuple = new Tuple<int[,], int[,,]>((int[,])sudoku.Clone(), (int[,,])memoSudoku.Clone());
         lateSudoku.Add(tuple);
+
+        undoIndex++;
+        print(undoIndex);
+    }
+
+    public (int[,], int[,,]) CallSudokuLog()
+    {
+        if (undoIndex < 0)
+        {
+            return (null, null);
+        }
+        var ret = ((int[,])lateSudoku[undoIndex].Item1.Clone(), (int[,,])lateSudoku[undoIndex].Item2.Clone());
+        lateSudoku.RemoveAt(undoIndex);
+        undoIndex--;
+        return ret; ;
     }
 
     public int ValToY(int value)

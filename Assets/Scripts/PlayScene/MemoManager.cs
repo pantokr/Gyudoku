@@ -16,9 +16,8 @@ public class MemoManager : MonoBehaviour
     private void Start()
     {
         objects = cellManager.GetObjects();
-
-        memoSudoku = SudokuManager.memoSudoku;
         AppendMemoCellObjects();
+        memoSudoku = SudokuManager.memoSudoku;
     }
     public GameObject GetMemoObject(int y, int x, int value)
     {
@@ -64,7 +63,7 @@ public class MemoManager : MonoBehaviour
     public List<GameObject> GetActiveMemoObjects(GameObject parent)
     {
         List<GameObject> list = new List<GameObject>();
-        if(parent.transform.Find("Memo") == null)
+        if (parent.transform.Find("Memo") == null)
         {
             return null;
         }

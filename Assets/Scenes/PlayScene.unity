@@ -25089,11 +25089,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c36648e60ef77664f93bc94cffd11b1c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  passDialog: {fileID: 2571304282875904411}
+  playManager: {fileID: 1068923943}
+  mainPanel: {fileID: 1396505636}
+  cellManager: {fileID: 1625343919}
+  memoManager: {fileID: 1511033781}
   sudokuController: {fileID: 1435379898}
   hintDialogManager: {fileID: 961736335}
   autoMemoManager: {fileID: 1023497761045936293}
-  cellManager: {fileID: 1625343919}
-  memoManager: {fileID: 1511033781}
 --- !u!222 &2243453640546199231
 CanvasRenderer:
   m_ObjectHideFlags: 0
