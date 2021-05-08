@@ -1740,32 +1740,90 @@ public class HintManager : SudokuController
     {
         for (int y = 0; y < 9; y++)
         {
-            var mcr = GetEmptyCellsInRow(y);
+            var mcr = GetEmptyCellsInRow(y);//[0,4]
             var mcr_count = mcr.Count;
             for (int _x = 0; _x < mcr_count; _x++) // 빈 셀 X 좌표
             {
                 var amv = GetActiveMemoValue(y, mcr[_x]);
-                foreach (var mv in amv) // 메모 값들
+
+                foreach (var mv in amv)
                 {
-                    var lcs_start = GetLinkedCell(y, _x, mv); // 첫 번째 링크 탐색 시작,
+                    //List<Tuple<int, int>> tracer = new List<Tuple<int, int>>();
+                    var tuple = GetLinkedCellRecursive(y, mcr[_x], mv, 0, 3, -1); //마지막 링크 셀
 
-                    int preCode = -1;
-                    int rep_cnt = 0;
-
-                    List<Tuple<int, int>> cur_link = new List<Tuple<int, int>>();
-                    
-                    List<List<Tuple<int, int>>> link_stack = new List<List<Tuple<int, int>>>();
-                    List<int> preCode_stack = new List<int>();
-
-                    link_stack.Add(lcs_start);
-                    preCode_stack.Add(preCode);
-                    while (true)
+                    if (tuple != null)
                     {
-                        for (int i = 0; i < 3; i++)
-                        {
+                        var dup = GetDuplicatedCellByTwoCell((y, mcr[_x]), (tuple.Item1, tuple.Item2));
 
+                        if (dup.Count == 0)
+                        {
+                            continue;
                         }
-                        rep_cnt++;
+
+                        List<GameObject> dc = new List<GameObject>();
+                        List<GameObject> hdc = new List<GameObject>();
+                        foreach (var d in dup) //그 셀
+                        {
+                            if (IsInMemoCell(d.Item1, d.Item2, mv))
+                            {
+                                dc.Add(memoObjects[d.Item1, d.Item2, ValToY(mv), ValToX(mv)]);
+                                hdc.Add(objects[d.Item1, d.Item2]);
+                            }
+                        }
+
+                        if (dc.Count == 0)
+                        {
+                            continue;
+                        }
+
+                        breaker = true;
+
+                        List<GameObject> hc = new List<GameObject>();
+                        List<(GameObject, GameObject)> hl = new List<(GameObject, GameObject)>();
+
+                        var tracer = base.tracer;
+                        tracer.Reverse();
+
+                        for (int i = 0; i < tracer.Count; i++)
+                        {
+                            var t = tracer[i];
+                            //print($"tracer : ({t.Item1},{t.Item2})");
+                            hc.Add(objects[t.Item1, t.Item2]);
+
+                            if (i < tracer.Count - 1)
+                            {
+                                var tp = tracer[i + 1];
+                                hl.Add((objects[t.Item1, t.Item2], objects[tp.Item1, tp.Item2]));
+                            }
+                        }
+
+                        List<(GameObject, GameObject)> thl1 = new List<(GameObject, GameObject)>();
+                        thl1.Add(hl[0]);
+
+                        List<(GameObject, GameObject)> thl2 = new List<(GameObject, GameObject)>();
+                        foreach (var d in dup)
+                        {
+                            if (IsEmptyCell(d.Item1, d.Item2))
+                            {
+                                thl2.Add((objects[y, mcr[_x]], objects[d.Item1, d.Item2])); //시작셀
+                                thl2.Add((objects[tracer[tracer.Count - 1].Item1, tracer[tracer.Count - 1].Item2], objects[d.Item1, d.Item2])); //끝셀
+                            }
+                        }
+
+                        List<GameObject> thc = MakeHC(hc[0], hc[1]);
+
+                        //대사
+                        string[] str = { "심플 컬러 링크",
+                            $"{mv} 값으로 이루어진 두 셀은 한 셀에 {mv} 값이 들어가면 다른 쪽에는 들어갈 수 없는 링크 관계입니다.",
+                            $"링크를 이렇게 세 쌍을 발견했습니다.",
+                            $"링크에 어떻게 {mv} 값을 구성하든지 다음 셀에는 {mv} 값이 들어갈 수 없습니다."};
+
+                        //처방
+                        var hcList = MakeHCList(null, thc, hc, hdc);
+                        var hlList = MakeHLList(null, thl1, hl, thl2);
+                        hintDialogManager.StartDialogAndDeleteMemo(str, hcList, dc, hlList);
+
+                        return;
                     }
                 }
             }
@@ -1790,6 +1848,8 @@ public class HintManager : SudokuController
                     var hc = MakeHC(null, objects[_y, _x]);
                     var toFill = MakeTuple((_y, _x), val);
                     hintDialogManager.StartDialogAndFillCell(str, hc, toFill);
+
+                    return;
                 }
             }
         }
@@ -1808,6 +1868,16 @@ public class HintManager : SudokuController
     private List<List<GameObject>> MakeHCList(params List<GameObject>[] objs)
     {
         List<List<GameObject>> list = new List<List<GameObject>>();
+        foreach (var obj in objs)
+        {
+            list.Add(obj);
+        }
+        return list;
+    }
+
+    private List<List<(GameObject, GameObject)>> MakeHLList(params List<(GameObject, GameObject)>[] objs)
+    {
+        List<List<(GameObject, GameObject)>> list = new List<List<(GameObject, GameObject)>>();
         foreach (var obj in objs)
         {
             list.Add(obj);

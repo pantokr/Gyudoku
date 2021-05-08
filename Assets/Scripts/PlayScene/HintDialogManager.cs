@@ -20,7 +20,7 @@ public class HintDialogManager : MonoBehaviour
     private List<GameObject> hc = null;
     private List<List<GameObject>> hcList = null;
     private List<List<int>> hbList = null;
-    private List<Tuple<GameObject, GameObject>> hlList = null;
+    private List<List<(GameObject, GameObject)>> hlList = null;
 
     private Tuple<(int, int), int> toFill = null;
     private List<GameObject> toDelete = null;
@@ -114,6 +114,22 @@ public class HintDialogManager : MonoBehaviour
         StartDialog(texts);
     }
 
+    public void StartDialogAndDeleteMemo(string[] texts, List<List<GameObject>> hcList, List<GameObject> toDelete, List<List<(GameObject, GameObject)>> hlList, List<List<int>> hbList = null) // 오버라이드
+    {
+        this.hcList = new List<List<GameObject>>(hcList);
+
+        this.toDelete = new List<GameObject>(toDelete);
+
+        this.hlList = new List<List<(GameObject, GameObject)>>(hlList);
+
+        if (hbList != null)
+        {
+            this.hbList = hbList;
+        }
+
+        StartDialog(texts);
+    }
+
     public void ChangeText()
     {
 
@@ -169,7 +185,10 @@ public class HintDialogManager : MonoBehaviour
         {
             if (hlList[cur] != null)
             {
-                hintVisualManager.DrawLine(hlList[cur].Item1, hlList[cur].Item2);
+                foreach (var hl in hlList[cur])
+                {
+                    hintVisualManager.DrawLine(hl.Item1, hl.Item2);
+                }
             }
         }
 

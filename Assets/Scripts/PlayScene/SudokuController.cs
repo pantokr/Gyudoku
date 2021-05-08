@@ -13,7 +13,6 @@ public class SudokuController : MonoBehaviour
     public MemoManager memoManager;
     public SudokuMaker sudokuMaker;
 
-
     public int[,] sudoku;
     public int[,] fullSudoku;
     public int[,,] memoSudoku;
@@ -21,6 +20,8 @@ public class SudokuController : MonoBehaviour
     private List<Tuple<int[,], int[,,]>> lateSudoku = new List<Tuple<int[,], int[,,]>>();
     private int undoIndex = -1;
 
+    //¸µÅ©¿ë º¯¼ö
+    public List<Tuple<int, int>> tracer;
     protected virtual void Start()
     {
         sudoku = SudokuManager.sudoku;
@@ -679,18 +680,46 @@ public class SudokuController : MonoBehaviour
     }
     #endregion
 
-    #region µÎ ¼¿ÀÇ °ãÄ¡´Â °ªµé ¹ÝÈ¯
-    public List<int> GetDuplicatedValueByTwoCell((int, int) c1, (int, int) c2)
+    #region µÎ ¼¿ÀÇ °ãÄ¡´Â ¼¿µé ¹ÝÈ¯
+    public List<(int, int)> GetCellForcingArea(int y, int x)
     {
-        List<int> list = new List<int>();
-        var amv1 = GetActiveMemoValue(c1.Item1, c1.Item2);
-        var amv2 = GetActiveMemoValue(c2.Item1, c2.Item2);
-
-        foreach (var amv in amv1)
+        List<(int, int)> list = new List<(int, int)>();
+        for (int _x = 0; _x < 9; _x++)
         {
-            if (amv2.Contains(amv))
+            list.Add((y, _x));
+        }
+
+        for (int _y = 0; _y < 9; _y++)
+        {
+            list.Add((_y, x));
+        }
+
+        //7,5
+        int sgy = y / 3;
+        int sgx = x / 3;
+        for (int _y = sgy * 3; _y < sgy * 3 + 3; _y++)
+        {
+            for (int _x = sgx * 3; _x < sgx * 3 + 3; _x++)
             {
-                list.Add(amv);
+                list.Add((_y, _x));
+            }
+        }
+        list = list.Distinct().ToList();
+        list.Sort();
+
+        return list;
+    }
+    public List<(int, int)> GetDuplicatedCellByTwoCell((int, int) c1, (int, int) c2)
+    {
+        List<(int, int)> list = new List<(int, int)>();
+        var cfa1 = GetCellForcingArea(c1.Item1, c1.Item2);
+        var cfa2 = GetCellForcingArea(c2.Item1, c2.Item2);
+
+        foreach (var c in cfa1)
+        {
+            if (cfa2.Contains(c) && c != c1 && c != c2)
+            {
+                list.Add(c);
             }
         }
 
@@ -700,7 +729,7 @@ public class SudokuController : MonoBehaviour
     #endregion
 
     #region ¸µÅ©µÈ ¼¿µé ¹ÝÈ¯
-    public List<Tuple<int, int>> GetLinkedCell(int y, int x, int value, int preCode = -1)
+    public List<Tuple<int, int>> GetLinkedCell(int y, int x, int value, int preCode)
     {
         List<Tuple<int, int>> link_list = new List<Tuple<int, int>>();
 
@@ -758,64 +787,39 @@ public class SudokuController : MonoBehaviour
 
         return link_list;
     }
-    
-    public List<Tuple<int, int>> GetLinkedCellRec(int y, int x, int value, int preCode = -1)
+
+    public Tuple<int, int> GetLinkedCellRecursive(int y, int x, int value, int now_cnt, int ex_cnt, int preCode)
     {
-        List<Tuple<int, int>> link_list = new List<Tuple<int, int>>();
+        if (now_cnt == ex_cnt)
+        {
+            var t = new Tuple<int, int>(y, x);
 
-        //link_list[0] -> row, [1] -> col, [2] -> sg
-        var mcr = GetMemoCellInRow(y, value);
-        if (mcr.Count == 2 && preCode != 0)
-        {
-            Tuple<int, int> tuple = new Tuple<int, int>(y, (mcr[0] == x ? mcr[1] : mcr[0]));
-            link_list.Add(tuple);
-        }
-        else
-        {
-            link_list.Add(null);
+            tracer = new List<Tuple<int, int>>();
+            tracer.Add(t);
+            //print($"y:{y},x:{x},value:{value},now_cnt:{now_cnt},ex_cnt:{ex_cnt},preCode:{preCode}");
+            return t;
         }
 
-        var mcc = GetMemoCellInCol(x, value);
-        if (mcc.Count == 2 && preCode != 1)
-        {
-            Tuple<int, int> tuple = new Tuple<int, int>((mcc[0] == y ? mcc[1] : mcc[0]), x);
-            link_list.Add(tuple);
-        }
-        else
-        {
-            link_list.Add(null);
-        }
+        var link_list = GetLinkedCell(y, x, value, preCode);
 
-        var mcsg = GetMemoCellInSG(y / 3, x / 3, value);
-        if (mcsg.Count == 2 && preCode != 2)
+        //print($"y:{y},x:{x},value:{value},now_cnt:{now_cnt},ex_cnt:{ex_cnt},preCode:{preCode}");
+        for (int i = 0; i < 3; i++)
         {
-            Tuple<int, int> tuple;
-
-            if (mcsg[0].Item1 == y && mcsg[0].Item2 == x)
+            if (link_list[i] == null)
             {
-                tuple = new Tuple<int, int>(mcsg[1].Item1, mcsg[1].Item2);
-            }
-            else
-            {
-                tuple = new Tuple<int, int>(mcsg[0].Item1, mcsg[0].Item2);
+                continue;
             }
 
-            foreach (var l in link_list)
+            var next_tuple = GetLinkedCellRecursive(link_list[i].Item1, link_list[i].Item2, value, now_cnt + 1, ex_cnt, i);
+            if (next_tuple != null)
             {
-                if (l != null && l.Item1 == tuple.Item1 && l.Item2 == tuple.Item2)
-                {
-                    tuple = null;
-                    break;
-                }
+                var now = new Tuple<int, int>(y, x);
+                tracer.Add(now);
+                return next_tuple;
             }
-            link_list.Add(tuple);
-        }
-        else
-        {
-            link_list.Add(null);
         }
 
-        return link_list;
+        return null;
     }
 
     #endregion
