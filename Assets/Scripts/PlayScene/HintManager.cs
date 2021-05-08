@@ -84,6 +84,12 @@ public class HintManager : SudokuController
             return;
         }
 
+        FindNakedTriple();
+        if (breaker)
+        {
+            return;
+        }
+
         FindHiddenPair();
         if (breaker)
         {
@@ -219,11 +225,11 @@ public class HintManager : SudokuController
                     breaker = true;
 
                     //대사
-                    string[] str = { "풀 하우스", $"서브그리드에 한 값 {ev[0]}만 비어 있습니다." };
+                    string[] str = { "풀 하우스", $"서브그리드에 한 값 {val}만 비어 있습니다." };
 
                     //처방
-                    var hc = MakeHC(null, objects[_y, _x]);
-                    var hb = MakeBundle(18 + _y * 3 + _x);
+                    var hc = MakeHC(null, objects[cell.Item1, cell.Item2]);
+                    var hb = MakeBundle(18 + YXToVal(_y, _x));
                     var hbl = MakeBundleList(null, hb);
                     var toFill = MakeTuple((_y, _x), val);
 
@@ -438,7 +444,7 @@ public class HintManager : SudokuController
 
                             //처방
                             var hcList = MakeHCList(null, hc, hdc);
-                            var hb = MakeBundle(r);
+                            var hb = MakeBundle(r, 18 + YXToVal(y, x));
                             var hbl = MakeBundleList(null, hb, null);
                             hintDialogManager.StartDialogAndDeleteMemo(str, hcList, dc, hbl);
                             return;
@@ -484,7 +490,7 @@ public class HintManager : SudokuController
 
                             //처방
                             var hcList = MakeHCList(null, hc, hdc);
-                            var hb = MakeBundle(9 + c);
+                            var hb = MakeBundle(9 + c, 18 + YXToVal(y, x));
                             var hbl = MakeBundleList(null, hb, null);
                             hintDialogManager.StartDialogAndDeleteMemo(str, hcList, dc, hbl);
                             return;
@@ -1046,6 +1052,246 @@ public class HintManager : SudokuController
                             hintDialogManager.StartDialogAndDeleteMemo(str, hclist, dc, hbl);
 
                             return;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void FindNakedTriple()
+    {
+        //row
+        for (int y = 0; y < 9; y++)
+        {
+            var ec_row = GetEmptyCellsInRow(y); //빈 좌표 모음
+            var ec_count = ec_row.Count;
+            if (ec_count < 5)
+            {
+                continue;
+            }
+
+            for (int x1 = 0; x1 < ec_count - 2; x1++)
+            {
+                for (int x2 = x1 + 1; x2 < ec_count - 1; x2++)
+                {
+                    for (int x3 = x2 + 1; x3 < ec_count; x3++)
+                    {
+                        List<int> triple = new List<int>();
+                        var mv1 = GetActiveMemoValue(y, ec_row[x1]);
+                        var mv2 = GetActiveMemoValue(y, ec_row[x2]);
+                        var mv3 = GetActiveMemoValue(y, ec_row[x3]);
+
+                        triple.AddRange(mv1);
+                        triple.AddRange(mv2);
+                        triple.AddRange(mv3);
+
+                        triple = triple.Distinct().ToList();
+                        triple.Sort();
+
+                        if (triple.Count != 3) // 트리플 발견
+                        {
+                            continue;
+                        }
+
+                        List<GameObject> hc = new List<GameObject>();
+                        List<GameObject> dc = new List<GameObject>();
+
+                        foreach (var ec in ec_row)
+                        {
+                            if (ec == ec_row[x1] || ec == ec_row[x2] || ec == ec_row[x3])
+                            {
+                                hc.Add(objects[y, ec]);
+                                continue;
+                            }
+                            else
+                            {
+                                foreach (var single in triple)
+                                {
+                                    if (IsInMemoCell(y, ec, single))
+                                    {
+                                        dc.Add(memoObjects[y, ec, ValToY(single), ValToX(single)]);
+                                    }
+                                }
+                            }
+                        }
+                        if (dc.Count != 0)
+                        {
+                            breaker = true;
+
+                            //대사
+                            string[] str = { "네이키드 트리플",
+                                $"{y+1} 행에서 강조된 셀들은 {triple[0]}, {triple[1]}, {triple[2]} 세 값으로만 구성되어 있습니다..",
+                                $"즉,  {triple[0]}, {triple[1]}, {triple[2]} 세 값은 이 세 셀들에서만 존재해야 합니다.",
+                                $"따라서 다른 셀들에 있는 {triple[0]}, {triple[1]}, {triple[2]} 값들을 지웁니다."
+                            };
+
+                            //처방
+                            var hclist = MakeHCList(null, hc, hc, dc);
+                            var hb = MakeBundle(y);
+                            var hbl = MakeBundleList(null, hb, hb, hb);
+
+                            hintDialogManager.StartDialogAndDeleteMemo(str, hclist, dc, hbl);
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+
+        //col
+        for (int x = 0; x < 9; x++)
+        {
+            var ec_col = GetEmptyCellsInCol(x); //빈 좌표 모음
+            var ec_count = ec_col.Count;
+            if (ec_count < 5)
+            {
+                continue;
+            }
+
+            for (int y1 = 0; y1 < ec_count - 2; y1++)
+            {
+                for (int y2 = y1 + 1; y2 < ec_count - 1; y2++)
+                {
+                    for (int y3 = y2 + 1; y3 < ec_count; y3++)
+                    {
+                        List<int> triple = new List<int>();
+                        var mv1 = GetActiveMemoValue(ec_col[y1], x);
+                        var mv2 = GetActiveMemoValue(ec_col[y2], x);
+                        var mv3 = GetActiveMemoValue(ec_col[y3], x);
+
+                        triple.AddRange(mv1);
+                        triple.AddRange(mv2);
+                        triple.AddRange(mv3);
+
+                        triple = triple.Distinct().ToList();
+                        triple.Sort();
+
+                        if (triple.Count != 3)
+                        {
+                            continue;
+                        }
+                        //트리플 발견
+                        List<GameObject> hc = new List<GameObject>();
+                        List<GameObject> dc = new List<GameObject>();
+
+                        foreach (var ec in ec_col)
+                        {
+                            if (ec == ec_col[y1] || ec == ec_col[y2] || ec == ec_col[y3])
+                            {
+                                hc.Add(objects[ec, x]);
+                                continue;
+                            }
+                            else
+                            {
+                                foreach (var single in triple)
+                                {
+                                    if (IsInMemoCell(ec, x, single))
+                                    {
+                                        dc.Add(memoObjects[ec, x, ValToY(single), ValToX(single)]);
+                                    }
+                                }
+                            }
+                        }
+                        if (dc.Count != 0)
+                        {
+                            breaker = true;
+
+                            //대사
+                            string[] str = { "네이키드 트리플",
+                            $"{x+1} 열에서 강조된 셀들은 {triple[0]}, {triple[1]}, {triple[2]} 세 값으로만 구성되어 있습니다..",
+                            $"즉,  {triple[0]}, {triple[1]}, {triple[2]} 세 값은 이 세 셀들에서만 존재해야 합니다.",
+                            $"따라서 다른 셀들에 있는 {triple[0]}, {triple[1]}, {triple[2]} 값들을 지웁니다."};
+
+                            //처방
+                            var hclist = MakeHCList(null, hc, hc, dc);
+                            var hb = MakeBundle(9 + x);
+                            var hbl = MakeBundleList(null, hb, hb, hb);
+
+                            hintDialogManager.StartDialogAndDeleteMemo(str, hclist, dc, hbl);
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+
+        //sg
+        for (int y = 0; y < 3; y++)
+        {
+            for (int x = 0; x < 3; x++)
+            {
+                var ec_sg = GetEmptyCellsInSG(y, x); //빈 좌표 모음
+                var ec_count = ec_sg.Count;
+
+                if (ec_count < 5)
+                {
+                    continue;
+                }
+
+                for (int sg1 = 0; sg1 < ec_count - 2; sg1++)
+                {
+                    for (int sg2 = sg1 + 1; sg2 < ec_count - 1; sg2++)
+                    {
+                        for (int sg3 = sg2 + 1; sg3 < ec_count; sg3++)
+                        {
+                            List<int> triple = new List<int>();
+                            var mv1 = GetActiveMemoValue(ec_sg[sg1].Item1, ec_sg[sg1].Item2);
+                            var mv2 = GetActiveMemoValue(ec_sg[sg2].Item1, ec_sg[sg2].Item2);
+                            var mv3 = GetActiveMemoValue(ec_sg[sg3].Item1, ec_sg[sg3].Item2);
+
+                            triple.AddRange(mv1);
+                            triple.AddRange(mv2);
+                            triple.AddRange(mv3);
+
+                            triple = triple.Distinct().ToList();
+                            triple.Sort();
+
+                            if (triple.Count != 3)
+                            {
+                                continue;
+                            }
+                            //트리플 발견
+                            List<GameObject> hc = new List<GameObject>();
+                            List<GameObject> dc = new List<GameObject>();
+
+                            foreach (var ec in ec_sg)
+                            {
+                                if (ec == ec_sg[sg1] || ec == ec_sg[sg2] || ec == ec_sg[sg3])
+                                {
+                                    hc.Add(objects[ec.Item1, ec.Item2]);
+                                    continue;
+                                }
+                                else
+                                {
+                                    foreach (var single in triple)
+                                    {
+                                        if (IsInMemoCell(ec.Item1, ec.Item2, single))
+                                        {
+                                            dc.Add(memoObjects[ec.Item1, ec.Item2, ValToY(single), ValToX(single)]);
+                                        }
+                                    }
+                                }
+                            }
+                            if (dc.Count != 0)
+                            {
+                                breaker = true;
+
+                                //대사
+                                string[] str = { "네이키드 트리플",
+                                    $"{y+1}-{x+1} 서브그리드에서 강조된 셀들은 {triple[0]}, {triple[1]}, {triple[2]} 세 값으로만 구성되어 있습니다..",
+                                    $"즉,  {triple[0]}, {triple[1]}, {triple[2]} 세 값은 이 세 셀들에서만 존재해야 합니다.",
+                                    $"따라서 다른 셀들에 있는 {triple[0]}, {triple[1]}, {triple[2]} 값들을 지웁니다."
+                                };
+
+                                //처방
+                                var hclist = MakeHCList(null, hc, hc, dc);
+                                var hb = MakeBundle(18 + YXToVal(y, x));
+                                var hbl = MakeBundleList(null, hb, hb, hb);
+
+                                hintDialogManager.StartDialogAndDeleteMemo(str, hclist, dc, hbl);
+                                return;
+                            }
                         }
                     }
                 }

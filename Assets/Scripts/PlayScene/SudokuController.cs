@@ -688,7 +688,6 @@ public class SudokuController : MonoBehaviour
         lateSudoku.Add(tuple);
 
         undoIndex++;
-        print(undoIndex);
     }
 
     public (int[,], int[,,]) CallSudokuLog()
@@ -711,6 +710,11 @@ public class SudokuController : MonoBehaviour
     public int ValToX(int value)
     {
         return (value - 1) % 3;
+    }
+
+    public int YXToVal(int y, int x)
+    {
+        return y * 3 + x;
     }
     #endregion 
 }
