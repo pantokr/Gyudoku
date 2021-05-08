@@ -70,7 +70,7 @@ public class ManualToolsManager : MonoBehaviour
             ApplyButtonPressed(memoImg);
             ApplyButtonNormal(eraserImg);
 
-            GameObject.Find("MainPanel").GetComponent<Image>().color = new Color(1, 1, 1, 0.6f);
+            GameObject.Find("MainPanel").GetComponent<Image>().color = new Color(0.8f, 1, 1, 1f);
         }
         else
         {
@@ -88,7 +88,7 @@ public class ManualToolsManager : MonoBehaviour
             onMemo = false;
             ApplyButtonPressed(eraserImg);
             ApplyButtonNormal(memoImg);
-            GameObject.Find("MainPanel").GetComponent<Image>().color = new Color(1, 1, 1, 0.6f);
+            GameObject.Find("MainPanel").GetComponent<Image>().color = new Color(0.8f, 1, 1, 1);
         }
         else
         {

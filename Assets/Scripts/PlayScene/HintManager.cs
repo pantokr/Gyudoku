@@ -102,6 +102,18 @@ public class HintManager : SudokuController
             return;
         }
 
+        FindNakedQuad();
+        if (breaker)
+        {
+            return;
+        }
+
+        FindSimpleColorLink3();
+        if (breaker)
+        {
+            return;
+        }
+
         if (Settings.PlayMode == 0)
         {
             FindFromFullSudoku();
@@ -1297,6 +1309,261 @@ public class HintManager : SudokuController
                 }
             }
         }
+    }//네이키드 트리플
+
+    private void FindNakedQuad() //네이키드 쿼드
+    {
+        //row
+        for (int y = 0; y < 9; y++)
+        {
+            var ec_row = GetEmptyCellsInRow(y); //빈 좌표 모음
+            var ec_count = ec_row.Count;
+            if (ec_count < 6)
+            {
+                continue;
+            }
+
+            for (int x1 = 0; x1 < ec_count - 3; x1++)
+            {
+                for (int x2 = x1 + 1; x2 < ec_count - 2; x2++)
+                {
+                    for (int x3 = x2 + 1; x3 < ec_count - 1; x3++)
+                    {
+                        for (int x4 = x3 + 1; x4 < ec_count; x4++)
+                        {
+                            List<int> quad = new List<int>();
+                            var mv1 = GetActiveMemoValue(y, ec_row[x1]);
+                            var mv2 = GetActiveMemoValue(y, ec_row[x2]);
+                            var mv3 = GetActiveMemoValue(y, ec_row[x3]);
+                            var mv4 = GetActiveMemoValue(y, ec_row[x4]);
+
+                            quad.AddRange(mv1);
+                            quad.AddRange(mv2);
+                            quad.AddRange(mv3);
+                            quad.AddRange(mv4);
+
+                            quad = quad.Distinct().ToList();
+                            quad.Sort();
+
+                            if (quad.Count != 4) // 트리플 발견
+                            {
+                                continue;
+                            }
+
+                            List<GameObject> hc = new List<GameObject>();
+                            List<GameObject> dc = new List<GameObject>();
+
+                            foreach (var ec in ec_row)
+                            {
+                                if (ec == ec_row[x1] || ec == ec_row[x2] || ec == ec_row[x3] || ec == ec_row[x4])
+                                {
+                                    hc.Add(objects[y, ec]);
+                                    continue;
+                                }
+                                else
+                                {
+                                    foreach (var single in quad)
+                                    {
+                                        if (IsInMemoCell(y, ec, single))
+                                        {
+                                            dc.Add(memoObjects[y, ec, ValToY(single), ValToX(single)]);
+                                        }
+                                    }
+                                }
+                            }
+                            if (dc.Count != 0)
+                            {
+                                breaker = true;
+
+                                //대사
+                                string[] str = { "네이키드 쿼드",
+                                $"{y+1} 행에서 강조된 셀들은 {quad[0]}, {quad[1]}, {quad[2]}, {quad[3]} 네 값으로만 구성되어 있습니다..",
+                                $"즉, {quad[0]}, {quad[1]}, {quad[2]}, {quad[3]} 네 값은 이 네 셀들에서만 존재해야 합니다.",
+                                $"따라서 다른 셀들에 있는 {quad[0]}, {quad[1]}, {quad[2]}, {quad[3]} 값들을 지웁니다."
+                            };
+
+                                //처방
+                                var hclist = MakeHCList(null, hc, hc, dc);
+                                var hb = MakeBundle(y);
+                                var hbl = MakeBundleList(null, hb, hb, hb);
+
+                                hintDialogManager.StartDialogAndDeleteMemo(str, hclist, dc, hbl);
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        //col
+        for (int x = 0; x < 9; x++)
+        {
+            var ec_col = GetEmptyCellsInCol(x); //빈 좌표 모음
+            var ec_count = ec_col.Count;
+            if (ec_count < 6)
+            {
+                continue;
+            }
+
+            for (int y1 = 0; y1 < ec_count - 3; y1++)
+            {
+                for (int y2 = y1 + 1; y2 < ec_count - 2; y2++)
+                {
+                    for (int y3 = y2 + 1; y3 < ec_count - 1; y3++)
+                    {
+                        for (int y4 = y3 + 1; y4 < ec_count; y4++)
+                        {
+                            List<int> quad = new List<int>();
+                            var mv1 = GetActiveMemoValue(ec_col[y1], x);
+                            var mv2 = GetActiveMemoValue(ec_col[y2], x);
+                            var mv3 = GetActiveMemoValue(ec_col[y3], x);
+                            var mv4 = GetActiveMemoValue(ec_col[y4], x);
+
+                            quad.AddRange(mv1);
+                            quad.AddRange(mv2);
+                            quad.AddRange(mv3);
+                            quad.AddRange(mv4);
+
+                            quad = quad.Distinct().ToList();
+                            quad.Sort();
+
+                            if (quad.Count != 4)
+                            {
+                                continue;
+                            }
+                            //트리플 발견
+                            List<GameObject> hc = new List<GameObject>();
+                            List<GameObject> dc = new List<GameObject>();
+
+                            foreach (var ec in ec_col)
+                            {
+                                if (ec == ec_col[y1] || ec == ec_col[y2] || ec == ec_col[y3] || ec == ec_col[y4])
+                                {
+                                    hc.Add(objects[ec, x]);
+                                    continue;
+                                }
+                                else
+                                {
+                                    foreach (var single in quad)
+                                    {
+                                        if (IsInMemoCell(ec, x, single))
+                                        {
+                                            dc.Add(memoObjects[ec, x, ValToY(single), ValToX(single)]);
+                                        }
+                                    }
+                                }
+                            }
+                            if (dc.Count != 0)
+                            {
+                                breaker = true;
+
+                                //대사
+                                string[] str = { "네이키드 쿼드",
+                                    $"{x+1} 열에서 강조된 셀들은 {quad[0]}, {quad[1]}, {quad[2]}, {quad[3]} 네 값으로만 구성되어 있습니다..",
+                                    $"즉, {quad[0]}, {quad[1]}, {quad[2]}, {quad[3]} 네 값은 이 네 셀들에서만 존재해야 합니다.",
+                                    $"따라서 다른 셀들에 있는 {quad[0]}, {quad[1]}, {quad[2]}, {quad[3]} 값들을 지웁니다."};
+
+                                //처방
+                                var hclist = MakeHCList(null, hc, hc, dc);
+                                var hb = MakeBundle(9 + x);
+                                var hbl = MakeBundleList(null, hb, hb, hb);
+
+                                hintDialogManager.StartDialogAndDeleteMemo(str, hclist, dc, hbl);
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        //sg
+        for (int y = 0; y < 3; y++)
+        {
+            for (int x = 0; x < 3; x++)
+            {
+                var ec_sg = GetEmptyCellsInSG(y, x); //빈 좌표 모음
+                var ec_count = ec_sg.Count;
+
+                if (ec_count < 6)
+                {
+                    continue;
+                }
+
+                for (int sg1 = 0; sg1 < ec_count - 3; sg1++)
+                {
+                    for (int sg2 = sg1 + 1; sg2 < ec_count - 2; sg2++)
+                    {
+                        for (int sg3 = sg2 + 1; sg3 < ec_count - 1; sg3++)
+                        {
+                            for (int sg4 = sg3 + 1; sg4 < ec_count; sg4++)
+                            {
+                                List<int> quad = new List<int>();
+                                var mv1 = GetActiveMemoValue(ec_sg[sg1].Item1, ec_sg[sg1].Item2);
+                                var mv2 = GetActiveMemoValue(ec_sg[sg2].Item1, ec_sg[sg2].Item2);
+                                var mv3 = GetActiveMemoValue(ec_sg[sg3].Item1, ec_sg[sg3].Item2);
+                                var mv4 = GetActiveMemoValue(ec_sg[sg4].Item1, ec_sg[sg4].Item2);
+
+                                quad.AddRange(mv1);
+                                quad.AddRange(mv2);
+                                quad.AddRange(mv3);
+                                quad.AddRange(mv4);
+
+                                quad = quad.Distinct().ToList();
+                                quad.Sort();
+
+                                if (quad.Count != 4)
+                                {
+                                    continue;
+                                }
+                                //쿼드 발견
+                                List<GameObject> hc = new List<GameObject>();
+                                List<GameObject> dc = new List<GameObject>();
+
+                                foreach (var ec in ec_sg)
+                                {
+                                    if (ec == ec_sg[sg1] || ec == ec_sg[sg2] || ec == ec_sg[sg3] || ec == ec_sg[sg4])
+                                    {
+                                        hc.Add(objects[ec.Item1, ec.Item2]);
+                                        continue;
+                                    }
+                                    else
+                                    {
+                                        foreach (var single in quad)
+                                        {
+                                            if (IsInMemoCell(ec.Item1, ec.Item2, single))
+                                            {
+                                                dc.Add(memoObjects[ec.Item1, ec.Item2, ValToY(single), ValToX(single)]);
+                                            }
+                                        }
+                                    }
+                                }
+                                if (dc.Count != 0)
+                                {
+                                    breaker = true;
+
+                                    //대사
+                                    string[] str = { "네이키드 쿼드",
+                                    $"{y+1}-{x+1} 서브그리드에서 강조된 셀들은 {quad[0]}, {quad[1]}, {quad[2]}, {quad[3]} 네 값으로만 구성되어 있습니다..",
+                                    $"즉, {quad[0]}, {quad[1]}, {quad[2]}, {quad[3]} 네 값은 이 네 셀들에서만 존재해야 합니다.",
+                                    $"따라서 다른 셀들에 있는 {quad[0]}, {quad[1]}, {quad[2]}, {quad[3]} 값들을 지웁니다."
+                                };
+
+                                    //처방
+                                    var hclist = MakeHCList(null, hc, hc, dc);
+                                    var hb = MakeBundle(18 + YXToVal(y, x));
+                                    var hbl = MakeBundleList(null, hb, hb, hb);
+
+                                    hintDialogManager.StartDialogAndDeleteMemo(str, hclist, dc, hbl);
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private void FindXWing()
@@ -1469,6 +1736,42 @@ public class HintManager : SudokuController
         }
     }
 
+    private void FindSimpleColorLink3()
+    {
+        for (int y = 0; y < 9; y++)
+        {
+            var mcr = GetEmptyCellsInRow(y);
+            var mcr_count = mcr.Count;
+            for (int _x = 0; _x < mcr_count; _x++) // 빈 셀 X 좌표
+            {
+                var amv = GetActiveMemoValue(y, mcr[_x]);
+                foreach (var mv in amv) // 메모 값들
+                {
+                    var lcs_start = GetLinkedCell(y, _x, mv); // 첫 번째 링크 탐색 시작,
+
+                    int preCode = -1;
+                    int rep_cnt = 0;
+
+                    List<Tuple<int, int>> cur_link = new List<Tuple<int, int>>();
+                    
+                    List<List<Tuple<int, int>>> link_stack = new List<List<Tuple<int, int>>>();
+                    List<int> preCode_stack = new List<int>();
+
+                    link_stack.Add(lcs_start);
+                    preCode_stack.Add(preCode);
+                    while (true)
+                    {
+                        for (int i = 0; i < 3; i++)
+                        {
+
+                        }
+                        rep_cnt++;
+                    }
+                }
+            }
+        }
+    }
+
     private void FindFromFullSudoku()
     {
         for (int _y = 0; _y < 9; _y++)
@@ -1531,7 +1834,6 @@ public class HintManager : SudokuController
         }
         return list;
     }
-
 
     private Tuple<(int, int), int> MakeTuple((int, int) YX, int value)
     {

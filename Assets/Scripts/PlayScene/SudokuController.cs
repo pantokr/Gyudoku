@@ -679,6 +679,147 @@ public class SudokuController : MonoBehaviour
     }
     #endregion
 
+    #region 두 셀의 겹치는 값들 반환
+    public List<int> GetDuplicatedValueByTwoCell((int, int) c1, (int, int) c2)
+    {
+        List<int> list = new List<int>();
+        var amv1 = GetActiveMemoValue(c1.Item1, c1.Item2);
+        var amv2 = GetActiveMemoValue(c2.Item1, c2.Item2);
+
+        foreach (var amv in amv1)
+        {
+            if (amv2.Contains(amv))
+            {
+                list.Add(amv);
+            }
+        }
+
+        return list;
+    }
+
+    #endregion
+
+    #region 링크된 셀들 반환
+    public List<Tuple<int, int>> GetLinkedCell(int y, int x, int value, int preCode = -1)
+    {
+        List<Tuple<int, int>> link_list = new List<Tuple<int, int>>();
+
+        //link_list[0] -> row, [1] -> col, [2] -> sg
+        var mcr = GetMemoCellInRow(y, value);
+        if (mcr.Count == 2 && preCode != 0)
+        {
+            Tuple<int, int> tuple = new Tuple<int, int>(y, (mcr[0] == x ? mcr[1] : mcr[0]));
+            link_list.Add(tuple);
+        }
+        else
+        {
+            link_list.Add(null);
+        }
+
+        var mcc = GetMemoCellInCol(x, value);
+        if (mcc.Count == 2 && preCode != 1)
+        {
+            Tuple<int, int> tuple = new Tuple<int, int>((mcc[0] == y ? mcc[1] : mcc[0]), x);
+            link_list.Add(tuple);
+        }
+        else
+        {
+            link_list.Add(null);
+        }
+
+        var mcsg = GetMemoCellInSG(y / 3, x / 3, value);
+        if (mcsg.Count == 2 && preCode != 2)
+        {
+            Tuple<int, int> tuple;
+
+            if (mcsg[0].Item1 == y && mcsg[0].Item2 == x)
+            {
+                tuple = new Tuple<int, int>(mcsg[1].Item1, mcsg[1].Item2);
+            }
+            else
+            {
+                tuple = new Tuple<int, int>(mcsg[0].Item1, mcsg[0].Item2);
+            }
+
+            foreach (var l in link_list)
+            {
+                if (l != null && l.Item1 == tuple.Item1 && l.Item2 == tuple.Item2)
+                {
+                    tuple = null;
+                    break;
+                }
+            }
+            link_list.Add(tuple);
+        }
+        else
+        {
+            link_list.Add(null);
+        }
+
+        return link_list;
+    }
+    
+    public List<Tuple<int, int>> GetLinkedCellRec(int y, int x, int value, int preCode = -1)
+    {
+        List<Tuple<int, int>> link_list = new List<Tuple<int, int>>();
+
+        //link_list[0] -> row, [1] -> col, [2] -> sg
+        var mcr = GetMemoCellInRow(y, value);
+        if (mcr.Count == 2 && preCode != 0)
+        {
+            Tuple<int, int> tuple = new Tuple<int, int>(y, (mcr[0] == x ? mcr[1] : mcr[0]));
+            link_list.Add(tuple);
+        }
+        else
+        {
+            link_list.Add(null);
+        }
+
+        var mcc = GetMemoCellInCol(x, value);
+        if (mcc.Count == 2 && preCode != 1)
+        {
+            Tuple<int, int> tuple = new Tuple<int, int>((mcc[0] == y ? mcc[1] : mcc[0]), x);
+            link_list.Add(tuple);
+        }
+        else
+        {
+            link_list.Add(null);
+        }
+
+        var mcsg = GetMemoCellInSG(y / 3, x / 3, value);
+        if (mcsg.Count == 2 && preCode != 2)
+        {
+            Tuple<int, int> tuple;
+
+            if (mcsg[0].Item1 == y && mcsg[0].Item2 == x)
+            {
+                tuple = new Tuple<int, int>(mcsg[1].Item1, mcsg[1].Item2);
+            }
+            else
+            {
+                tuple = new Tuple<int, int>(mcsg[0].Item1, mcsg[0].Item2);
+            }
+
+            foreach (var l in link_list)
+            {
+                if (l != null && l.Item1 == tuple.Item1 && l.Item2 == tuple.Item2)
+                {
+                    tuple = null;
+                    break;
+                }
+            }
+            link_list.Add(tuple);
+        }
+        else
+        {
+            link_list.Add(null);
+        }
+
+        return link_list;
+    }
+
+    #endregion
+
     #region 기타
     public void RecordSudokuLog()
     {
