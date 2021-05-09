@@ -18,11 +18,11 @@ public class CellManager : MonoBehaviour
     public Color disabledColor;
     public Color highLightCellColor;
 
-    readonly private Button[,] btns = new Button[9, 9];
-    readonly private Text[,] values = new Text[9, 9];
-    readonly private GameObject[,] objects = new GameObject[9, 9];
-
     public int[,] sudoku;
+
+    readonly private GameObject[,] objects = new GameObject[9, 9];
+    readonly private Text[,] values = new Text[9, 9];
+    readonly private Button[,] btns = new Button[9, 9];
 
     private void Awake()
     {
@@ -73,6 +73,15 @@ public class CellManager : MonoBehaviour
                     colors.disabledColor = highLightCellColor;
                     colors.normalColor = highLightCellColor;
                     btns[y, x].colors = colors;
+
+                    var mObjects = memoManager.GetMemoObjects(y, x);
+                    foreach (var obj in mObjects)
+                    {
+                        var img = obj.GetComponent<Image>();
+                        var mColor = img.color;
+                        mColor = highLightCellColor;
+                        img.color = mColor;
+                    }
                 }
                 else //다른 숫자 원상복구
                 {
@@ -80,6 +89,15 @@ public class CellManager : MonoBehaviour
                     colors.disabledColor = disabledColor;
                     colors.normalColor = normalColor;
                     btns[y, x].colors = colors;
+
+                    var mObjects = memoManager.GetMemoObjects(y, x);
+                    foreach (var obj in mObjects)
+                    {
+                        var img = obj.GetComponent<Image>();
+                        var mColor = img.color;
+                        mColor = normalColor;
+                        img.color = mColor;
+                    }
                 }
             }
         }

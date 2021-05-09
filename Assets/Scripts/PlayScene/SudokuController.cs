@@ -709,6 +709,7 @@ public class SudokuController : MonoBehaviour
 
         return list;
     }
+    
     public List<(int, int)> GetDuplicatedCellByTwoCell((int, int) c1, (int, int) c2)
     {
         List<(int, int)> list = new List<(int, int)>();
@@ -719,7 +720,28 @@ public class SudokuController : MonoBehaviour
         {
             if (cfa2.Contains(c) && c != c1 && c != c2)
             {
-                list.Add(c);
+                if (IsEmptyCell(c.Item1, c.Item2))
+                {
+                    list.Add(c);
+                }
+            }
+        }
+
+        return list;
+    }
+
+    public List<int> GetDuplicatedValueByTwoCell((int, int) c1, (int, int) c2)
+    {
+        List<int> list = new List<int>();
+
+        var amv1 = GetActiveMemoValue(c1.Item1, c1.Item2);
+        var amv2 = GetActiveMemoValue(c2.Item1, c2.Item2);
+
+        foreach(var amv in amv1)
+        {
+            if (amv2.Contains(amv))
+            {
+                list.Add(amv);
             }
         }
 
