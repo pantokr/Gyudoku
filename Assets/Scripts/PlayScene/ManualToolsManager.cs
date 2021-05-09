@@ -12,6 +12,7 @@ public class ManualToolsManager : MonoBehaviour
     public SudokuController sudokuController;
     public MemoManager memoManager;
     public CellManager cellManager;
+    public PlayManager playManager;
 
     public GameObject memoButton;
     public GameObject eraserButton;
@@ -41,14 +42,14 @@ public class ManualToolsManager : MonoBehaviour
     {
 
         //M을 누르면 Memo on
-        if (Input.GetKeyDown(KeyCode.M) || Input.GetKeyDown(KeyCode.Tab))
+        if (Input.GetKeyDown(KeyCode.Tab))
         {
             TurnMemo();
             return;
         }
 
         //E을 누르면 Eraser on
-        if (Input.GetKeyDown(KeyCode.E))
+        if (Input.GetKeyDown(KeyCode.E) && playManager.curX == -1 && playManager.curY == -1)
         {
             TurnEraser();
             return;

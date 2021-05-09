@@ -15,16 +15,37 @@ public class SudokuManager : MonoBehaviour
     private void Awake()
     {
         memoSudoku = new int[9, 9, 9];
+        sudokuMaker = new SudokuMaker();
 
         if (Settings.PlayMode == 0)
         {
-            sudokuMaker = new SudokuMaker();
             (sudoku, fullSudoku) = sudokuMaker.MakeNewSudoku();
             originalSudoku = (int[,])sudoku.Clone();
         }
         else if (Settings.PlayMode == 1 || Settings.PlayMode == 2)
         {
             fileManager.StartOpening();
+        }
+        else if (Settings.PlayMode == 3)
+        {
+            if (DifficultySetter.Difficulty == 0)
+            {
+                int rand = Random.Range(0, Settings.Easy_Cnt);
+                fileManager.StartOpening($"easy{rand}");
+                sudoku = sudokuMaker.MakeConvertedSudoku(sudoku);
+            }
+            else if (DifficultySetter.Difficulty == 1)
+            {
+                int rand = Random.Range(0, Settings.Medium_Cnt);
+                fileManager.StartOpening($"medium{rand}");
+                sudoku = sudokuMaker.MakeConvertedSudoku(sudoku);
+            }
+            else if (DifficultySetter.Difficulty == 2)
+            {
+                int rand = Random.Range(0, Settings.Hard_Cnt);
+                fileManager.StartOpening($"hard{rand}");
+                sudoku = sudokuMaker.MakeConvertedSudoku(sudoku);
+            }
         }
     }
     public static void PrintSudoku(int[,] s)

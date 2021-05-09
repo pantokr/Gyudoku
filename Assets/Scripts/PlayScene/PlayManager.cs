@@ -75,6 +75,16 @@ public class PlayManager : MonoBehaviour
             curX = -1;
         }
 
+        if (Input.GetKey(KeyCode.LeftShift))
+        {
+            ManualToolsManager.onMemo = true;
+        }
+        
+        if (Input.GetKeyUp(KeyCode.LeftShift))
+        {
+            ManualToolsManager.onMemo = false;
+        }
+
         for (int i = 0; i < AlphaKeys.Length; i++)
         {
             if (Input.GetKeyDown(AlphaKeys[i]) || Input.GetKeyDown(KeypadKeys[i]))
@@ -126,7 +136,7 @@ public class PlayManager : MonoBehaviour
         }
 
         //Q를 누르면 지워짐
-        if (Input.GetKeyDown(KeyCode.Q))
+        if (Input.GetKeyDown(KeyCode.E))
         {
             if (curX != -1 && curY != -1) // 스도쿠 내부의 버튼을 선택하고 있으면
             {

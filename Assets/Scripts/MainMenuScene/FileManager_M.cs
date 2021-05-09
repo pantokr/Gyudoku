@@ -31,6 +31,13 @@ public class FileManager_M : MonoBehaviour
         _submit = submitButton.GetComponent<Button>();
         _submit.onClick.AddListener(delegate { Submit(); });
     }
+
+    public void StartSaving(string name, string str)
+    {
+        PlayerPrefs.SetString(name, str);
+        //print("Saved");
+    }
+
     private void StartSaving(string name = "default")
     {
 

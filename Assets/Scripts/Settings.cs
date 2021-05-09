@@ -10,6 +10,11 @@ public class Settings : MonoBehaviour
     // 0 default
     // 1 new
     // 2 open
+    // 3 all customized
+
+    public static int Easy_Cnt = 0;
+    public static int Medium_Cnt = 0;
+    public static int Hard_Cnt = 0;
 
     private void Update()
     {

@@ -20,7 +20,7 @@ public class MainMenuButtonManager : MonoBehaviour
     {
 
         DifficultySetter.SetEasyMode();
-        Settings.PlayMode = 0;
+        //Settings.PlayMode = 0;
 
         SceneManager.LoadScene("LoadingScene");
     }
@@ -29,7 +29,7 @@ public class MainMenuButtonManager : MonoBehaviour
     {
 
         DifficultySetter.SetMediumMode();
-        Settings.PlayMode = 0;
+        //Settings.PlayMode = 0;
 
         SceneManager.LoadScene("LoadingScene");
     }
@@ -38,7 +38,7 @@ public class MainMenuButtonManager : MonoBehaviour
     {
 
         DifficultySetter.SetHardMode();
-        Settings.PlayMode = 0;
+        //Settings.PlayMode = 0;
 
         SceneManager.LoadScene("LoadingScene");
     }

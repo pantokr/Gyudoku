@@ -74,14 +74,14 @@ public class CellManager : MonoBehaviour
                     colors.normalColor = highLightCellColor;
                     btns[y, x].colors = colors;
 
-                    var mObjects = memoManager.GetMemoObjects(y, x);
-                    foreach (var obj in mObjects)
-                    {
-                        var img = obj.GetComponent<Image>();
-                        var mColor = img.color;
-                        mColor = highLightCellColor;
-                        img.color = mColor;
-                    }
+                    //var mObjects = memoManager.GetMemoObjects(y, x);
+                    //foreach (var obj in mObjects)
+                    //{
+                    //    var img = obj.GetComponent<Image>();
+                    //    var mColor = img.color;
+                    //    mColor = highLightCellColor;
+                    //    img.color = mColor;
+                    //}
                 }
                 else //다른 숫자 원상복구
                 {
@@ -90,14 +90,14 @@ public class CellManager : MonoBehaviour
                     colors.normalColor = normalColor;
                     btns[y, x].colors = colors;
 
-                    var mObjects = memoManager.GetMemoObjects(y, x);
-                    foreach (var obj in mObjects)
-                    {
-                        var img = obj.GetComponent<Image>();
-                        var mColor = img.color;
-                        mColor = normalColor;
-                        img.color = mColor;
-                    }
+                    //var mObjects = memoManager.GetMemoObjects(y, x);
+                    //foreach (var obj in mObjects)
+                    //{
+                    //    var img = obj.GetComponent<Image>();
+                    //    var mColor = img.color;
+                    //    mColor = normalColor;
+                    //    img.color = mColor;
+                    //}
                 }
             }
         }

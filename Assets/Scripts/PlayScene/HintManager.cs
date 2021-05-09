@@ -287,7 +287,7 @@ public class HintManager : SudokuController
                         else // 일반
                         {
                             //대사
-                            string[] str = { "네이키드 싱글", $"이 셀에 {val} 말고는 들어갈 수 있는 값이 없습니다." };
+                            string[] str = { "네이키드 싱글", $"이 셀에 {val} 값 말고는 들어갈 수 있는 값이 없습니다." };
 
                             //처방
                             var hc = MakeHC(null, objects[_y, _x]);
@@ -1932,7 +1932,193 @@ public class HintManager : SudokuController
 
     private void FindSwordFish()
     {
+        //row
+        for (int y1 = 0; y1 < 7; y1++)
+        {
+            for (int y2 = y1 + 1; y2 < 8; y2++)
+            {
+                for (int y3 = y2 + 1; y3 < 9; y3++)
+                {
+                    for (int val = 1; val <= 9; val++)
+                    {
+                        var mcr1 = GetMemoCellInRow(y1, val);
+                        var mcr2 = GetMemoCellInRow(y2, val);
+                        var mcr3 = GetMemoCellInRow(y3, val);
 
+                        if ((mcr1.Count < 2 || mcr1.Count > 3) ||
+                            (mcr2.Count < 2 || mcr2.Count > 3) ||
+                            (mcr3.Count < 2 || mcr3.Count > 3))
+                        {
+                            continue;
+                        }
+
+                        List<int> cols = new List<int>();
+                        foreach (var mcr in mcr1)
+                        {
+                            cols.Add(mcr);
+                        }
+                        foreach (var mcr in mcr2)
+                        {
+                            cols.Add(mcr);
+                        }
+                        foreach (var mcr in mcr3)
+                        {
+                            cols.Add(mcr);
+                        }
+
+                        cols = cols.Distinct().ToList();
+                        cols.Sort();
+
+                        if (cols.Count != 3) // sword fish 발견
+                        {
+                            continue;
+                        }
+
+
+                        List<GameObject> dc = new List<GameObject>();
+                        List<GameObject> hc = new List<GameObject>();
+                        List<GameObject> hdc = new List<GameObject>();
+                        foreach (var col in cols)
+                        {
+                            var mcc = GetMemoCellInCol(col, val);
+                            foreach (var r in mcc) //모든 빈 가로 행 탐색
+                            {
+                                if (IsInMemoCell(r, col, val))
+                                {
+                                    if (r == y1 || r == y2 || r == y3)
+                                    {
+                                        hc.Add(objects[r, col]);
+                                    }
+                                    else
+                                    {
+                                        dc.Add(memoObjects[r, col, ValToY(val), ValToX(val)]);
+                                        hdc.Add(objects[r, col]);
+                                    }
+                                }
+                            }
+                        }
+
+                        if (dc.Count == 0)
+                        {
+                            continue;
+                        }
+                        //
+                        breaker = true;
+
+                        //대사
+                        string[] str = { "스워드피쉬",
+                            $"{y1+1}, {y2+1}, {y3+1} 세 행에서 각 행에 3개 이하의 {val} 값이 들어갈 수 있습니다.",
+                            $"이 셀들은 또한 세 개의 열 안에 속하기도 합니다.",
+                            $"이는 이 셀들 안에서 각 행과 열에 하나씩 총 세 개의 {val} 값이 구성됨을 의미합니다.",
+                            $"따라서 {cols[0]+1}, {cols[1]+1}, {cols[2]+1}의 다른 셀에 있는 {val} 값을 지울 수 있습니다."};
+
+                        //처방
+
+                        var hcList = MakeHCList(null, hc, hc, hc, hdc);
+                        var b1 = MakeBundle(y1, y2, y3);
+                        var b2 = MakeBundle(9 + cols[0], 9 + cols[1], 9 + cols[2]);
+                        var bl = MakeBundleList(null, b1, b2, b2, b2);
+                        hintDialogManager.StartDialogAndDeleteMemo(str, hcList, dc, bl);
+
+                        return;
+                    }
+                }
+            }
+        }
+
+        //col
+        for (int x1 = 0; x1 < 7; x1++)
+        {
+            for (int x2 = x1 + 1; x2 < 8; x2++)
+            {
+                for (int x3 = x2 + 1; x3 < 9; x3++)
+                {
+                    for (int val = 1; val <= 9; val++)
+                    {
+                        var mcc1 = GetMemoCellInCol(x1, val);
+                        var mcc2 = GetMemoCellInCol(x2, val);
+                        var mcc3 = GetMemoCellInCol(x3, val);
+
+                        if ((mcc1.Count < 2 || mcc1.Count > 3) ||
+                            (mcc2.Count < 2 || mcc2.Count > 3) ||
+                            (mcc3.Count < 2 || mcc3.Count > 3))
+                        {
+                            continue;
+                        }
+
+                        List<int> rows = new List<int>();
+                        foreach (var mcc in mcc1)
+                        {
+                            rows.Add(mcc);
+                        }
+                        foreach (var mcc in mcc2)
+                        {
+                            rows.Add(mcc);
+                        }
+                        foreach (var mcc in mcc3)
+                        {
+                            rows.Add(mcc);
+                        }
+
+                        rows = rows.Distinct().ToList();
+                        rows.Sort();
+
+                        if (rows.Count != 3) // sword fish 발견
+                        {
+                            continue;
+                        }
+
+
+                        List<GameObject> dc = new List<GameObject>();
+                        List<GameObject> hc = new List<GameObject>();
+                        List<GameObject> hdc = new List<GameObject>();
+                        foreach (var row in rows)
+                        {
+                            var mcr = GetMemoCellInRow(row, val);
+                            foreach (var c in mcr) //모든 빈 가로 행 탐색
+                            {
+                                if (IsInMemoCell(row, c, val))
+                                {
+                                    if (c == x1 || c == x2 || c == x3)
+                                    {
+                                        hc.Add(objects[row, c]);
+                                    }
+                                    else
+                                    {
+                                        dc.Add(memoObjects[row, c, ValToY(val), ValToX(val)]);
+                                        hdc.Add(objects[row, c]);
+                                    }
+                                }
+                            }
+                        }
+
+                        if (dc.Count == 0)
+                        {
+                            continue;
+                        }
+                        //
+                        breaker = true;
+
+                        //대사
+                        string[] str = { "스워드피쉬",
+                            $"{x1+1}, {x2+1}, {x3+1} 세 열에서 각 열에 3개 이하의 {val} 값이 들어갈 수 있습니다.",
+                            $"이 셀들은 또한 세 개의 행 안에 속하기도 합니다.",
+                            $"이는 이 셀들 안에서 각 행과 열에 하나씩 총 세 개의 {val} 값이 구성됨을 의미합니다.",
+                            $"따라서 {rows[0]+1}, {rows[1]+1}, {rows[2]+1}의 다른 셀에 있는 {val} 값을 지울 수 있습니다."};
+
+                        //처방
+
+                        var hcList = MakeHCList(null, hc, hc, hc, hdc);
+                        var b1 = MakeBundle(9 + x1, 9 + x2, 9 + x3);
+                        var b2 = MakeBundle(rows[0], rows[1], rows[2]);
+                        var bl = MakeBundleList(null, b1, b2, b2, b2);
+                        hintDialogManager.StartDialogAndDeleteMemo(str, hcList, dc, bl);
+
+                        return;
+                    }
+                }
+            }
+        }
     }
 
     private void FindFromFullSudoku()

@@ -215,6 +215,7 @@ public class MemoManager : MonoBehaviour
 
                         Image tImage = mCell.GetComponent<Image>();
                         tImage.sprite = null;
+                        tImage.color = new Color(1, 1, 1, 0);
 
                         mCell.transform.localPosition = new Vector2((mx - 1) * w, -1 * (my - 1) * w);
                         mCell.name = $"y{my + 1}x{mx + 1}";

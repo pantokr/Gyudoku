@@ -26,7 +26,7 @@ public class SudokuMaker
     private MissingNumberMaker missingNumberMaker;
     private int[,] dst;
 
-    public (int[,], int[,]) MakeNewSudoku()
+    public (int[,], int[,]) MakeNewSudoku() //sudoku, fullsudoku
     {
         //스도쿠 복사
         dst = (int[,])sudokuSample.Clone();
@@ -44,6 +44,23 @@ public class SudokuMaker
 
         return ((int[,])dst.Clone(), (int[,])fullSudoku.Clone());
     }
+    public int[,] MakeConvertedSudoku(int[,] old)
+    {
+        dst = (int[,])old.Clone();
+        for (int exCnt = 0; exCnt < 16; exCnt++) //16번 스도쿠 변형
+        {
+            int exCode = Random.Range(0, 8);
+            ApplyRandomConversion(exCode);
+        }
+
+        //for (int exCnt = 0; exCnt < 9; exCnt++)
+        //{
+        //    ApplyRandomConversion(7);
+        //}
+
+        return (int[,])dst.Clone();
+    }
+
     private void ApplyRandomConversion(int code)
     {
         if (code == 0)
@@ -57,6 +74,41 @@ public class SudokuMaker
             SwapCol(tX, Random.Range(tX, tX + 3));
         }
         else if (code == 2)
+        {
+            Swap3Rows(Random.Range(0, 3), Random.Range(0, 3));
+        }
+        else if (code == 3)
+        {
+            Swap3Cols(Random.Range(0, 3), Random.Range(0, 3));
+        }
+        else if (code == 4)
+        {
+            RotateSudoku90();
+        }
+        else if (code == 5)
+        {
+            MirrorRows();
+        }
+        else if (code == 6)
+        {
+            MirrorCols();
+        }
+        else if (code == 7)
+        {
+            int n1 = Random.Range(1, 10);
+            int n2 = Random.Range(1, 10);
+
+            if (n1 != n2)
+            {
+                SwapNumbers(n1, n2);
+            }
+        }
+    }
+
+    private void ApplyRandomConversion_Sub(int code)
+    {
+
+        if (code == 2)
         {
             Swap3Rows(Random.Range(0, 3), Random.Range(0, 3));
         }
@@ -206,17 +258,5 @@ public class SudokuMaker
     }
 
     #endregion
-    private void PrintSudoku(int[,] sudoku)
-    {
-        for (int y = 0; y < 9; y++)
-        {
-            string tString = "";
-            for (int x = 0; x < 9; x++)
-            {
-                tString += $"{sudoku[y, x]} ";
-            }
-            Debug.Log(tString);
-        }
-    }
 
 }

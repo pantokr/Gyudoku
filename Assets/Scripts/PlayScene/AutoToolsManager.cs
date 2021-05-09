@@ -24,6 +24,7 @@ public class AutoToolsManager : MonoBehaviour
         if (DifficultySetter.Difficulty == 0)
         {
             autoMemoButton.SetActive(false);
+            hintButton.SetActive(false);
             autoSingleButton.SetActive(false);
         }
 
