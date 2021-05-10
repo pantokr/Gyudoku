@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using System;
 
@@ -20,10 +21,11 @@ public class CellManager : MonoBehaviour
 
     public int[,] sudoku;
 
-    readonly private GameObject[,] objects = new GameObject[9, 9];
-    readonly private Text[,] values = new Text[9, 9];
-    readonly private Button[,] btns = new Button[9, 9];
+    public GameObject[,] objects = new GameObject[9, 9];
+    public Text[,] values = new Text[9, 9];
+    public Button[,] btns = new Button[9, 9];
 
+    public int hl_num = 0;
     private void Awake()
     {
         LoadCells();
@@ -61,6 +63,12 @@ public class CellManager : MonoBehaviour
     #region Change cell status
     public void HighlightCells(int value)
     {
+        if (hl_num == value && hl_num != 0)
+        {
+            HighlightCells(0);
+            return;
+        }
+        hl_num = value;
         string s = value.ToString();
         for (int y = 0; y < 9; y++)
         {
@@ -74,14 +82,6 @@ public class CellManager : MonoBehaviour
                     colors.normalColor = highLightCellColor;
                     btns[y, x].colors = colors;
 
-                    //var mObjects = memoManager.GetMemoObjects(y, x);
-                    //foreach (var obj in mObjects)
-                    //{
-                    //    var img = obj.GetComponent<Image>();
-                    //    var mColor = img.color;
-                    //    mColor = highLightCellColor;
-                    //    img.color = mColor;
-                    //}
                 }
                 else //다른 숫자 원상복구
                 {
@@ -89,15 +89,6 @@ public class CellManager : MonoBehaviour
                     colors.disabledColor = disabledColor;
                     colors.normalColor = normalColor;
                     btns[y, x].colors = colors;
-
-                    //var mObjects = memoManager.GetMemoObjects(y, x);
-                    //foreach (var obj in mObjects)
-                    //{
-                    //    var img = obj.GetComponent<Image>();
-                    //    var mColor = img.color;
-                    //    mColor = normalColor;
-                    //    img.color = mColor;
-                    //}
                 }
             }
         }
@@ -178,6 +169,24 @@ public class CellManager : MonoBehaviour
             DeleteCell(y, x);
             memoManager.DeleteMemoCell(y, x);
         }
+
+        if (ManualToolsManager.onMemo)
+        {
+            if (sudokuController.IsInMemoCell(y, x, hl_num))
+            {
+                if (hl_num == 0)
+                {
+                    return;
+                }
+                memoManager.DeleteMemoCell(y, x, hl_num);
+                HighlightCells(hl_num);
+            }
+            else
+            {
+                memoManager.FillMemoCell(y, x, hl_num);
+                HighlightCells(hl_num);
+            }
+        }
     }
     private void SetButtonColor()
     {
@@ -194,7 +203,9 @@ public class CellManager : MonoBehaviour
                 colors.disabledColor = disabledColor;
 
                 btns[y, x].colors = colors;
+
             }
         }
     }
+
 }

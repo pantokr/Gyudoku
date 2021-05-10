@@ -125,6 +125,7 @@ public class MemoManager : MonoBehaviour
     }
     public void FillMemoCell(int y, int x, int value)
     {
+        cellManager.DeleteCell(y, x);
         GameObject parentObj = objects[y, x].transform.Find("Memo").gameObject;
 
         int vy = (value - 1) / 3 + 1;

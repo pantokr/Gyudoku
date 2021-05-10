@@ -49,13 +49,13 @@ public class ManualToolsManager : MonoBehaviour
         }
 
         //E을 누르면 Eraser on
-        if (Input.GetKeyDown(KeyCode.E) && playManager.curX == -1 && playManager.curY == -1)
+        if (Input.GetKeyDown(KeyCode.E) && PlayManager.curX == -1 && PlayManager.curY == -1)
         {
             TurnEraser();
             return;
         }
 
-        if (Input.GetKeyDown(KeyCode.Z))
+        if (Input.GetKeyDown(KeyCode.Q))
         {
             Undo();
             return;

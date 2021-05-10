@@ -53,11 +53,6 @@ public class SudokuMaker
             ApplyRandomConversion(exCode);
         }
 
-        //for (int exCnt = 0; exCnt < 9; exCnt++)
-        //{
-        //    ApplyRandomConversion(7);
-        //}
-
         return (int[,])dst.Clone();
     }
 
@@ -74,41 +69,6 @@ public class SudokuMaker
             SwapCol(tX, Random.Range(tX, tX + 3));
         }
         else if (code == 2)
-        {
-            Swap3Rows(Random.Range(0, 3), Random.Range(0, 3));
-        }
-        else if (code == 3)
-        {
-            Swap3Cols(Random.Range(0, 3), Random.Range(0, 3));
-        }
-        else if (code == 4)
-        {
-            RotateSudoku90();
-        }
-        else if (code == 5)
-        {
-            MirrorRows();
-        }
-        else if (code == 6)
-        {
-            MirrorCols();
-        }
-        else if (code == 7)
-        {
-            int n1 = Random.Range(1, 10);
-            int n2 = Random.Range(1, 10);
-
-            if (n1 != n2)
-            {
-                SwapNumbers(n1, n2);
-            }
-        }
-    }
-
-    private void ApplyRandomConversion_Sub(int code)
-    {
-
-        if (code == 2)
         {
             Swap3Rows(Random.Range(0, 3), Random.Range(0, 3));
         }

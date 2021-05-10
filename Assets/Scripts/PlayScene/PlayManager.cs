@@ -11,8 +11,11 @@ public class PlayManager : MonoBehaviour
     public SudokuController sudokuController;
 
     //현재 가리키고 있는 포인터
-    public int curY;
-    public int curX;
+    public static int curY;
+    public static int curX;
+
+    private int ty;
+    private int tx;
 
     private KeyCode[] AlphaKeys = // 1부터 9까지
     {
@@ -34,36 +37,52 @@ public class PlayManager : MonoBehaviour
         //클릭 시 일단 초기화
 
         #region arrowkeys
-        if (Input.GetKeyDown(KeyCode.RightArrow) && curX < 9)
+        if (Input.GetKeyDown(KeyCode.RightArrow) && (curX != -1 && curY != -1) && curX < 9)
         {
-            curX++;
-            if (curX >= 9)
+            for (int i = curX + 1; i < 9; i++)
             {
-                curX = 8;
+                if (cellManager.btns[curY, i].interactable == true)
+                {
+                    cellManager.btns[curY, i].Select();
+                    curX = i;
+                    break;
+                }
             }
         }
-        if (Input.GetKeyDown(KeyCode.LeftArrow) && curX >= 0)
+        if (Input.GetKeyDown(KeyCode.LeftArrow) && (curX != -1 && curY != -1) && curX >= 0)
         {
-            curX--;
-            if (curX < 0)
+            for (int i = curX - 1; i >= 0; i--)
             {
-                curX = 0;
+                if (cellManager.btns[curY, i].interactable == true)
+                {
+                    cellManager.btns[curY, i].Select();
+                    curX = i;
+                    break;
+                }
             }
         }
-        if (Input.GetKeyDown(KeyCode.UpArrow) && curY >= 0)
+        if (Input.GetKeyDown(KeyCode.UpArrow) && (curX != -1 && curY != -1) && curY >= 0)
         {
-            curY--;
-            if (curY < 0)
+            for (int i = curY - 1; i >= 0; i--)
             {
-                curY = 0;
+                if (cellManager.btns[i, curX].interactable == true)
+                {
+                    cellManager.btns[i, curX].Select();
+                    curY = i;
+                    break;
+                }
             }
         }
-        if (Input.GetKeyDown(KeyCode.DownArrow) && curY < 9)
+        if (Input.GetKeyDown(KeyCode.DownArrow) && (curX != -1 && curY != -1) && curY < 9)
         {
-            curY++;
-            if (curY >= 9)
+            for (int i = curY + 1; i < 9; i++)
             {
-                curY = 8;
+                if (cellManager.btns[i, curX].interactable == true)
+                {
+                    cellManager.btns[i, curX].Select();
+                    curY = i;
+                    break;
+                }
             }
         }
         #endregion
@@ -79,10 +98,25 @@ public class PlayManager : MonoBehaviour
         {
             ManualToolsManager.onMemo = true;
         }
-        
+
         if (Input.GetKeyUp(KeyCode.LeftShift))
         {
             ManualToolsManager.onMemo = false;
+        }
+
+        if (Input.GetKey(KeyCode.LeftControl))
+        {
+            ty = curY;
+            tx = curX;
+
+            curY = -1;
+            curX = -1;
+        }
+
+        if (Input.GetKeyUp(KeyCode.LeftControl))
+        {
+            curY = ty;
+            curX = tx;
         }
 
         for (int i = 0; i < AlphaKeys.Length; i++)
@@ -102,8 +136,6 @@ public class PlayManager : MonoBehaviour
                         else //메모 쓰기
                         {
                             sudokuController.CheckNewValueNormal(curY, curX, i + 1); //정상 확인
-
-                            cellManager.DeleteCell(curY, curX);
                             memoManager.FillMemoCell(curY, curX, i + 1);
                         }
                     }
@@ -147,9 +179,9 @@ public class PlayManager : MonoBehaviour
             return;
         }
     }
-    public void SetCur(int curY, int curX)
+    public void SetCur(int y, int x)
     {
-        this.curY = curY;
-        this.curX = curX;
+        curY = y;
+        curX = x;
     }
 }

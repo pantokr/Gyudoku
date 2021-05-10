@@ -16,6 +16,10 @@ public class Settings : MonoBehaviour
     public static int Medium_Cnt = 0;
     public static int Hard_Cnt = 0;
 
+    public static int Easy_Seed = 0;
+    public static int Medium_Seed = 0;
+    public static int Hard_Seed = 0;
+
     private void Update()
     {
         if (Source != null)

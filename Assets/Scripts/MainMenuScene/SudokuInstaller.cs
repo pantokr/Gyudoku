@@ -12,45 +12,46 @@ public class SudokuInstaller : MonoBehaviour
     {
         Settings.PlayMode = 3;
 
-        string easy_filepath = Path.Combine(Application.dataPath + "/SudokuSample/easy.txt");
-        string medium_filepath = Path.Combine(Application.dataPath + "/SudokuSample/medium.txt");
-        string hard_filepath = Path.Combine(Application.dataPath + "/SudokuSample/hard.txt");
+        BetterStreamingAssets.Initialize();
 
-        FileInfo fileinfo_easy = new FileInfo(easy_filepath);
-        FileInfo fileinfo_medium = new FileInfo(medium_filepath);
-        FileInfo fileinfo_hard = new FileInfo(hard_filepath);
+        bool easy_exist = BetterStreamingAssets.FileExists("/SudokuSample/easy.txt");
+        bool medium_exist = BetterStreamingAssets.FileExists("/SudokuSample/medium.txt");
+        bool hard_exist = BetterStreamingAssets.FileExists("/SudokuSample/hard.txt");
 
-        StreamReader file_easy = new StreamReader(easy_filepath);
-        StreamReader file_medium = new StreamReader(medium_filepath);
-        StreamReader file_hard = new StreamReader(hard_filepath);
-
-        if (!fileinfo_easy.Exists || !fileinfo_medium.Exists || !fileinfo_hard.Exists)
+        if (!easy_exist || !medium_exist || !hard_exist)
         {
             Settings.PlayMode = 0;
+            return;
         }
 
-        int cnt_easy = 0;
-        string line_e;
-        while ((line_e = file_easy.ReadLine()) != null)
+        string easy_all_text = BetterStreamingAssets.ReadAllText("/SudokuSample/easy.txt");
+        string medium_all_text = BetterStreamingAssets.ReadAllText("/SudokuSample/medium.txt");
+        string hard_all_text = BetterStreamingAssets.ReadAllText("/SudokuSample/hard.txt");
+
+        string[] easy_maps = easy_all_text.Split('\n');
+        string[] medium_maps = medium_all_text.Split('\n');
+        string[] hard_maps = hard_all_text.Split('\n');
+
+        int easy_cnt = 0;
+        foreach (var map in easy_maps)
         {
-            fileManager.StartSaving($"easy{cnt_easy++}", line_e);
+            fileManager.StartSaving($"easy{easy_cnt++}", map);
         }
-        Settings.Easy_Cnt = cnt_easy;
-        
-        int cnt_medium = 0;
-        string line_m;
-        while ((line_m = file_medium.ReadLine()) != null)
+        Settings.Easy_Cnt = easy_cnt;
+
+        int medium_cnt = 0;
+        foreach (var map in medium_maps)
         {
-            fileManager.StartSaving($"medium{cnt_medium++}", line_m);
+            fileManager.StartSaving($"medium{medium_cnt++}", map);
         }
-        Settings.Medium_Cnt = cnt_medium;
-        
-        int cnt_hard = 0;
-        string line_h;
-        while ((line_h = file_hard.ReadLine()) != null)
+        Settings.Medium_Cnt = medium_cnt;
+
+        int hard_cnt = 0;
+        foreach (var map in hard_maps)
         {
-            fileManager.StartSaving($"hard{cnt_hard++}", line_h);
+            fileManager.StartSaving($"hard{hard_cnt++}", map);
         }
-        Settings.Hard_Cnt = cnt_hard;
+        Settings.Hard_Cnt = hard_cnt;
+
     }
 }
