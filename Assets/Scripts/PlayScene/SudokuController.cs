@@ -20,8 +20,10 @@ public class SudokuController : MonoBehaviour
     private List<Tuple<int[,], int[,,]>> lateSudoku = new List<Tuple<int[,], int[,,]>>();
     private int undoIndex = -1;
 
-    //링크용 변수
+    // 링크/체인용 변수
     public List<Tuple<int, int>> tracer;
+    public List<List<Tuple<int, int>>> tracerList;
+    public List<Tuple<int, int>> chains;
     protected virtual void Start()
     {
         sudoku = SudokuManager.sudoku;
@@ -680,18 +682,65 @@ public class SudokuController : MonoBehaviour
     }
     #endregion
 
-    #region 두 셀의 겹치는 셀들 반환
+    #region 두 셀의 겹치는 여부/ 셀/ 값들 반환
+
+    public int GetSameAreaCode(Tuple<int, int> c1, Tuple<int, int> c2)
+    {
+        if (c1.Item1 / 3 == c2.Item1 / 3 && c1.Item2 / 3 == c2.Item2 / 3)
+        {
+            return 2;
+        }
+        else if (c1.Item2 == c2.Item2)
+        {
+            return 1;
+        }
+        else if (c1.Item1 == c2.Item1)
+        {
+            return 0;
+        }
+        else
+        {
+            return -1;
+        }
+    }
+
+    public bool IsTwoCellInSameArea(Tuple<int, int> c1, Tuple<int, int> c2)
+    {
+        if (c1.Item1 == c2.Item1)
+        {
+            return true;
+        }
+        else if (c1.Item2 == c2.Item2)
+        {
+            return true;
+        }
+        else if (c1.Item1 / 3 == c2.Item1 / 3 && c1.Item2 / 3 == c2.Item2 / 3)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     public List<(int, int)> GetCellForcingArea(int y, int x)
     {
         List<(int, int)> list = new List<(int, int)>();
         for (int _x = 0; _x < 9; _x++)
         {
-            list.Add((y, _x));
+            if (IsEmptyCell(y, _x))
+            {
+                list.Add((y, _x));
+            }
         }
 
         for (int _y = 0; _y < 9; _y++)
         {
-            list.Add((_y, x));
+            if (IsEmptyCell(_y, x))
+            {
+                list.Add((_y, x));
+            }
         }
 
         //7,5
@@ -701,15 +750,20 @@ public class SudokuController : MonoBehaviour
         {
             for (int _x = sgx * 3; _x < sgx * 3 + 3; _x++)
             {
-                list.Add((_y, _x));
+                if (IsEmptyCell(_y, _x))
+                {
+                    list.Add((_y, _x));
+                }
             }
         }
         list = list.Distinct().ToList();
         list.Sort();
 
+        list.Remove((y, x));
+
         return list;
     }
-    
+
     public List<(int, int)> GetDuplicatedCellByTwoCell((int, int) c1, (int, int) c2)
     {
         List<(int, int)> list = new List<(int, int)>();
@@ -720,10 +774,7 @@ public class SudokuController : MonoBehaviour
         {
             if (cfa2.Contains(c) && c != c1 && c != c2)
             {
-                if (IsEmptyCell(c.Item1, c.Item2))
-                {
-                    list.Add(c);
-                }
+                list.Add(c);
             }
         }
 
@@ -737,7 +788,7 @@ public class SudokuController : MonoBehaviour
         var amv1 = GetActiveMemoValue(c1.Item1, c1.Item2);
         var amv2 = GetActiveMemoValue(c2.Item1, c2.Item2);
 
-        foreach(var amv in amv1)
+        foreach (var amv in amv1)
         {
             if (amv2.Contains(amv))
             {
@@ -836,14 +887,120 @@ public class SudokuController : MonoBehaviour
             if (next_tuple != null)
             {
                 var now = new Tuple<int, int>(y, x);
-                tracer.Add(now);
-                return next_tuple;
+                if (!tracer.Contains(now))
+                {
+                    tracer.Add(now);
+                    return next_tuple;
+                }
+                else
+                {
+                    return null;
+                }
             }
         }
 
         return null;
     }
 
+    #endregion
+
+    #region 체인 반환
+
+    public List<Tuple<int, int>> GetDisabledCellByNewCell(int y, int x, int value)
+    {
+        var cfa = GetCellForcingArea(y, x);
+        List<Tuple<int, int>> list = new List<Tuple<int, int>>();
+        foreach (var c in cfa)
+        {
+            if (IsInMemoCell(c.Item1, c.Item2, value))
+            {
+                list.Add(new Tuple<int, int>(c.Item1, c.Item2));
+            }
+        }
+        return list;
+    }
+
+    public List<Tuple<int, int>> GetCellToFillByNewCell(int y, int x, int value)
+    {
+        List<Tuple<int, int>> list = new List<Tuple<int, int>>();
+        //row
+        var mcr = GetMemoCellInRow(y, value);
+        if (mcr.Count == 2)
+        {
+            int adder = mcr[0] == x ? mcr[1] : mcr[0];
+            list.Add(new Tuple<int, int>(y, adder));
+        }
+
+        var mcc = GetMemoCellInCol(x, value);
+        if (mcc.Count == 2)
+        {
+            int adder = mcc[0] == y ? mcc[1] : mcc[0];
+            list.Add(new Tuple<int, int>(adder, x));
+        }
+
+        var mcsg = GetMemoCellInSG(y / 3, x / 3, value);
+        if (mcsg.Count == 2)
+        {
+            var adder = (mcsg[0] == (y, x)) ? mcsg[1] : mcsg[0];
+            list.Add(new Tuple<int, int>(adder.Item1, adder.Item2));
+        }
+
+        return list;
+    }
+
+    public void GetChainRecursive(int y, int x, int value, int now_cnt, int ex_cnt, List<Tuple<int, int>> tonext)
+    {
+        var ctf_nc = GetCellToFillByNewCell(y, x, value); //1->2
+        foreach (var ctf in ctf_nc)
+        {
+            //여기서 탈출
+            if (now_cnt == ex_cnt)
+            {
+                List<Tuple<int, int>> last = new List<Tuple<int, int>>();
+
+                last.AddRange(tonext);
+                if (last.Contains(ctf))
+                {
+                    continue;
+                }
+
+                last.Add(ctf);
+                tracerList.Add(last.ToList());
+
+                continue;
+            }
+
+
+            var dc_nc = GetDisabledCellByNewCell(ctf.Item1, ctf.Item2, value); //2->3
+            foreach (var dc in dc_nc)
+            {
+                if (dc.Item1 == y && dc.Item2 == x) //진입한 셀이면 통과
+                {
+                    continue;
+                }
+
+                List<Tuple<int, int>> new_tonext = new List<Tuple<int, int>>();
+                new_tonext.AddRange(tonext);
+                if (new_tonext.Contains(ctf))
+                {
+                    continue;
+                }
+                new_tonext.Add(ctf);
+
+                new_tonext.Add(dc);
+                GetChainRecursive(dc.Item1, dc.Item2, value, now_cnt + 1, ex_cnt, new_tonext);
+            }
+        }
+        return;
+    }
+
+    public void GetChainRecursiveWithTracer(int y, int x, int value, int now_cnt, int ex_cnt)
+    {
+        tracerList = new List<List<Tuple<int, int>>>();
+        List<Tuple<int, int>> tonext = new List<Tuple<int, int>>();
+        tonext.Add(new Tuple<int, int>(y, x));
+        GetChainRecursive(y, x, value, now_cnt, ex_cnt, tonext);
+    }
     #endregion
 
     #region 기타
@@ -866,7 +1023,7 @@ public class SudokuController : MonoBehaviour
         var ret = ((int[,])lateSudoku[undoIndex].Item1.Clone(), (int[,,])lateSudoku[undoIndex].Item2.Clone());
         lateSudoku.RemoveAt(undoIndex);
         undoIndex--;
-        return ret; ;
+        return ret;
     }
 
     public int ValToY(int value)
@@ -883,5 +1040,6 @@ public class SudokuController : MonoBehaviour
     {
         return y * 3 + x;
     }
+
     #endregion 
 }

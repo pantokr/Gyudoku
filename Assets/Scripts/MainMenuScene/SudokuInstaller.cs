@@ -53,5 +53,7 @@ public class SudokuInstaller : MonoBehaviour
         }
         Settings.Hard_Cnt = hard_cnt;
 
+        print($"Installed {easy_cnt}, {medium_cnt}, {hard_cnt}");
+
     }
 }

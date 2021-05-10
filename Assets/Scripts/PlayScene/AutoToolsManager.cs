@@ -41,4 +41,12 @@ public class AutoToolsManager : MonoBehaviour
 
         _autoSingle.onClick.AddListener(delegate { autoSingleManager.RunAutoSingle(); });
     }
+
+    private void Update()
+    {
+        if (Input.GetKey(KeyCode.LeftControl) && Input.GetKeyDown(KeyCode.H))
+        {
+            hintManager.RunHint();
+        }
+    }
 }

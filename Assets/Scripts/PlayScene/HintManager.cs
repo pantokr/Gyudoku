@@ -126,6 +126,30 @@ public class HintManager : SudokuController
             return;
         }
 
+        FindHiddenTriple();
+        if (breaker)
+        {
+            return;
+        }
+
+        FindSimpleColorLink5();
+        if (breaker)
+        {
+            return;
+        }
+
+        FindXChain();
+        if (breaker)
+        {
+            return;
+        }
+
+        FindWWing();
+        if (breaker)
+        {
+            return;
+        }
+
         if (Settings.PlayMode == 0)
         {
             FindFromFullSudoku();
@@ -928,7 +952,7 @@ public class HintManager : SudokuController
                         //처방
                         var hclist = MakeHCList(null, hc, hc, dc);
                         var hb = MakeBundle(_y);
-                        var hbl = MakeBundleList(null, hb, hb, null);
+                        var hbl = MakeBundleList(null, hb, hb, hb);
 
                         hintDialogManager.StartDialogAndDeleteMemo(str, hclist, dc, hbl);
 
@@ -999,7 +1023,7 @@ public class HintManager : SudokuController
                         //처방
                         var hclist = MakeHCList(null, hc, hc, dc);
                         var hb = MakeBundle(9 + _x);
-                        var hbl = MakeBundleList(null, hb, hb, null);
+                        var hbl = MakeBundleList(null, hb, hb, hb);
 
                         hintDialogManager.StartDialogAndDeleteMemo(str, hclist, dc, hbl);
 
@@ -1071,7 +1095,7 @@ public class HintManager : SudokuController
                             //처방
                             var hclist = MakeHCList(null, hc, hc, dc);
                             var hb = MakeBundle(18 + _y * 3 + _x);
-                            var hbl = MakeBundleList(null, hb, hb, null);
+                            var hbl = MakeBundleList(null, hb, hb, hb);
 
                             hintDialogManager.StartDialogAndDeleteMemo(str, hclist, dc, hbl);
 
@@ -1824,7 +1848,9 @@ public class HintManager : SudokuController
                             memoObjects[y, ecr[x], ValToY(amv[0]), ValToX(amv[0])],
                             memoObjects[l_c1.Item1, l_c1.Item2, ValToY(amv[0]), ValToX(amv[0])],
                             memoObjects[y, ecr[x], ValToY(amv[1]), ValToX(amv[1])],
-                            memoObjects[l_c2.Item1, l_c2.Item2, ValToY(amv[1]), ValToX(amv[1])]);
+                            memoObjects[l_c2.Item1, l_c2.Item2, ValToY(amv[1]), ValToX(amv[1])],
+                            objects[y, ecr[x]]
+                            ); 
                         var hl1 = MakeHL((memoObjects[y, ecr[x], ValToY(amv[0]), ValToX(amv[0])], memoObjects[l_c1.Item1, l_c1.Item2, ValToY(amv[0]), ValToX(amv[0])]),
                              (memoObjects[y, ecr[x], ValToY(amv[1]), ValToX(amv[1])], memoObjects[l_c2.Item1, l_c2.Item2, ValToY(amv[1]), ValToX(amv[1])]));
 
@@ -2144,6 +2170,486 @@ public class HintManager : SudokuController
                 }
             }
         }
+    }
+
+    private void FindHiddenTriple() //히든 트리플
+    {
+        //row 검사
+        for (int _y = 0; _y < 9; _y++)
+        {
+            var evr = GetEmptyValueInRow(_y);
+            var evr_cnt = evr.Count; // 
+            for (int _x1 = 0; _x1 < evr_cnt - 2; _x1++)
+            {
+                for (int _x2 = _x1 + 1; _x2 < evr_cnt - 1; _x2++)
+                {
+                    for (int _x3 = _x2 + 1; _x3 < evr_cnt; _x3++)
+                    {
+                        var ev1_row = GetMemoCellInRow(_y, evr[_x1]); //값이 들어있는 x 좌표 리스트
+                        var ev2_row = GetMemoCellInRow(_y, evr[_x2]);
+                        var ev3_row = GetMemoCellInRow(_y, evr[_x3]);
+
+                        if ((ev1_row.Count > 3 || ev1_row.Count < 2) || (ev2_row.Count > 3 || ev2_row.Count < 2) || (ev3_row.Count > 3 || ev3_row.Count < 2))
+                        {
+                            continue;
+                        }
+
+                        List<int> xlist = new List<int>();
+                        foreach (var ev in ev1_row)
+                        {
+                            xlist.Add(ev);
+                        }
+                        foreach (var ev in ev2_row)
+                        {
+                            xlist.Add(ev);
+                        }
+                        foreach (var ev in ev3_row)
+                        {
+                            xlist.Add(ev);
+                        }
+
+                        xlist = xlist.Distinct().ToList();
+                        xlist.Sort();
+
+                        if (xlist.Count != 3)
+                        {
+                            continue;
+                        }
+
+                        int[] triple = { evr[_x1], evr[_x2], evr[_x3] }; //트리플 발견
+
+                        List<GameObject> hc = new List<GameObject>();
+                        List<GameObject> dc = new List<GameObject>();
+
+                        foreach (var ev in xlist) // x 좌표
+                        {
+                            var mvs = GetActiveMemoValue(_y, ev);
+                            foreach (var mv in mvs) // 셀의 모든 메모값 
+                            {
+                                if (mv == triple[0] || mv == triple[1] || mv == triple[2])
+                                {
+                                    hc.Add(memoObjects[_y, ev, ValToY(mv), ValToX(mv)]);
+                                }
+                                else
+                                {
+                                    dc.Add(memoObjects[_y, ev, ValToY(mv), ValToX(mv)]);
+                                }
+                            }
+                        }
+
+                        if (dc.Count != 0)
+                        {
+                            breaker = true;
+
+                            //대사
+                            string[] str = { "히든 트리플",
+                            $"{_y + 1}행에서 {triple[0]}, {triple[1]}, {triple[2]} 값이 이 세 셀에만 존재합니다.",
+                            $"즉, 이 세 셀에는 {triple[0]}, {triple[1]}, {triple[2]} 값만 들어갈 수 있습니다.",
+                            "따라서 다른 값들은 이 셀에 들어갈 수 없습니다."};
+
+                            //처방
+                            var hclist = MakeHCList(null, hc, hc, dc);
+                            var hb = MakeBundle(_y);
+                            var hbl = MakeBundleList(null, hb, hb, hb);
+
+                            hintDialogManager.StartDialogAndDeleteMemo(str, hclist, dc, hbl);
+
+                            return;
+                        }
+                    }
+
+                    //페어 값: (evr[_x1], evr[_x2]) 좌표 : (ev1_row[0], ev1_row[1])
+
+
+                }
+            }
+        }
+
+        //col 검사
+        for (int _x = 0; _x < 9; _x++)
+        {
+            var evc = GetEmptyValueInCol(_x);
+            var evc_cnt = evc.Count; // 
+            for (int _y1 = 0; _y1 < evc_cnt - 2; _y1++)
+            {
+                for (int _y2 = _y1 + 1; _y2 < evc_cnt - 1; _y2++)
+                {
+                    for (int _y3 = _y2 + 1; _y3 < evc_cnt; _y3++)
+                    {
+                        var ev1_col = GetMemoCellInCol(_x, evc[_y1]); //값이 들어있는 y 좌표 리스트
+                        var ev2_col = GetMemoCellInCol(_x, evc[_y2]);
+                        var ev3_col = GetMemoCellInCol(_x, evc[_y3]);
+
+                        if ((ev1_col.Count > 3 || ev1_col.Count < 2) || (ev2_col.Count > 3 || ev2_col.Count < 2) || (ev3_col.Count > 3 || ev3_col.Count < 2))
+                        {
+                            continue;
+                        }
+
+                        List<int> ylist = new List<int>();
+                        foreach (var ev in ev1_col)
+                        {
+                            ylist.Add(ev);
+                        }
+                        foreach (var ev in ev2_col)
+                        {
+                            ylist.Add(ev);
+                        }
+                        foreach (var ev in ev3_col)
+                        {
+                            ylist.Add(ev);
+                        }
+
+                        ylist = ylist.Distinct().ToList();
+                        ylist.Sort();
+
+                        if (ylist.Count != 3)
+                        {
+                            continue;
+                        }
+
+                        int[] triple = { evc[_y1], evc[_y2], evc[_y3] }; //트리플 발견
+
+                        List<GameObject> hc = new List<GameObject>();
+                        List<GameObject> dc = new List<GameObject>();
+
+                        foreach (var ev in ylist) // x 좌표
+                        {
+                            var mvs = GetActiveMemoValue(ev, _x);
+                            foreach (var mv in mvs) // 셀의 모든 메모값 
+                            {
+                                if (mv == triple[0] || mv == triple[1] || mv == triple[2])
+                                {
+                                    hc.Add(memoObjects[ev, _x, ValToY(mv), ValToX(mv)]);
+                                }
+                                else
+                                {
+                                    dc.Add(memoObjects[ev, _x, ValToY(mv), ValToX(mv)]);
+                                }
+                            }
+                        }
+
+                        if (dc.Count != 0)
+                        {
+                            breaker = true;
+
+                            //대사
+                            string[] str = { "히든 트리플",
+                            $"{_x + 1}열에서 {triple[0]}, {triple[1]}, {triple[2]} 값이 이 세 셀에만 존재합니다.",
+                            $"즉, 이 세 셀에는 {triple[0]}, {triple[1]}, {triple[2]} 값만 들어갈 수 있습니다.",
+                            "따라서 다른 값들은 이 셀에 들어갈 수 없습니다."};
+
+                            //처방
+                            var hclist = MakeHCList(null, hc, hc, dc);
+                            var hb = MakeBundle(9 + _x);
+                            var hbl = MakeBundleList(null, hb, hb, hb);
+
+                            hintDialogManager.StartDialogAndDeleteMemo(str, hclist, dc, hbl);
+
+                            return;
+                        }
+                    }
+
+                    //페어 값: (evr[_x1], evr[_x2]) 좌표 : (ev1_row[0], ev1_row[1])
+
+
+                }
+            }
+        }
+
+        //sg 검사
+        for (int _y = 0; _y < 3; _y++)
+        {
+            for (int _x = 0; _x < 3; _x++)
+            {
+                var evsg = GetEmptyValueInSG(_y, _x);
+                var evsg_cnt = evsg.Count; // 
+
+                for (int _sg1 = 0; _sg1 < evsg_cnt - 2; _sg1++)
+                {
+                    for (int _sg2 = _sg1 + 1; _sg2 < evsg_cnt - 1; _sg2++)
+                    {
+                        for (int _sg3 = _sg2 + 1; _sg3 < evsg_cnt; _sg3++)
+                        {
+                            var ev1_sg = GetMemoCellInSG(_y, _x, evsg[_sg1]); //값이 들어있는 y 좌표 리스트
+                            var ev2_sg = GetMemoCellInSG(_y, _x, evsg[_sg2]);
+                            var ev3_sg = GetMemoCellInSG(_y, _x, evsg[_sg3]);
+
+                            if ((ev1_sg.Count > 3 || ev1_sg.Count < 2) || (ev2_sg.Count > 3 || ev2_sg.Count < 2) || (ev3_sg.Count > 3 || ev3_sg.Count < 2))
+                            {
+                                continue;
+                            }
+
+                            List<(int, int)> sglist = new List<(int, int)>();
+                            foreach (var ev in ev1_sg)
+                            {
+                                sglist.Add(ev);
+                            }
+                            foreach (var ev in ev2_sg)
+                            {
+                                sglist.Add(ev);
+                            }
+                            foreach (var ev in ev3_sg)
+                            {
+                                sglist.Add(ev);
+                            }
+
+                            sglist = sglist.Distinct().ToList();
+                            sglist.Sort();
+
+                            if (sglist.Count != 3)
+                            {
+                                continue;
+                            }
+
+                            int[] triple = { evsg[_sg1], evsg[_sg2], evsg[_sg3] }; //트리플 발견
+
+                            List<GameObject> hc = new List<GameObject>();
+                            List<GameObject> dc = new List<GameObject>();
+
+                            foreach (var ev in sglist) // x 좌표
+                            {
+                                var mvs = GetActiveMemoValue(ev.Item1, ev.Item2);
+                                foreach (var mv in mvs) // 셀의 모든 메모값 
+                                {
+                                    if (mv == triple[0] || mv == triple[1] || mv == triple[2])
+                                    {
+                                        hc.Add(memoObjects[ev.Item1, ev.Item2, ValToY(mv), ValToX(mv)]);
+                                    }
+                                    else
+                                    {
+                                        dc.Add(memoObjects[ev.Item1, ev.Item2, ValToY(mv), ValToX(mv)]);
+                                    }
+                                }
+                            }
+
+                            if (dc.Count != 0)
+                            {
+                                breaker = true;
+
+                                //대사
+                                string[] str = { "히든 트리플",
+                            $"{_y + 1}-{_x+1}서브그리드에서 {triple[0]}, {triple[1]}, {triple[2]} 값이 이 세 셀에만 존재합니다.",
+                            $"즉, 이 세 셀에는 {triple[0]}, {triple[1]}, {triple[2]} 값만 들어갈 수 있습니다.",
+                            "따라서 다른 값들은 이 셀에 들어갈 수 없습니다."};
+
+                                //처방
+                                var hclist = MakeHCList(null, hc, hc, dc);
+                                var hb = MakeBundle(18 + _y * 3 + _x);
+                                var hbl = MakeBundleList(null, hb, hb, hb);
+
+                                hintDialogManager.StartDialogAndDeleteMemo(str, hclist, dc, hbl);
+
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void FindSimpleColorLink5()
+    {
+        for (int y = 0; y < 9; y++)
+        {
+            var mcr = GetEmptyCellsInRow(y);//[0,4]
+            var mcr_count = mcr.Count;
+            for (int _x = 0; _x < mcr_count; _x++) // 빈 셀 X 좌표
+            {
+                var amv = GetActiveMemoValue(y, mcr[_x]);
+
+                foreach (var mv in amv)
+                {
+                    var tuple = GetLinkedCellRecursive(y, mcr[_x], mv, 0, 5, -1); //마지막 링크 셀
+                    if (tuple != null)
+                    {
+                        var dup = GetDuplicatedCellByTwoCell((y, mcr[_x]), (tuple.Item1, tuple.Item2));
+
+                        List<GameObject> dc = new List<GameObject>();
+                        List<GameObject> hdc = new List<GameObject>();
+
+                        foreach (var d in dup) //그 셀
+                        {
+                            if (IsInMemoCell(d.Item1, d.Item2, mv))
+                            {
+                                dc.Add(memoObjects[d.Item1, d.Item2, ValToY(mv), ValToX(mv)]);
+                                hdc.Add(objects[d.Item1, d.Item2]);
+                            }
+                        }
+
+                        if (dc.Count == 0)
+                        {
+                            continue;
+                        }
+
+                        breaker = true;
+
+                        List<GameObject> hc = new List<GameObject>();
+                        List<(GameObject, GameObject)> hl = new List<(GameObject, GameObject)>();
+
+                        var tracer = base.tracer;
+                        tracer.Reverse();
+                        //print("--");
+                        for (int i = 0; i < tracer.Count; i++)
+                        {
+                            //print(tracer[i].Item1.ToString() + tracer[i].Item2.ToString());
+                            var t = tracer[i];
+                            hc.Add(objects[t.Item1, t.Item2]);
+
+                            if (i < tracer.Count - 1) //hintline group
+                            {
+                                var tp = tracer[i + 1];
+                                hl.Add((memoObjects[t.Item1, t.Item2, ValToY(mv), ValToX(mv)], memoObjects[tp.Item1, tp.Item2, ValToY(mv), ValToX(mv)]));
+                            }
+                        }
+
+                        //hintline 1
+                        List<(GameObject, GameObject)> thl1 = new List<(GameObject, GameObject)>();
+                        thl1.Add(hl[0]);
+
+                        //hintline 2
+                        List<(GameObject, GameObject)> thl2 = new List<(GameObject, GameObject)>();
+                        foreach (var d in dup)
+                        {
+                            if (IsInMemoCell(d.Item1, d.Item2, mv))
+                            {
+                                thl2.Add((memoObjects[y, mcr[_x], ValToY(mv), ValToX(mv)], memoObjects[d.Item1, d.Item2, ValToY(mv), ValToX(mv)])); //시작셀
+                                thl2.Add((memoObjects[tracer[tracer.Count - 1].Item1, tracer[tracer.Count - 1].Item2, ValToY(mv), ValToX(mv)], memoObjects[d.Item1, d.Item2, ValToY(mv), ValToX(mv)])); //끝셀
+                            }
+                        }
+
+                        List<GameObject> thc = MakeHC(hc[0], hc[1]);
+
+                        //대사
+                        string[] str = { "심플 컬러 링크",
+                            $"{mv} 값으로 이루어진 두 셀은 한 셀에 {mv} 값이 들어가면 다른 쪽에는 들어갈 수 없는 링크 관계입니다.",
+                            $"연결된 링크를 이렇게 다섯 쌍을 발견했습니다.",
+                            $"링크에 어떻게 {mv} 값을 구성하든지 링크의 첫 셀과 끝 셀의 공유 셀에는 {mv} 값이 들어갈 수 없습니다."};
+
+                        //처방
+                        var hcList = MakeHCList(null, thc, hc, hdc);
+                        var hlList = MakeHLList(null, thl1, hl, thl2);
+                        hintDialogManager.StartDialogAndDeleteMemo(str, hcList, dc, hlList);
+
+                        return;
+                    }
+                }
+            }
+        }
+    } //심플 컬러 (링크 5)
+
+    private void FindXChain()
+    {
+        for (int y = 0; y < 9; y++)
+        {
+            var ecr = GetEmptyCellsInRow(y);
+            foreach (var ec in ecr)
+            {
+                var amv = GetActiveMemoValue(y, ec);
+                foreach (var mv in amv)
+                {
+                    GetChainRecursiveWithTracer(y, ec, mv, 0, 1);
+
+                    var tracerList = base.tracerList;
+
+                    if (tracerList.Count == 0)
+                    {
+                        continue;
+                    }
+
+                    foreach (var tracer in tracerList)
+                    {
+                        if (IsTwoCellInSameArea(tracer[0], tracer[3]))
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            var dupc = GetDuplicatedCellByTwoCell((y, ec), (tracer[3].Item1, tracer[3].Item2));
+                            List<GameObject> dc = new List<GameObject>();
+                            List<(GameObject, GameObject)> end_hl = new List<(GameObject, GameObject)>();
+                            foreach (var dup in dupc)
+                            {
+                                if (IsInMemoCell(dup.Item1, dup.Item2, mv))
+                                {
+                                    dc.Add(memoObjects[dup.Item1, dup.Item2, ValToY(mv), ValToX(mv)]);
+
+                                    end_hl.Add((memoObjects[tracer[0].Item1, tracer[0].Item2, ValToY(mv), ValToX(mv)],
+                                        memoObjects[dup.Item1, dup.Item2, ValToY(mv), ValToX(mv)]));
+                                    end_hl.Add((memoObjects[tracer[3].Item1, tracer[3].Item2, ValToY(mv), ValToX(mv)],
+                                        memoObjects[dup.Item1, dup.Item2, ValToY(mv), ValToX(mv)]));
+                                }
+                            }
+
+                            if (dc.Count == 0)
+                            {
+                                continue;
+                            }
+
+                            List<GameObject> hcs = new List<GameObject>();
+                            List<(GameObject, GameObject)> hls = new List<(GameObject, GameObject)>();
+                            for (int i = 0; i < 4; i++)
+                            {
+                                hcs.Add(objects[tracer[i].Item1, tracer[i].Item2]);
+                                if (i == 3)
+                                {
+                                    break;
+                                }
+                                hls.Add((memoObjects[tracer[i].Item1, tracer[i].Item2, ValToY(mv), ValToX(mv)],
+                                    memoObjects[tracer[i + 1].Item1, tracer[i + 1].Item2, ValToY(mv), ValToX(mv)]));
+                            }
+
+                            List<GameObject> hc1 = new List<GameObject>()
+                            {
+                                memoObjects[tracer[1].Item1, tracer[1].Item2, ValToY(mv), ValToX(mv)]
+                            };
+                            List<GameObject> hc2 = new List<GameObject>()
+                            {
+                                memoObjects[tracer[2].Item1, tracer[2].Item2, ValToY(mv), ValToX(mv)]
+                            };
+
+                            List<(GameObject, GameObject)> hl1 = new List<(GameObject, GameObject)>()
+                            {
+                                (memoObjects[tracer[0].Item1, tracer[0].Item2, ValToY(mv), ValToY(mv)],
+                                memoObjects[tracer[1].Item1, tracer[1].Item2, ValToY(mv), ValToY(mv)])
+                            };
+                            List<(GameObject, GameObject)> hl2 = new List<(GameObject, GameObject)>()
+                            {
+                                (memoObjects[tracer[1].Item1, tracer[1].Item2, ValToY(mv), ValToY(mv)],
+                                memoObjects[tracer[2].Item1, tracer[2].Item2, ValToY(mv), ValToY(mv)])
+                            };
+
+                            breaker = true;
+
+                            var code = GetSameAreaCode(tracer[1], tracer[2]);
+
+                            //대사
+                            string[] str = { "X-체인",
+                                $"{tracer[0].Item1+1}행 {tracer[0].Item2+1}열 셀에 {mv} 값이 \"들어가지 않으면\" {tracer[1].Item1+1}행 {tracer[1].Item2+1}열 셀에는 반드시 {mv} 값이 들어갑니다.",
+                                $"{tracer[1].Item1+1}행 {tracer[1].Item2+1}열 셀에 {mv} 값이 \"들어가면\" {tracer[2].Item1+1}행 {tracer[2].Item2+1}열 셀에는 {mv} 값이 들어갈 수 없습니다.",
+                                $"이와 같은 체인을 계속 연장해 다음과 같은 X-O-X-O 구조의 체인을 발견했습니다.",
+                                $"{tracer[0].Item1+1}행 {tracer[0].Item2+1}열 셀에 {mv} 값을 넣든 넣지 않든 강조된 셀에는 {mv} 값이 들어갈 수 없습니다." };
+
+                            //처방
+
+                            var hclist = MakeHCList(null, hc1, hc2, hcs, dc);
+                            var hllist = MakeHLList(null, hl1, hl2, hls, end_hl);
+                            var blist = MakeBundleList(null, null, new List<int>() { code * 9 + tracer[1].Item1 / 3 * 3 + tracer[1].Item2 / 3 }, null, null);
+
+                            hintDialogManager.StartDialogAndDeleteMemo(str, hclist, dc, hllist, blist);
+
+                            return;
+
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void FindWWing()
+    {
+
     }
 
     private List<GameObject> MakeHC(params GameObject[] objs)

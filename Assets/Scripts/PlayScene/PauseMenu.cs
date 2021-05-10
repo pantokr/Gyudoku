@@ -22,4 +22,9 @@ public class PauseMenu : MonoBehaviour
     {
         SceneManager.LoadScene("MainMenuScene");
     }
+
+    public void Close()
+    {
+        gameObject.SetActive(false);
+    }
 }

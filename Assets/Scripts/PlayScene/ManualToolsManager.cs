@@ -54,6 +54,11 @@ public class ManualToolsManager : MonoBehaviour
             TurnEraser();
             return;
         }
+        else if(Input.GetKeyDown(KeyCode.E))
+        {
+            cellManager.DeleteCell(PlayManager.curY, PlayManager.curX);
+            memoManager.DeleteMemoCell(PlayManager.curY, PlayManager.curX);
+        }
 
         if (Input.GetKeyDown(KeyCode.Q))
         {

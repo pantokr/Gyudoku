@@ -94,7 +94,14 @@ public class HintVisualManager : MonoBehaviour
         //강조 지우기
         foreach (var obj in highlightedObjectList)
         {
-            obj.transform.GetComponent<Image>().color = new Color(1, 1, 1, 1);
+            if (obj.transform.Find("Memo") != null)
+            {
+                obj.transform.GetComponent<Image>().color = new Color(1, 1, 1, 1);
+            }
+            else
+            {
+                obj.transform.GetComponent<Image>().color = new Color(1, 1, 1, 0);
+            }
         }
         highlightedObjectList.Clear();
     }

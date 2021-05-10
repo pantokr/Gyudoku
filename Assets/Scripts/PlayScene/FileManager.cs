@@ -69,7 +69,7 @@ public class FileManager : MonoBehaviour
             }
         }
         SudokuManager.sudoku = (int[,])cache.Clone();
-        print("Opened");
+        print("Opened " + name);
     }
 
     private void DisplayDialog()
