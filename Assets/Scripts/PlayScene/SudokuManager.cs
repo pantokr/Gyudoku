@@ -31,19 +31,19 @@ public class SudokuManager : MonoBehaviour
             if (DifficultySetter.Difficulty == 0)
             {
                 int rand = Random.Range(0, Settings.Easy_Cnt);
-                fileManager.StartOpening($"easy{Settings.Easy_Cnt - 1}");
+                fileManager.StartOpening($"easy{rand}");
                 sudoku = sudokuMaker.MakeConvertedSudoku(sudoku);
             }
             else if (DifficultySetter.Difficulty == 1)
             {
                 int rand = Random.Range(0, Settings.Medium_Cnt);
-                fileManager.StartOpening($"medium{Settings.Medium_Cnt - 1}");
+                fileManager.StartOpening($"medium{rand}");
                 sudoku = sudokuMaker.MakeConvertedSudoku(sudoku);
             }
             else if (DifficultySetter.Difficulty == 2)
             {
                 int rand = Random.Range(0, Settings.Hard_Cnt);
-                fileManager.StartOpening($"hard{Settings.Hard_Cnt - 1}");
+                fileManager.StartOpening($"hard{rand/*Settings.Hard_Cnt - 1*/}");
                 sudoku = sudokuMaker.MakeConvertedSudoku(sudoku);
             }
         }

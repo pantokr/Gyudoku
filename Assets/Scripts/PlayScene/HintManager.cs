@@ -9,7 +9,7 @@ public class HintManager : SudokuController
     public SudokuController sudokuController;
     public HintDialogManager hintDialogManager;
     public AutoMemoManager autoMemoManager;
-
+    
     public GameObject[,] objects;
     public GameObject[,,,] memoObjects;
 
@@ -145,6 +145,24 @@ public class HintManager : SudokuController
         }
 
         FindWWing();
+        if (breaker)
+        {
+            return;
+        }
+
+        FindJellyFish();
+        if (breaker)
+        {
+            return;
+        }
+
+        FindFinnedXWing();
+        if (breaker)
+        {
+            return;
+        }
+
+        FindXYZWing();
         if (breaker)
         {
             return;
@@ -1850,7 +1868,7 @@ public class HintManager : SudokuController
                             memoObjects[y, ecr[x], ValToY(amv[1]), ValToX(amv[1])],
                             memoObjects[l_c2.Item1, l_c2.Item2, ValToY(amv[1]), ValToX(amv[1])],
                             objects[y, ecr[x]]
-                            ); 
+                            );
                         var hl1 = MakeHL((memoObjects[y, ecr[x], ValToY(amv[0]), ValToX(amv[0])], memoObjects[l_c1.Item1, l_c1.Item2, ValToY(amv[0]), ValToX(amv[0])]),
                              (memoObjects[y, ecr[x], ValToY(amv[1]), ValToX(amv[1])], memoObjects[l_c2.Item1, l_c2.Item2, ValToY(amv[1]), ValToX(amv[1])]));
 
@@ -2145,7 +2163,7 @@ public class HintManager : SudokuController
                 }
             }
         }
-    }
+    }//스워드 피쉬
 
     private void FindFromFullSudoku()
     {
@@ -2548,7 +2566,7 @@ public class HintManager : SudokuController
                 var amv = GetActiveMemoValue(y, ec);
                 foreach (var mv in amv)
                 {
-                    GetChainRecursiveWithTracer(y, ec, mv, 0, 1);
+                    GetXOChainRecursiveWithTracer(y, ec, mv, 0, 1);
 
                     var tracerList = base.tracerList;
 
@@ -2610,18 +2628,16 @@ public class HintManager : SudokuController
 
                             List<(GameObject, GameObject)> hl1 = new List<(GameObject, GameObject)>()
                             {
-                                (memoObjects[tracer[0].Item1, tracer[0].Item2, ValToY(mv), ValToY(mv)],
-                                memoObjects[tracer[1].Item1, tracer[1].Item2, ValToY(mv), ValToY(mv)])
+                                (memoObjects[tracer[0].Item1, tracer[0].Item2, ValToY(mv), ValToX(mv)],
+                                memoObjects[tracer[1].Item1, tracer[1].Item2, ValToY(mv), ValToX(mv)])
                             };
                             List<(GameObject, GameObject)> hl2 = new List<(GameObject, GameObject)>()
                             {
-                                (memoObjects[tracer[1].Item1, tracer[1].Item2, ValToY(mv), ValToY(mv)],
-                                memoObjects[tracer[2].Item1, tracer[2].Item2, ValToY(mv), ValToY(mv)])
+                                (memoObjects[tracer[1].Item1, tracer[1].Item2, ValToY(mv), ValToX(mv)],
+                                memoObjects[tracer[2].Item1, tracer[2].Item2, ValToY(mv), ValToX(mv)])
                             };
 
                             breaker = true;
-
-                            var code = GetSameAreaCode(tracer[1], tracer[2]);
 
                             //대사
                             string[] str = { "X-체인",
@@ -2634,9 +2650,8 @@ public class HintManager : SudokuController
 
                             var hclist = MakeHCList(null, hc1, hc2, hcs, dc);
                             var hllist = MakeHLList(null, hl1, hl2, hls, end_hl);
-                            var blist = MakeBundleList(null, null, new List<int>() { code * 9 + tracer[1].Item1 / 3 * 3 + tracer[1].Item2 / 3 }, null, null);
 
-                            hintDialogManager.StartDialogAndDeleteMemo(str, hclist, dc, hllist, blist);
+                            hintDialogManager.StartDialogAndDeleteMemo(str, hclist, dc, hllist);
 
                             return;
 
@@ -2649,8 +2664,300 @@ public class HintManager : SudokuController
 
     private void FindWWing()
     {
+        for (int y = 0; y < 9; y++)
+        {
+            var ec_row = GetEmptyCellsInRow(y);
+            foreach (var ec in ec_row) // x좌표 반환
+            {
+                var amv = GetActiveMemoValue(y, ec);
+                if (amv.Count != 2)
+                {
+                    continue;
+                }
+                foreach (var mv in amv)
+                {
+                    GetOXChainRecursiveWithTracer(y, ec, mv, 0, 1);
+                    var tracerList = base.tracerList;
+
+                    foreach (var tracer in tracerList)
+                    {
+                        if (!IsEqualMemoCell((y, ec), tracer[3].ToValueTuple()))
+                        {
+                            continue;
+                        }
+                        int mv_alter = amv[0] == mv ? amv[1] : amv[0];
+
+                        var dupc = GetDuplicatedCellByTwoCell((y, ec), (tracer[3].Item1, tracer[3].Item2));
+                        List<GameObject> dc = new List<GameObject>();
+                        List<(GameObject, GameObject)> end_hl = new List<(GameObject, GameObject)>();
+                        foreach (var dup in dupc)
+                        {
+                            if (IsInMemoCell(dup.Item1, dup.Item2, mv_alter))
+                            {
+                                dc.Add(memoObjects[dup.Item1, dup.Item2, ValToY(mv_alter), ValToX(mv_alter)]);
+
+                                end_hl.Add((memoObjects[tracer[0].Item1, tracer[0].Item2, ValToY(mv_alter), ValToX(mv_alter)],
+                                    memoObjects[dup.Item1, dup.Item2, ValToY(mv_alter), ValToX(mv_alter)]));
+                                end_hl.Add((memoObjects[tracer[3].Item1, tracer[3].Item2, ValToY(mv_alter), ValToX(mv_alter)],
+                                    memoObjects[dup.Item1, dup.Item2, ValToY(mv_alter), ValToX(mv_alter)]));
+                            }
+                        }
+
+                        if (dc.Count == 0)
+                        {
+                            continue;
+                        }
+
+                        breaker = true;
+
+                        List<GameObject> hcs = new List<GameObject>();
+                        List<(GameObject, GameObject)> hls = new List<(GameObject, GameObject)>();
+                        for (int i = 0; i < 4; i++)
+                        {
+                            hcs.Add(memoObjects[tracer[i].Item1, tracer[i].Item2, ValToY(mv), ValToX(mv)]);
+                            if (i == 3)
+                            {
+                                break;
+                            }
+                            hls.Add((memoObjects[tracer[i].Item1, tracer[i].Item2, ValToY(mv), ValToX(mv)],
+                                memoObjects[tracer[i + 1].Item1, tracer[i + 1].Item2, ValToY(mv), ValToX(mv)]));
+                        }
+
+                        var hc1 = MakeHC(objects[y, ec], objects[tracer[3].Item1, tracer[3].Item2]);
+                        var hc2 = MakeHC(memoObjects[y, ec, ValToY(mv_alter), ValToX(mv_alter)], memoObjects[tracer[3].Item1, tracer[3].Item2, ValToY(mv_alter), ValToX(mv_alter)]);
+
+
+                        //대사
+                        string[] str = { "W-윙",
+                            $"{y+1}행 {ec+1}열의 셀과 {tracer[3].Item1+1}행 {tracer[3].Item2+1}열의 셀은 둘 다 {mv} 값과 {mv_alter} 값으로 구성되어 있습니다.",
+                            $"만약 {y+1}행 {ec+1}열에 {mv} 값이 들어간다면 다음과 같은 O-X-O-X 체인이 생겨 {tracer[3].Item1+1}행 {tracer[3].Item2+1}열에는 {mv} 값이 들어갈 수 없습니다.",
+                            $"즉 {y+1}행 {ec+1}열의 셀과 {tracer[3].Item1+1}행 {tracer[3].Item2+1}열의 셀 중 하나에는 {mv_alter} 값이 들어가야만 합니다.",
+                            $"따라서 강조된 셀에는 {mv_alter} 값이 들어갈 수 없습니다."
+                        };
+
+                        //처방
+                        var hclist = MakeHCList(null, hc1, hcs, hc2, dc);
+                        var hllist = MakeHLList(null, null, hls, null, end_hl);
+
+                        hintDialogManager.StartDialogAndDeleteMemo(str, hclist, dc, hllist);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+    
+    private void FindFinnedXWing()
+    {
 
     }
+
+    private void FindXYZWing()
+    {
+
+    }
+
+    private void FindJellyFish()
+    {
+        //row
+        for (int y1 = 0; y1 < 6; y1++)
+        {
+            for (int y2 = y1 + 1; y2 < 7; y2++)
+            {
+                for (int y3 = y2 + 1; y3 < 8; y3++)
+                {
+                    for (int y4 = y3 + 1; y4 < 9; y4++)
+                    {
+                        for (int val = 1; val <= 9; val++)
+                        {
+                            var mcr1 = GetMemoCellInRow(y1, val);
+                            var mcr2 = GetMemoCellInRow(y2, val);
+                            var mcr3 = GetMemoCellInRow(y3, val);
+                            var mcr4 = GetMemoCellInRow(y4, val);
+
+                            if ((mcr1.Count < 2 || mcr1.Count > 4) ||
+                                (mcr2.Count < 2 || mcr2.Count > 4) ||
+                                (mcr3.Count < 2 || mcr3.Count > 4) ||
+                                (mcr4.Count < 2 || mcr4.Count > 4))
+                            {
+                                continue;
+                            }
+
+                            List<int> cols = new List<int>();
+                            foreach (var mcr in mcr1)
+                            {
+                                cols.Add(mcr);
+                            }
+                            foreach (var mcr in mcr2)
+                            {
+                                cols.Add(mcr);
+                            }
+                            foreach (var mcr in mcr3)
+                            {
+                                cols.Add(mcr);
+                            }
+                            foreach (var mcr in mcr4)
+                            {
+                                cols.Add(mcr);
+                            }
+
+                            cols = cols.Distinct().ToList();
+                            cols.Sort();
+
+                            if (cols.Count != 4) // jelly fish 발견
+                            {
+                                continue;
+                            }
+
+                            List<GameObject> dc = new List<GameObject>();
+                            List<GameObject> hc = new List<GameObject>();
+                            List<GameObject> hdc = new List<GameObject>();
+                            foreach (var col in cols)
+                            {
+                                var mcc = GetMemoCellInCol(col, val);
+                                foreach (var r in mcc) //모든 빈 가로 행 탐색
+                                {
+                                    if (IsInMemoCell(r, col, val))
+                                    {
+                                        if (r == y1 || r == y2 || r == y3 || r == y4)
+                                        {
+                                            hc.Add(objects[r, col]);
+                                        }
+                                        else
+                                        {
+                                            dc.Add(memoObjects[r, col, ValToY(val), ValToX(val)]);
+                                            hdc.Add(objects[r, col]);
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (dc.Count == 0)
+                            {
+                                continue;
+                            }
+                            //
+                            breaker = true;
+
+                            //대사
+                            string[] str = { "젤리피쉬",
+                            $"{y1+1}, {y2+1}, {y3+1}, {y4+1} 네 행에서 각 행에 4개 이하의 {val} 값이 들어갈 수 있습니다.",
+                            $"이 셀들은 또한 네 개의 열 안에 속하기도 합니다.",
+                            $"이는 이 셀들 안에서 각 행과 열에 하나씩 총 네 개의 {val} 값이 구성됨을 의미합니다.",
+                            $"따라서 {cols[0]+1}, {cols[1]+1}, {cols[2]+1}, {cols[3]+1}의 다른 셀에 있는 {val} 값을 지울 수 있습니다."};
+
+                            //처방
+
+                            var hcList = MakeHCList(null, hc, hc, hc, hdc);
+                            var b1 = MakeBundle(y1, y2, y3);
+                            var b2 = MakeBundle(9 + cols[0], 9 + cols[1], 9 + cols[2], 9 + cols[3]);
+                            var bl = MakeBundleList(null, b1, b2, b2, b2);
+                            hintDialogManager.StartDialogAndDeleteMemo(str, hcList, dc, bl);
+
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+
+        //col
+        for (int x1 = 0; x1 < 6; x1++)
+        {
+            for (int x2 = x1 + 1; x2 < 7; x2++)
+            {
+                for (int x3 = x2 + 1; x3 < 8; x3++)
+                {
+                    for (int x4 = x3 + 1; x4 < 9; x4++)
+                    {
+                        for (int val = 1; val <= 9; val++)
+                        {
+                            var mcc1 = GetMemoCellInCol(x1, val);
+                            var mcc2 = GetMemoCellInCol(x2, val);
+                            var mcc3 = GetMemoCellInCol(x3, val);
+                            var mcc4 = GetMemoCellInCol(x4, val);
+
+                            if ((mcc1.Count < 2 || mcc1.Count > 4) ||
+                                (mcc2.Count < 2 || mcc2.Count > 4) ||
+                                (mcc3.Count < 2 || mcc3.Count > 4) ||
+                                (mcc4.Count < 2 || mcc4.Count > 4))
+                            {
+                                continue;
+                            }
+
+                            List<int> rows = new List<int>();
+                            foreach (var mcc in mcc1)
+                            {
+                                rows.Add(mcc);
+                            }
+                            foreach (var mcc in mcc2)
+                            {
+                                rows.Add(mcc);
+                            }
+                            foreach (var mcc in mcc3)
+                            {
+                                rows.Add(mcc);
+                            }
+
+                            rows = rows.Distinct().ToList();
+                            rows.Sort();
+
+                            if (rows.Count != 3) // sword fish 발견
+                            {
+                                continue;
+                            }
+
+                            List<GameObject> dc = new List<GameObject>();
+                            List<GameObject> hc = new List<GameObject>();
+                            List<GameObject> hdc = new List<GameObject>();
+                            foreach (var row in rows)
+                            {
+                                var mcr = GetMemoCellInRow(row, val);
+                                foreach (var c in mcr) //모든 빈 가로 행 탐색
+                                {
+                                    if (IsInMemoCell(row, c, val))
+                                    {
+                                        if (c == x1 || c == x2 || c == x3 || c == x4)
+                                        {
+                                            hc.Add(objects[row, c]);
+                                        }
+                                        else
+                                        {
+                                            dc.Add(memoObjects[row, c, ValToY(val), ValToX(val)]);
+                                            hdc.Add(objects[row, c]);
+                                        }
+                                    }
+                                }
+                            }
+                            if (dc.Count == 0)
+                            {
+                                continue;
+                            }
+                            //
+                            breaker = true;
+
+                            //대사
+                            string[] str = { "젤리피쉬",
+                            $"{x1+1}, {x2+1}, {x3+1}, {x4+1} 네 열에서 각 열에 4개 이하의 {val} 값이 들어갈 수 있습니다.",
+                            $"이 셀들은 또한 네 개의 행 안에 속하기도 합니다.",
+                            $"이는 이 셀들 안에서 각 행과 열에 하나씩 총 네 개의 {val} 값이 구성됨을 의미합니다.",
+                            $"따라서 {rows[0]+1}, {rows[1]+1}, {rows[2]+1}, {rows[3]+1}의 다른 셀에 있는 {val} 값을 지울 수 있습니다."};
+
+                            //처방
+
+                            var hcList = MakeHCList(null, hc, hc, hc, hdc);
+                            var b1 = MakeBundle(9 + x1, 9 + x2, 9 + x3);
+                            var b2 = MakeBundle(rows[0], rows[1], rows[2]);
+                            var bl = MakeBundleList(null, b1, b2, b2, b2);
+                            hintDialogManager.StartDialogAndDeleteMemo(str, hcList, dc, bl);
+
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+    }//젤리 피쉬
 
     private List<GameObject> MakeHC(params GameObject[] objs)
     {

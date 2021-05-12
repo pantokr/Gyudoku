@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class HintDialogManager : MonoBehaviour
 {
-
+    public GameObject helpButton;
     public GameObject hintButton;
     public GameObject sudokuBoard;
     public GameObject mainPanel;
@@ -226,6 +226,7 @@ public class HintDialogManager : MonoBehaviour
     }
     private void SetVisible(bool onf)
     {
+        helpButton.SetActive(onf);
         mainPanel.transform.Find("NumberHighlighter").gameObject.SetActive(onf);
         mainPanel.transform.Find("ManualTools").gameObject.SetActive(onf);
         mainPanel.transform.Find("Finisher").gameObject.SetActive(onf);

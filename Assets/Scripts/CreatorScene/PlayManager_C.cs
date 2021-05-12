@@ -103,22 +103,19 @@ public class PlayManager_C : MonoBehaviour
             }
         }
 
-        //Q를 누르면 지워짐
-        if (Input.GetKeyDown(KeyCode.Q))
+        //E를 누르면 지워짐
+        if (Input.GetKeyDown(KeyCode.E))
         {
             if (curX != -1 && curY != -1) // 스도쿠 내부의 버튼을 선택하고 있으면
             {
                 cellManager.DeleteCell(curY, curX);
                 cellManager.HighlightCells(0);
             }
-            return;
-        }
-
-        //E을 누르면 Eraser on
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            manualToolsManager.TurnEraser();
-            return;
+            else
+            {
+                manualToolsManager.TurnEraser();
+                return;
+            }
         }
     }
     public void SetCur(int curY, int curX)

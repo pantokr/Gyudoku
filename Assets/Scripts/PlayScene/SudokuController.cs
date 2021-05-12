@@ -53,6 +53,12 @@ public class SudokuController : MonoBehaviour
     {
         var l1 = GetActiveMemoValue(c1.Item1, c1.Item2);
         var l2 = GetActiveMemoValue(c2.Item1, c2.Item2);
+
+        if (c1 == c2)
+        {
+            return false;
+        }
+
         if (l1.Count != l2.Count)
         {
             return false;
@@ -67,6 +73,23 @@ public class SudokuController : MonoBehaviour
         }
 
         return true;
+    }
+
+    public List<Tuple<int, int>> GetAllEqualMemoCell(int y, int x)
+    {
+        List<Tuple<int, int>> list = new List<Tuple<int, int>>();
+        for (int _y = 0; _y < 9; _y++)
+        {
+            var emc_row = GetEmptyCellsInRow(_y);
+            foreach (var emc in emc_row)
+            {
+                if (IsEqualMemoCell((y, x), (_y, emc)))
+                {
+                    list.Add(new Tuple<int, int>(_y, emc));
+                }
+            }
+        }
+        return list;
     }
 
     #endregion
@@ -192,6 +215,7 @@ public class SudokuController : MonoBehaviour
             mainPanel.transform.Find("AutoTools").gameObject.SetActive(false);
             mainPanel.transform.Find("Finisher").Find("MainMenuButton").gameObject.SetActive(true);
             mainPanel.transform.Find("Finisher").Find("SaveButton").gameObject.SetActive(false);
+            mainPanel.transform.Find("HelpButton").gameObject.SetActive(false);
 
             return true;
         }
@@ -948,60 +972,100 @@ public class SudokuController : MonoBehaviour
         return list;
     }
 
-    public void GetChainRecursive(int y, int x, int value, int now_cnt, int ex_cnt, List<Tuple<int, int>> tonext)
+    public void GetXOChainRecursive(int y, int x, int value, int now_cnt, int ex_cnt, List<Tuple<int, int>> tonext)
     {
         var ctf_nc = GetCellToFillByNewCell(y, x, value); //1->2
         foreach (var ctf in ctf_nc)
         {
+            if (tonext.Contains(ctf))
+            {
+                continue;
+            }
             //여기서 탈출
             if (now_cnt == ex_cnt)
             {
                 List<Tuple<int, int>> last = new List<Tuple<int, int>>();
 
                 last.AddRange(tonext);
-                if (last.Contains(ctf))
-                {
-                    continue;
-                }
-
                 last.Add(ctf);
                 tracerList.Add(last.ToList());
 
                 continue;
             }
-
-
-            var dc_nc = GetDisabledCellByNewCell(ctf.Item1, ctf.Item2, value); //2->3
-            foreach (var dc in dc_nc)
+            else
             {
-                if (dc.Item1 == y && dc.Item2 == x) //진입한 셀이면 통과
-                {
-                    continue;
-                }
 
-                List<Tuple<int, int>> new_tonext = new List<Tuple<int, int>>();
-                new_tonext.AddRange(tonext);
-                if (new_tonext.Contains(ctf))
+                var dc_nc = GetDisabledCellByNewCell(ctf.Item1, ctf.Item2, value); //2->3
+                foreach (var dc in dc_nc)
                 {
-                    continue;
+                    if (tonext.Contains(dc) || ctf == dc)
+                    {
+                        continue;
+                    }
+                    List<Tuple<int, int>> new_tonext = new List<Tuple<int, int>>();
+                    new_tonext.AddRange(tonext);
+                    new_tonext.Add(ctf);
+                    new_tonext.Add(dc);
+                    GetXOChainRecursive(dc.Item1, dc.Item2, value, now_cnt + 1, ex_cnt, new_tonext);
                 }
-                new_tonext.Add(ctf);
-
-                new_tonext.Add(dc);
-                GetChainRecursive(dc.Item1, dc.Item2, value, now_cnt + 1, ex_cnt, new_tonext);
             }
         }
         return;
     }
 
-    public void GetChainRecursiveWithTracer(int y, int x, int value, int now_cnt, int ex_cnt)
+    public void GetXOChainRecursiveWithTracer(int y, int x, int value, int now_cnt, int ex_cnt)
     {
         tracerList = new List<List<Tuple<int, int>>>();
         List<Tuple<int, int>> tonext = new List<Tuple<int, int>>();
         tonext.Add(new Tuple<int, int>(y, x));
-        GetChainRecursive(y, x, value, now_cnt, ex_cnt, tonext);
+        GetXOChainRecursive(y, x, value, now_cnt, ex_cnt, tonext);
     }
     #endregion
+
+    public void GetOXChainRecursive(int y, int x, int value, int now_cnt, int ex_cnt, List<Tuple<int, int>> tonext)
+    {
+        var dc_nc = GetDisabledCellByNewCell(y, x, value); //O->X
+        foreach (var dc in dc_nc)
+        {
+            if (tonext.Contains(dc)) //진입한 셀이면 통과
+            {
+                continue;
+            }
+
+            if (now_cnt == ex_cnt)
+            {
+                List<Tuple<int, int>> last = new List<Tuple<int, int>>();
+
+                last.AddRange(tonext);
+                last.Add(dc);
+                tracerList.Add(last.ToList());
+            }
+            var ctf_nc = GetCellToFillByNewCell(dc.Item1, dc.Item2, value); //X->O
+
+            foreach (var ctf in ctf_nc)
+            {
+                if (tonext.Contains(ctf) || dc == ctf)
+                {
+                    continue;
+                }
+                List<Tuple<int, int>> new_tonext = new List<Tuple<int, int>>();
+                new_tonext.AddRange(tonext);
+                new_tonext.Add(dc);
+                new_tonext.Add(ctf);
+
+                GetOXChainRecursive(ctf.Item1, ctf.Item2, value, now_cnt + 1, ex_cnt, new_tonext);
+            }
+        }
+        return;
+    }
+
+    public void GetOXChainRecursiveWithTracer(int y, int x, int value, int now_cnt, int ex_cnt)
+    {
+        tracerList = new List<List<Tuple<int, int>>>();
+        List<Tuple<int, int>> tonext = new List<Tuple<int, int>>();
+        tonext.Add(new Tuple<int, int>(y, x));
+        GetOXChainRecursive(y, x, value, now_cnt, ex_cnt, tonext);
+    }
 
     #region 기타
     public void RecordSudokuLog()

@@ -170,23 +170,24 @@ public class CellManager : MonoBehaviour
             memoManager.DeleteMemoCell(y, x);
         }
 
-        if (ManualToolsManager.onMemo)
-        {
-            if (sudokuController.IsInMemoCell(y, x, hl_num))
-            {
-                if (hl_num == 0)
-                {
-                    return;
-                }
-                memoManager.DeleteMemoCell(y, x, hl_num);
-                HighlightCells(hl_num);
-            }
-            else
-            {
-                memoManager.FillMemoCell(y, x, hl_num);
-                HighlightCells(hl_num);
-            }
-        }
+        //if (ManualToolsManager.onMemo)
+        //{
+        //    if (hl_num == 0)
+        //    {
+        //        return;
+        //    }
+
+        //    if (sudokuController.IsInMemoCell(y, x, hl_num))
+        //    {
+        //        memoManager.DeleteMemoCell(y, x, hl_num);
+        //        HighlightCells(hl_num);
+        //    }
+        //    else
+        //    {
+        //        memoManager.FillMemoCell(y, x, hl_num);
+        //        HighlightCells(hl_num);
+        //    }
+        //}
     }
     private void SetButtonColor()
     {
