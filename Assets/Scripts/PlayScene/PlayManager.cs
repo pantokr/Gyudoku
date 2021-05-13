@@ -94,12 +94,12 @@ public class PlayManager : MonoBehaviour
             curX = -1;
         }
 
-        if (Input.GetKey(KeyCode.LeftShift))
+        if (Input.GetKey(KeyCode.LeftAlt))
         {
             ManualToolsManager.onMemo = true;
         }
 
-        if (Input.GetKeyUp(KeyCode.LeftShift))
+        if (Input.GetKeyUp(KeyCode.LeftAlt))
         {
             ManualToolsManager.onMemo = false;
         }

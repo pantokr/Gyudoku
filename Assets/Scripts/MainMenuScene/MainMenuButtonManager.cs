@@ -6,19 +6,12 @@ public class MainMenuButtonManager : MonoBehaviour
     public GameObject panel;
     public GameObject fileNameSetter;
 
-    private GameObject _customized;
-    private GameObject _new;
-    private GameObject _open;
-    private void Start()
-    {
-        _customized = panel.transform.Find("Customized").gameObject;
-        _new = panel.transform.Find("New").gameObject;
-        _open = panel.transform.Find("Open").gameObject;
-        
-    }
+    public GameObject _customized;
+    public GameObject _new;
+    public GameObject _open;
+    
     public void SelectEasyGame()
     {
-
         DifficultySetter.SetEasyMode();
         //Settings.PlayMode = 0;
 

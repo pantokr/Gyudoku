@@ -17,10 +17,12 @@ public class ManualToolsManager : MonoBehaviour
     public GameObject memoButton;
     public GameObject eraserButton;
     public GameObject undoButton;
+    public GameObject resetButton;
 
     private Button _memo;
     private Button _eraser;
     private Button _undo;
+    private Button _reset;
 
     private Image memoImg;
     private Image eraserImg;
@@ -30,10 +32,12 @@ public class ManualToolsManager : MonoBehaviour
         _memo = memoButton.GetComponent<Button>();
         _eraser = eraserButton.GetComponent<Button>();
         _undo = undoButton.GetComponent<Button>();
+        _reset = resetButton.GetComponent<Button>();
 
         _memo.onClick.AddListener(delegate { TurnMemo(); });
         _eraser.onClick.AddListener(delegate { TurnEraser(); });
         _undo.onClick.AddListener(delegate { Undo(); });
+        _reset.onClick.AddListener(delegate { UndoAll(); });
 
         memoImg = memoButton.transform.GetComponent<Image>();
         eraserImg = eraserButton.transform.GetComponent<Image>();
@@ -54,7 +58,7 @@ public class ManualToolsManager : MonoBehaviour
             TurnEraser();
             return;
         }
-        else if(Input.GetKeyDown(KeyCode.E))
+        else if (Input.GetKeyDown(KeyCode.E))
         {
             cellManager.DeleteCell(PlayManager.curY, PlayManager.curX);
             memoManager.DeleteMemoCell(PlayManager.curY, PlayManager.curX);
@@ -115,6 +119,17 @@ public class ManualToolsManager : MonoBehaviour
 
         cellManager.ApplySudoku(s);
         memoManager.ApplyMemoSudoku(m);
+    }
+
+    public void UndoAll()
+    {
+        cellManager.HighlightCells(0);
+
+        cellManager.ApplySudoku(sudokuController.lateSudoku[0].Item1);
+        memoManager.ApplyMemoSudoku(sudokuController.lateSudoku[0].Item2);
+
+        sudokuController.lateSudoku.Clear();
+        sudokuController.undoIndex = -1;
     }
 
     private void ApplyButtonPressed(Image img)

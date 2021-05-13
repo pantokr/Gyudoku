@@ -17,8 +17,8 @@ public class SudokuController : MonoBehaviour
     public int[,] fullSudoku;
     public int[,,] memoSudoku;
 
-    private List<Tuple<int[,], int[,,]>> lateSudoku = new List<Tuple<int[,], int[,,]>>();
-    private int undoIndex = -1;
+    public List<Tuple<int[,], int[,,]>> lateSudoku = new List<Tuple<int[,], int[,,]>>();
+    public int undoIndex = -1;
 
     // 링크/체인용 변수
     public List<Tuple<int, int>> tracer;
