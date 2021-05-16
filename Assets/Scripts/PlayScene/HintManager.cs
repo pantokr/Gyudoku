@@ -2686,7 +2686,6 @@ public class HintManager : SudokuController
                             continue;
                         }
                         //wwing ¹ß°ß
-                        print(tracer.Count);
                         int mv_alter = amv[0] == mv ? amv[1] : amv[0];
 
                         var dupc = GetDuplicatedCellByTwoCell(new Tuple<int, int>(y, ec), new Tuple<int, int>(tracer[3].Item1, tracer[3].Item2));

@@ -54,7 +54,7 @@ public class SudokuController : MonoBehaviour
         var l1 = GetActiveMemoValue(c1.Item1, c1.Item2);
         var l2 = GetActiveMemoValue(c2.Item1, c2.Item2);
 
-        if (c1 == c2)
+        if (c1.Equals(c2))
         {
             return false;
         }
@@ -410,7 +410,7 @@ public class SudokuController : MonoBehaviour
 
                     if (memoSudoku[rightNumber - 1, y, x] == 0)
                     {
-                        points.Add(new Tuple<int,int>(y, x));
+                        points.Add(new Tuple<int, int>(y, x));
                     }
                 }
             }
@@ -823,10 +823,10 @@ public class SudokuController : MonoBehaviour
         return list;
     }
 
-    public List<Tuple<int,int>> GetDuplicatedCellsByTwoList(List<Tuple<int,int>> l1, List<Tuple<int,int>> l2)
+    public List<Tuple<int, int>> GetDuplicatedCellsByTwoList(List<Tuple<int, int>> l1, List<Tuple<int, int>> l2)
     {
         List<Tuple<int, int>> list = new List<Tuple<int, int>>();
-        foreach(var tuple in l1)
+        foreach (var tuple in l1)
         {
             if (l2.Contains(tuple))
             {
@@ -872,16 +872,16 @@ public class SudokuController : MonoBehaviour
 
             if (mcsg[0].Item1 == y && mcsg[0].Item2 == x)
             {
-                tuple = new Tuple<int, int>(mcsg[1].Item1, mcsg[1].Item2);
+                tuple = mcsg[1];
             }
             else
             {
-                tuple = new Tuple<int, int>(mcsg[0].Item1, mcsg[0].Item2);
+                tuple = mcsg[0];
             }
 
             foreach (var l in link_list)
             {
-                if (l != null && l.Item1 == tuple.Item1 && l.Item2 == tuple.Item2)
+                if (l != null && l.Equals(tuple))
                 {
                     tuple = null;
                     break;
@@ -1056,7 +1056,7 @@ public class SudokuController : MonoBehaviour
 
             foreach (var ctf in ctf_nc)
             {
-                if (tonext.Contains(ctf) || dc == ctf)
+                if (tonext.Contains(ctf) || dc.Equals(ctf))
                 {
                     continue;
                 }
