@@ -13,10 +13,14 @@ public class MemoManager : MonoBehaviour
     public int[,,] memoSudoku;
     private GameObject[,] objects;
 
-    private void Start()
+    private void Awake()
     {
         objects = cellManager.GetObjects();
         AppendMemoCellObjects();
+    }
+
+    private void Start()
+    {
         memoSudoku = SudokuManager.memoSudoku;
     }
     public GameObject GetMemoObject(int y, int x, int value)
@@ -201,7 +205,7 @@ public class MemoManager : MonoBehaviour
             for (int x = 0; x < 9; x++)
             {
                 GameObject parentObj = new GameObject("Memo");
-                parentObj.transform.parent = objects[y, x].transform;
+                parentObj.transform.parent = GameObject.Find("Cells").transform.Find($"R{y+1}C{x+1}").transform;
                 parentObj.transform.localPosition = new Vector2(0, 0);
 
                 //3x3 memo

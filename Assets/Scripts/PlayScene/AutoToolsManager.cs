@@ -9,10 +9,11 @@ public class AutoToolsManager : MonoBehaviour
     public GameObject autoMemoButton;
     public GameObject hintButton;
     public GameObject autoSingleButton;
+    
     public HintDialogManager hintDialogManager;
+    public HintManager hintManager;
 
     private AutoMemoManager autoMemoManager;
-    private HintManager hintManager;
     private AutoSingleManager autoSingleManager;
 
     private Button _autoMemo;
@@ -29,7 +30,6 @@ public class AutoToolsManager : MonoBehaviour
         }
 
         autoMemoManager = autoMemoButton.GetComponent<AutoMemoManager>();
-        hintManager = hintButton.GetComponent<HintManager>();
         autoSingleManager = autoSingleButton.GetComponent<AutoSingleManager>();
 
         _autoMemo = autoMemoButton.GetComponent<Button>();
