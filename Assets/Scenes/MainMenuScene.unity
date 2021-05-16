@@ -2562,7 +2562,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a0eea7d2e9052db41b33e0f987e60895, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  panel: {fileID: 1956491879}
+  buttons: {fileID: 994531549}
   dialogText: {fileID: 2239948019812514750}
   inputField: {fileID: 7581295139143325721}
   cancelButton: {fileID: 585251148165795511}

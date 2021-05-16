@@ -7,6 +7,8 @@ using System;
 
 public class CellManager : MonoBehaviour
 {
+    public GameObject Cells;
+    
     public PlayManager playManager;
     public MemoManager memoManager;
     public SudokuController sudokuController;
@@ -151,9 +153,9 @@ public class CellManager : MonoBehaviour
             for (int x = 0; x < 9; x++)
             {
                 string tString = $"R{y + 1}C{x + 1}";
-                btns[y, x] = transform.Find(tString).GetComponent<Button>();
+                btns[y, x] = Cells.transform.Find(tString).GetComponent<Button>();
                 values[y, x] = btns[y, x].transform.Find("Text").gameObject.GetComponent<Text>();
-                objects[y, x] = transform.Find(tString).gameObject;
+                objects[y, x] = Cells.transform.Find(tString).gameObject;
 
                 int ty = y, tx = x;
                 btns[y, x].onClick.AddListener(delegate { SelectCell(ty, tx); });
@@ -169,25 +171,6 @@ public class CellManager : MonoBehaviour
             DeleteCell(y, x);
             memoManager.DeleteMemoCell(y, x);
         }
-
-        //if (ManualToolsManager.onMemo)
-        //{
-        //    if (hl_num == 0)
-        //    {
-        //        return;
-        //    }
-
-        //    if (sudokuController.IsInMemoCell(y, x, hl_num))
-        //    {
-        //        memoManager.DeleteMemoCell(y, x, hl_num);
-        //        HighlightCells(hl_num);
-        //    }
-        //    else
-        //    {
-        //        memoManager.FillMemoCell(y, x, hl_num);
-        //        HighlightCells(hl_num);
-        //    }
-        //}
     }
     private void SetButtonColor()
     {

@@ -74,7 +74,6 @@ public class FileManager : MonoBehaviour
 
     private void DisplayDialog()
     {
-        playManager.SetActive(false);
         dialog.SetActive(true);
         TurnObjects(false);
 

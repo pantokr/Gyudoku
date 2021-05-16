@@ -9,7 +9,7 @@ public class HintManager : SudokuController
     public SudokuController sudokuController;
     public HintDialogManager hintDialogManager;
     public AutoMemoManager autoMemoManager;
-    
+
     public GameObject[,] objects;
     public GameObject[,,,] memoObjects;
 
@@ -701,7 +701,7 @@ public class HintManager : SudokuController
                         continue;
                     }
 
-                    if (IsEqualMemoCell((y, emptyXList[_x1]), (y, emptyXList[_x2]))) // 네이키드 페어 발견
+                    if (IsEqualMemoCell(new Tuple<int, int>(y, emptyXList[_x1]), new Tuple<int, int>(y, emptyXList[_x2]))) // 네이키드 페어 발견
                     {
                         var mvs = mvList[_x1]; // 선택된 셀들 안에 들어있는 메모값들
 
@@ -772,7 +772,7 @@ public class HintManager : SudokuController
                         continue;
                     }
 
-                    if (IsEqualMemoCell((emptyYList[_y1], x), (emptyYList[_y2], x)))
+                    if (IsEqualMemoCell(new Tuple<int, int>(emptyYList[_y1], x), new Tuple<int, int>(emptyYList[_y2], x)))
                     { // 네이키드 페어 발견                    {
                         var mvs = mvList[_y1]; // 선택된 셀들 안에 들어있는 메모값들
 
@@ -846,8 +846,8 @@ public class HintManager : SudokuController
                         }
 
                         if (IsEqualMemoCell(
-                            (emptyYXList[_sg1].Item1, emptyYXList[_sg1].Item2),
-                            (emptyYXList[_sg2].Item1, emptyYXList[_sg2].Item2))) // 네이키드 페어 발견
+                            new Tuple<int, int>(emptyYXList[_sg1].Item1, emptyYXList[_sg1].Item2),
+                            new Tuple<int, int>(emptyYXList[_sg2].Item1, emptyYXList[_sg2].Item2))) // 네이키드 페어 발견
                         {
                             var mvs = mvList[_sg1]; // 선택된 셀들 안에 들어있는 메모값들
 
@@ -1826,14 +1826,14 @@ public class HintManager : SudokuController
                         {
                             continue;
                         }
-                        var dv = GetDuplicatedValueByTwoCell((l_c1.Item1, l_c1.Item2), (l_c2.Item1, l_c2.Item2));
+                        var dv = GetDuplicatedValueByTwoCell(new Tuple<int, int>(l_c1.Item1, l_c1.Item2), new Tuple<int, int>(l_c2.Item1, l_c2.Item2));
 
                         if (dv.Count != 1 || dv[0] == amv[0] || dv[0] == amv[1])
                         {
                             continue;
                         }
 
-                        var dup = GetDuplicatedCellByTwoCell((l_c1.Item1, l_c1.Item2), (l_c2.Item1, l_c2.Item2));
+                        var dup = GetDuplicatedCellByTwoCell(new Tuple<int, int>(l_c1.Item1, l_c1.Item2), new Tuple<int, int>(l_c2.Item1, l_c2.Item2));
                         List<GameObject> hdc = new List<GameObject>();
                         List<GameObject> dc = new List<GameObject>();
 
@@ -1900,7 +1900,7 @@ public class HintManager : SudokuController
 
                     if (tuple != null)
                     {
-                        var dup = GetDuplicatedCellByTwoCell((y, mcr[_x]), (tuple.Item1, tuple.Item2));
+                        var dup = GetDuplicatedCellByTwoCell(new Tuple<int, int>(y, mcr[_x]), new Tuple<int, int>(tuple.Item1, tuple.Item2));
 
                         List<GameObject> dc = new List<GameObject>();
                         List<GameObject> hdc = new List<GameObject>();
@@ -2397,7 +2397,7 @@ public class HintManager : SudokuController
                                 continue;
                             }
 
-                            List<(int, int)> sglist = new List<(int, int)>();
+                            List<Tuple<int, int>> sglist = new List<Tuple<int, int>>();
                             foreach (var ev in ev1_sg)
                             {
                                 sglist.Add(ev);
@@ -2481,7 +2481,7 @@ public class HintManager : SudokuController
                     var tuple = GetLinkedCellRecursive(y, mcr[_x], mv, 0, 5, -1); //마지막 링크 셀
                     if (tuple != null)
                     {
-                        var dup = GetDuplicatedCellByTwoCell((y, mcr[_x]), (tuple.Item1, tuple.Item2));
+                        var dup = GetDuplicatedCellByTwoCell(new Tuple<int, int>(y, mcr[_x]), new Tuple<int, int>(tuple.Item1, tuple.Item2));
 
                         List<GameObject> dc = new List<GameObject>();
                         List<GameObject> hdc = new List<GameObject>();
@@ -2583,7 +2583,7 @@ public class HintManager : SudokuController
                         }
                         else
                         {
-                            var dupc = GetDuplicatedCellByTwoCell((y, ec), (tracer[3].Item1, tracer[3].Item2));
+                            var dupc = GetDuplicatedCellByTwoCell(new Tuple<int, int>(y, ec), new Tuple<int, int>(tracer[3].Item1, tracer[3].Item2));
                             List<GameObject> dc = new List<GameObject>();
                             List<(GameObject, GameObject)> end_hl = new List<(GameObject, GameObject)>();
                             foreach (var dup in dupc)
@@ -2681,13 +2681,15 @@ public class HintManager : SudokuController
 
                     foreach (var tracer in tracerList)
                     {
-                        if (!IsEqualMemoCell((y, ec), tracer[3].ToValueTuple()))
+                        if (!IsEqualMemoCell(new Tuple<int, int>(y, ec), tracer[3]))
                         {
                             continue;
                         }
+                        //wwing 발견
+                        print(tracer.Count);
                         int mv_alter = amv[0] == mv ? amv[1] : amv[0];
 
-                        var dupc = GetDuplicatedCellByTwoCell((y, ec), (tracer[3].Item1, tracer[3].Item2));
+                        var dupc = GetDuplicatedCellByTwoCell(new Tuple<int, int>(y, ec), new Tuple<int, int>(tracer[3].Item1, tracer[3].Item2));
                         List<GameObject> dc = new List<GameObject>();
                         List<(GameObject, GameObject)> end_hl = new List<(GameObject, GameObject)>();
                         foreach (var dup in dupc)
@@ -2746,7 +2748,7 @@ public class HintManager : SudokuController
             }
         }
     }
-    
+
     private void FindFinnedXWing()
     {
 
@@ -2754,7 +2756,124 @@ public class HintManager : SudokuController
 
     private void FindXYZWing()
     {
+        for (int y = 0; y < 9; y++)
+        {
+            var ec_row = GetEmptyCellsInRow(y);
+            foreach (var ec in ec_row)
+            {
+                var amv = GetActiveMemoValue(y, ec); //amv는 세 값이 들어있음
+                if (amv.Count != 3)
+                {
+                    continue;
+                }
+                List<Tuple<int, int>> sub_mv = new List<Tuple<int, int>>() // 부분집합, 집합 요소 개수는 모두 두 개 
+                {
+                    new Tuple<int, int>(amv[0], amv[1]),
+                    new Tuple<int, int>(amv[1], amv[2]),
+                    new Tuple<int, int>(amv[0], amv[2])
+                };
 
+                var cfa = GetCellForcingArea(y, ec);
+                //SudokuManager.PrintListYX(cfa);
+                List<Tuple<int, int>> xyz_wing = new List<Tuple<int, int>>();
+                foreach (var c in cfa) // 가능한 좌표들
+                {
+                    var c_amv = GetActiveMemoValue(c.Item1, c.Item2); // 그 좌표들의 값들
+                    if (c_amv.Count != 2)
+                    {
+                        continue;
+                    }
+
+                    foreach (var sm in sub_mv) // 
+                    {
+                        if (new Tuple<int, int>(c_amv[0], c_amv[1]).Equals(sm))
+                        {
+                            xyz_wing.Add(c);
+                            break;
+                        }
+                    }
+
+                }
+
+                for (int i1 = 0; i1 < xyz_wing.Count - 1; i1++)
+                {
+                    for (int i2 = 1; i2 < xyz_wing.Count; i2++)
+                    {
+                        var c_i1 = xyz_wing[i1];
+                        var c_i2 = xyz_wing[i2];
+                        if (IsEqualMemoCell(c_i1, c_i2))
+                        {
+                            continue;
+                        }
+                        //xyz 발견
+                        var dup_val = GetDuplicatedValueByTwoCell(xyz_wing[i1], xyz_wing[i2])[0];
+
+                        var dup_c1 = GetDuplicatedCellByTwoCell(new Tuple<int, int>(y, ec), c_i1);
+                        var dup_c2 = GetDuplicatedCellByTwoCell(new Tuple<int, int>(y, ec), c_i2);
+
+                        var dup_c_list = GetDuplicatedCellsByTwoList(dup_c1, dup_c2);
+                        List<GameObject> dc = new List<GameObject>();
+                        List<(GameObject, GameObject)> hl = new List<(GameObject, GameObject)>();
+                        foreach (var dup_c in dup_c_list)
+                        {
+                            if (IsInMemoCell(dup_c.Item1, dup_c.Item2, dup_val))
+                            {
+                                dc.Add(memoObjects[dup_c.Item1, dup_c.Item2, ValToY(dup_val), ValToX(dup_val)]);
+                                hl.Add((memoObjects[y, ec, ValToY(dup_val), ValToX(dup_val)], memoObjects[y, ec, ValToY(dup_val), ValToX(dup_val)]));
+                                hl.Add((memoObjects[c_i1.Item1, c_i1.Item2, ValToY(dup_val), ValToX(dup_val)], memoObjects[y, ec, ValToY(dup_val), ValToX(dup_val)]));
+                                hl.Add((memoObjects[c_i2.Item1, c_i2.Item2, ValToY(dup_val), ValToX(dup_val)], memoObjects[y, ec, ValToY(dup_val), ValToX(dup_val)]));
+                            }
+                        }
+
+                        if (dc.Count == 0)
+                        {
+                            continue;
+                        }
+                        breaker = true;
+
+                        int c_i1_val = 0;
+                        int c_i2_val = 0;
+                        foreach (var mv in amv)
+                        {
+                            if (mv == dup_val)
+                            {
+                                continue;
+                            }
+
+                            if (IsInMemoCell(c_i1.Item1, c_i1.Item2, mv))
+                            {
+                                c_i1_val = mv;
+                                continue;
+                            }
+                            if (IsInMemoCell(c_i2.Item1, c_i2.Item2, mv))
+                            {
+                                c_i2_val = mv;
+                                continue;
+                            }
+                        }
+
+                        var hc = MakeHC(objects[y, ec], objects[c_i1.Item1, c_i1.Item2], objects[c_i2.Item1, c_i2.Item2]);
+                        var hc1 = MakeHC(memoObjects[y, ec, ValToY(dup_val), ValToX(dup_val)], memoObjects[c_i1.Item1, c_i1.Item2, ValToY(dup_val), ValToX(dup_val)]);
+                        var hc2 = MakeHC(memoObjects[y, ec, ValToY(dup_val), ValToX(dup_val)], memoObjects[c_i2.Item1, c_i2.Item2, ValToY(dup_val), ValToX(dup_val)]);
+                        var hc3 = new List<GameObject>();
+                        hc3.AddRange(hc);
+                        hc3.AddRange(dc);
+                        string[] str = { "XYZ-윙",
+                                    $"강조된 셀들 중 하나는 세 값의 메모가 들어있고, 다른 강조된 셀에는 그 중 두 값의 서로 다른 집합의 메모가 들어있습니다.",
+                                    $"만약 {y+1}행 {ec+1}열에 {c_i1_val} 값이 들어가면 {c_i1.Item1+1}행 {c_i1.Item2+1}열에는 {dup_val} 값이 들어갑니다.",
+                                    $"만약 {y+1}행 {ec+1}열에 {c_i1_val} 값이 들어가면 {c_i2.Item1+1}행 {c_i2.Item2+1}열에는 {dup_val} 값이 들어갑니다.",
+                                    $"즉 이 세 셀들 중 하나에는 반드시 {dup_val} 값이 들어가야만 합니다.",
+                                    $"따라서 세 셀들과 공유되는 영역을 가진 셀에는 {dup_val} 값이 들어갈 수 없습니다."
+                                };
+
+                        var hclist = MakeHCList(null, hc, hc1, hc2, hc, hc3);
+                        var hllist = MakeHLList(null, null, null, null, null, hl);
+                        hintDialogManager.StartDialogAndDeleteMemo(str, hclist, dc, hllist);
+                        return;
+                    }
+                }
+            }
+        }
     }
 
     private void FindJellyFish()

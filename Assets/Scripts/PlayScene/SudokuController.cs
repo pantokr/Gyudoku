@@ -49,7 +49,7 @@ public class SudokuController : MonoBehaviour
     #endregion
 
     #region µÎ ¼¿ ºñ±³
-    public bool IsEqualMemoCell((int, int) c1, (int, int) c2)
+    public bool IsEqualMemoCell(Tuple<int, int> c1, Tuple<int, int> c2)
     {
         var l1 = GetActiveMemoValue(c1.Item1, c1.Item2);
         var l2 = GetActiveMemoValue(c2.Item1, c2.Item2);
@@ -83,7 +83,7 @@ public class SudokuController : MonoBehaviour
             var emc_row = GetEmptyCellsInRow(_y);
             foreach (var emc in emc_row)
             {
-                if (IsEqualMemoCell((y, x), (_y, emc)))
+                if (IsEqualMemoCell(new Tuple<int, int>(y, x), new Tuple<int, int>(_y, emc)))
                 {
                     list.Add(new Tuple<int, int>(_y, emc));
                 }
@@ -312,7 +312,7 @@ public class SudokuController : MonoBehaviour
     #endregion
 
     #region ½ºµµÄí ¹«°á¼º °Ë»ç newval == 1~9
-    public bool IsNewValueAvailableRow(int y, int x, int newVal, List<(int, int)> list = null)
+    public bool IsNewValueAvailableRow(int y, int x, int newVal, List<Tuple<int, int>> list = null)
     {
         bool flag = true;
         for (int _x = 0; _x < 9; _x++)
@@ -321,14 +321,14 @@ public class SudokuController : MonoBehaviour
             {
                 if (list != null)
                 {
-                    list.Add((y, _x));
+                    list.Add(new Tuple<int, int>(y, _x));
                 }
                 flag = false;
             }
         }
         return flag;
     }
-    public bool IsNewValueAvailableCol(int y, int x, int newVal, List<(int, int)> list = null)
+    public bool IsNewValueAvailableCol(int y, int x, int newVal, List<Tuple<int, int>> list = null)
     {
         bool flag = true;
         for (int _y = 0; _y < 9; _y++)
@@ -337,14 +337,14 @@ public class SudokuController : MonoBehaviour
             {
                 if (list != null)
                 {
-                    list.Add((_y, x));
+                    list.Add(new Tuple<int, int>(_y, x));
                 }
                 flag = false;
             }
         }
         return flag;
     }
-    public bool IsNewValueAvailableSG(int y, int x, int newVal, List<(int, int)> list = null)
+    public bool IsNewValueAvailableSG(int y, int x, int newVal, List<Tuple<int, int>> list = null)
     {
         bool flag = true;
         int ty = y / 3;
@@ -357,7 +357,7 @@ public class SudokuController : MonoBehaviour
                 {
                     if (list != null)
                     {
-                        list.Add((_y, _x));
+                        list.Add(new Tuple<int, int>(_y, _x));
                     }
                     flag = false;
                 }
@@ -367,7 +367,7 @@ public class SudokuController : MonoBehaviour
     }
     public void CheckNewValueNormal(int y, int x, int newVal)
     {
-        List<(int, int)> list = new List<(int, int)>();
+        List<Tuple<int, int>> list = new List<Tuple<int, int>>();
         IsNewValueAvailableRow(y, x, newVal, list);
         IsNewValueAvailableCol(y, x, newVal, list);
         IsNewValueAvailableSG(y, x, newVal, list);
@@ -377,11 +377,11 @@ public class SudokuController : MonoBehaviour
             cellManager.Twinkle(list[index].Item1, list[index].Item2);
         }
     }
-    public List<(int, int)> CompareWithFullSudoku()
+    public List<Tuple<int, int>> CompareWithFullSudoku()
     {
         sudokuMaker = new SudokuMaker();
 
-        List<(int, int)> points = new List<(int, int)>();
+        List<Tuple<int, int>> points = new List<Tuple<int, int>>();
         for (int y = 0; y < 9; y++)
         {
             for (int x = 0; x < 9; x++)
@@ -389,17 +389,17 @@ public class SudokuController : MonoBehaviour
                 if (sudoku[y, x] != 0 &&
                     sudoku[y, x] != fullSudoku[y, x])
                 {
-                    points.Add((y, x));
+                    points.Add(new Tuple<int, int>(y, x));
                 }
             }
         }
         return points;
     }
-    public List<(int, int)> CompareMemoWithFullSudoku()
+    public List<Tuple<int, int>> CompareMemoWithFullSudoku()
     {
         sudokuMaker = new SudokuMaker();
 
-        List<(int, int)> points = new List<(int, int)>();
+        List<Tuple<int, int>> points = new List<Tuple<int, int>>();
         for (int y = 0; y < 9; y++)
         {
             for (int x = 0; x < 9; x++)
@@ -410,7 +410,7 @@ public class SudokuController : MonoBehaviour
 
                     if (memoSudoku[rightNumber - 1, y, x] == 0)
                     {
-                        points.Add((y, x));
+                        points.Add(new Tuple<int,int>(y, x));
                     }
                 }
             }
@@ -498,16 +498,16 @@ public class SudokuController : MonoBehaviour
         }
         return empty;
     }
-    public List<(int, int)> GetEmptyCellsInSG(int y, int x) //
+    public List<Tuple<int, int>> GetEmptyCellsInSG(int y, int x) //
     {
-        List<(int, int)> empty = new List<(int, int)>();
+        List<Tuple<int, int>> empty = new List<Tuple<int, int>>();
         for (int _y = y * 3; _y < y * 3 + 3; _y++)
         {
             for (int _x = x * 3; _x < x * 3 + 3; _x++)
             {
                 if (IsEmptyCell(_y, _x))
                 {
-                    empty.Add((_y, _x));
+                    empty.Add(new Tuple<int, int>(_y, _x));
                 }
             }
         }
@@ -574,9 +574,9 @@ public class SudokuController : MonoBehaviour
         }
         return list;
     }
-    public List<(int, int)> GetMemoCellInSG(int y, int x, int value)
+    public List<Tuple<int, int>> GetMemoCellInSG(int y, int x, int value)
     {
-        List<(int, int)> list = new List<(int, int)>();
+        List<Tuple<int, int>> list = new List<Tuple<int, int>>();
 
         for (int _y = y * 3; _y < y * 3 + 3; _y++)
         {
@@ -584,7 +584,7 @@ public class SudokuController : MonoBehaviour
             {
                 if (IsInMemoCell(_y, _x, value))
                 {
-                    list.Add((_y, _x));
+                    list.Add(new Tuple<int, int>(_y, _x));
                 }
             }
         }
@@ -618,14 +618,14 @@ public class SudokuController : MonoBehaviour
         return (rows, cols); //²ûÂïÇØ
     }
 
-    public List<(int, int)> GetSGsDisbledByRow(int y, int value)
+    public List<Tuple<int, int>> GetSGsDisbledByRow(int y, int value)
     {
-        List<(int, int)> SGs = new List<(int, int)>();
+        List<Tuple<int, int>> SGs = new List<Tuple<int, int>>();
         for (int _x = 0; _x < 9; _x++)
         {
             if (memoSudoku[value - 1, y, _x] == 1)
             {
-                SGs.Add((y / 3, _x / 3));
+                SGs.Add(new Tuple<int, int>(y / 3, _x / 3));
             }
         }
         SGs = SGs.Distinct().ToList();
@@ -634,14 +634,14 @@ public class SudokuController : MonoBehaviour
         return SGs;
     }
 
-    public List<(int, int)> GetSGsDisbledByCol(int x, int value)
+    public List<Tuple<int, int>> GetSGsDisbledByCol(int x, int value)
     {
-        List<(int, int)> SGs = new List<(int, int)>();
+        List<Tuple<int, int>> SGs = new List<Tuple<int, int>>();
         for (int _y = 0; _y < 9; _y++)
         {
             if (memoSudoku[value - 1, _y, x] == 1)
             {
-                SGs.Add((_y / 3, x / 3));
+                SGs.Add(new Tuple<int, int>(_y / 3, x / 3));
             }
         }
         SGs = SGs.Distinct().ToList();
@@ -706,7 +706,7 @@ public class SudokuController : MonoBehaviour
     }
     #endregion
 
-    #region µÎ ¼¿ÀÇ °ãÄ¡´Â ¿©ºÎ/ ¼¿/ °ªµé ¹ÝÈ¯
+    #region µÎ ¸®½ºÆ®/¼¿ÀÇ °ãÄ¡´Â ¿©ºÎ/ ¼¿/ °ªµé ¹ÝÈ¯
 
     public int GetSameAreaCode(Tuple<int, int> c1, Tuple<int, int> c2)
     {
@@ -748,14 +748,14 @@ public class SudokuController : MonoBehaviour
         }
     }
 
-    public List<(int, int)> GetCellForcingArea(int y, int x)
+    public List<Tuple<int, int>> GetCellForcingArea(int y, int x)
     {
-        List<(int, int)> list = new List<(int, int)>();
+        List<Tuple<int, int>> list = new List<Tuple<int, int>>();
         for (int _x = 0; _x < 9; _x++)
         {
             if (IsEmptyCell(y, _x))
             {
-                list.Add((y, _x));
+                list.Add(new Tuple<int, int>(y, _x));
             }
         }
 
@@ -763,7 +763,7 @@ public class SudokuController : MonoBehaviour
         {
             if (IsEmptyCell(_y, x))
             {
-                list.Add((_y, x));
+                list.Add(new Tuple<int, int>(_y, x));
             }
         }
 
@@ -776,21 +776,21 @@ public class SudokuController : MonoBehaviour
             {
                 if (IsEmptyCell(_y, _x))
                 {
-                    list.Add((_y, _x));
+                    list.Add(new Tuple<int, int>(_y, _x));
                 }
             }
         }
         list = list.Distinct().ToList();
         list.Sort();
 
-        list.Remove((y, x));
+        list.Remove(new Tuple<int, int>(y, x));
 
         return list;
     }
 
-    public List<(int, int)> GetDuplicatedCellByTwoCell((int, int) c1, (int, int) c2)
+    public List<Tuple<int, int>> GetDuplicatedCellByTwoCell(Tuple<int, int> c1, Tuple<int, int> c2)
     {
-        List<(int, int)> list = new List<(int, int)>();
+        List<Tuple<int, int>> list = new List<Tuple<int, int>>();
         var cfa1 = GetCellForcingArea(c1.Item1, c1.Item2);
         var cfa2 = GetCellForcingArea(c2.Item1, c2.Item2);
 
@@ -805,7 +805,7 @@ public class SudokuController : MonoBehaviour
         return list;
     }
 
-    public List<int> GetDuplicatedValueByTwoCell((int, int) c1, (int, int) c2)
+    public List<int> GetDuplicatedValueByTwoCell(Tuple<int, int> c1, Tuple<int, int> c2)
     {
         List<int> list = new List<int>();
 
@@ -823,6 +823,18 @@ public class SudokuController : MonoBehaviour
         return list;
     }
 
+    public List<Tuple<int,int>> GetDuplicatedCellsByTwoList(List<Tuple<int,int>> l1, List<Tuple<int,int>> l2)
+    {
+        List<Tuple<int, int>> list = new List<Tuple<int, int>>();
+        foreach(var tuple in l1)
+        {
+            if (l2.Contains(tuple))
+            {
+                list.Add(tuple);
+            }
+        }
+        return list;
+    }
     #endregion
 
     #region ¸µÅ©µÈ ¼¿µé ¹ÝÈ¯
@@ -965,7 +977,7 @@ public class SudokuController : MonoBehaviour
         var mcsg = GetMemoCellInSG(y / 3, x / 3, value);
         if (mcsg.Count == 2)
         {
-            var adder = (mcsg[0] == (y, x)) ? mcsg[1] : mcsg[0];
+            var adder = (mcsg[0] == new Tuple<int, int>(y, x)) ? mcsg[1] : mcsg[0];
             list.Add(new Tuple<int, int>(adder.Item1, adder.Item2));
         }
 

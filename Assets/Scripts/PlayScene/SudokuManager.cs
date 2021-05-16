@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -30,19 +31,19 @@ public class SudokuManager : MonoBehaviour
         {
             if (DifficultySetter.Difficulty == 0)
             {
-                int rand = Random.Range(0, Settings.Easy_Cnt);
+                int rand = UnityEngine.Random.Range(0, Settings.Easy_Cnt);
                 fileManager.StartOpening($"easy{rand}");
                 sudoku = sudokuMaker.MakeConvertedSudoku(sudoku);
             }
             else if (DifficultySetter.Difficulty == 1)
             {
-                int rand = Random.Range(0, Settings.Medium_Cnt);
+                int rand = UnityEngine.Random.Range(0, Settings.Medium_Cnt);
                 fileManager.StartOpening($"medium{rand}");
                 sudoku = sudokuMaker.MakeConvertedSudoku(sudoku);
             }
             else if (DifficultySetter.Difficulty == 2)
             {
-                int rand = Random.Range(0, Settings.Hard_Cnt);
+                int rand = UnityEngine.Random.Range(0, Settings.Hard_Cnt);
                 fileManager.StartOpening($"hard{rand/*Settings.Hard_Cnt - 1*/}");
                 sudoku = sudokuMaker.MakeConvertedSudoku(sudoku);
             }
@@ -95,6 +96,16 @@ public class SudokuManager : MonoBehaviour
         foreach (var l in list)
         {
             str += $"{l} ";
+        }
+        print(str);
+    }
+
+    public static void PrintListYX(List<Tuple<int, int>> list)
+    {
+        string str = "";
+        foreach (var l in list)
+        {
+            str += $"y: {l.Item1}, x: {l.Item2}\n";
         }
         print(str);
     }

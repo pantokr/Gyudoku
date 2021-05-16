@@ -8,7 +8,7 @@ public class FileManager_M : MonoBehaviour
 {
     public static string fname = "default";
 
-    public GameObject panel;
+    public GameObject buttons;
     public GameObject dialogText;
     public InputField inputField;
     public GameObject cancelButton;
@@ -75,9 +75,9 @@ public class FileManager_M : MonoBehaviour
 
     private void DisplayDialog()
     {
-        for (int child = 0; child < panel.transform.childCount; child++)
+        for (int child = 0; child < buttons.transform.childCount; child++)
         {
-            GameObject obj = panel.transform.GetChild(child).gameObject;
+            GameObject obj = buttons.transform.GetChild(child).gameObject;
             if (obj.name == "FileNameSetter")
             {
                 obj.SetActive(true);
@@ -90,9 +90,9 @@ public class FileManager_M : MonoBehaviour
     }
     private void Cancel()
     {
-        for (int child = 0; child < panel.transform.childCount; child++)
+        for (int child = 0; child < buttons.transform.childCount; child++)
         {
-            GameObject obj = panel.transform.GetChild(child).gameObject;
+            GameObject obj = buttons.transform.GetChild(child).gameObject;
             if (obj.name == "FileNameSetter" || obj.name == "Customized")
             {
                 obj.SetActive(false);

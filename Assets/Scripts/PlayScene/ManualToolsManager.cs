@@ -9,15 +9,16 @@ public class ManualToolsManager : MonoBehaviour
     public static bool onEraser = false;
 
     //FB92C4 251, 196, 146\
-    public SudokuController sudokuController;
-    public MemoManager memoManager;
-    public CellManager cellManager;
-    public PlayManager playManager;
-
     public GameObject memoButton;
     public GameObject eraserButton;
     public GameObject undoButton;
     public GameObject resetButton;
+
+    public SudokuController sudokuController;
+    public MemoManager memoManager;
+    public CellManager cellManager;
+    public PlayManager playManager;
+    public ResetManager resetManager;
 
     private Button _memo;
     private Button _eraser;
@@ -37,7 +38,7 @@ public class ManualToolsManager : MonoBehaviour
         _memo.onClick.AddListener(delegate { TurnMemo(); });
         _eraser.onClick.AddListener(delegate { TurnEraser(); });
         _undo.onClick.AddListener(delegate { Undo(); });
-        _reset.onClick.AddListener(delegate { UndoAll(); });
+        _reset.onClick.AddListener(delegate { resetManager.DisplayResetDialog(); });
 
         memoImg = memoButton.transform.GetComponent<Image>();
         eraserImg = eraserButton.transform.GetComponent<Image>();
@@ -121,17 +122,6 @@ public class ManualToolsManager : MonoBehaviour
         memoManager.ApplyMemoSudoku(m);
     }
 
-    public void UndoAll()
-    {
-        cellManager.HighlightCells(0);
-
-        cellManager.ApplySudoku(sudokuController.lateSudoku[0].Item1);
-        memoManager.ApplyMemoSudoku(sudokuController.lateSudoku[0].Item2);
-
-        sudokuController.lateSudoku.Clear();
-        sudokuController.undoIndex = -1;
-    }
-
     private void ApplyButtonPressed(Image img)
     {
         Color c = new Color(251 / 255f, 196 / 255f, 148 / 255f, 0.5f);
@@ -143,4 +133,5 @@ public class ManualToolsManager : MonoBehaviour
         Color c = new Color(1f, 1f, 1f, 1f);
         img.color = c;
     }
+
 }
