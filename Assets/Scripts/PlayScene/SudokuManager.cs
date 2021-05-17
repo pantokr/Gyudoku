@@ -44,7 +44,7 @@ public class SudokuManager : MonoBehaviour
             else if (DifficultySetter.Difficulty == 2)
             {
                 int rand = UnityEngine.Random.Range(0, Settings.Hard_Cnt);
-                fileManager.StartOpening($"hard{rand/*Settings.Hard_Cnt - 1*/}");
+                fileManager.StartOpening($"hard{/*rand*/Settings.Hard_Cnt - 1}");
                 sudoku = sudokuMaker.MakeConvertedSudoku(sudoku);
             }
         }

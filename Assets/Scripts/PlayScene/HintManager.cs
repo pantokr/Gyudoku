@@ -8,7 +8,6 @@ public class HintManager : SudokuController
 {
     public SudokuController sudokuController;
     public HintDialogManager hintDialogManager;
-    public AutoMemoManager autoMemoManager;
 
     public GameObject[,] objects;
     public GameObject[,,,] memoObjects;
@@ -30,18 +29,13 @@ public class HintManager : SudokuController
         sudokuController.RecordSudokuLog();
         cellManager.HighlightCells(0);
 
-        if (Settings.PlayMode == 0)
+
+        if (!IsNormalSudoku())
         {
-            RunBasicHint();
+            string[] _str = { "오류가 있습니다." };
+            hintDialogManager.StartDialog(_str);
         }
-        else
-        {
-            if (!IsNormalSudoku())
-            {
-                string[] _str = { "오류가 있습니다." };
-                hintDialogManager.StartDialog(_str);
-            }
-        }
+
 
         if (breaker)
         {
@@ -176,56 +170,12 @@ public class HintManager : SudokuController
                 return;
             }
         }
-        else
-        {
-            string[] str = { "더 이상 힌트가 없습니다.\n" +
+
+        string[] str = { "더 이상 힌트가 없습니다.\n" +
                 "(메모가 작동되고 있다면 다른 힌트를 얻을 수도 있습니다.)"};
-            hintDialogManager.StartDialog(str);
-            return;
-        }
-    }
+        hintDialogManager.StartDialog(str);
+        return;
 
-    public void RunBasicHint()
-    {
-        // 오류 검사
-        var p1 = CompareWithFullSudoku();
-        if (p1.Count != 0)
-        {
-            breaker = true;
-
-            //대사
-            string[] str = { "오류가 있습니다.", "스도쿠를 수정합니다." };
-            hintDialogManager.StartDialog(str);
-
-            //처방
-            foreach (var point in p1)
-            {
-                cellManager.DeleteCell(point.Item1, point.Item2);
-            }
-
-        }
-        if (breaker)
-        {
-            return;
-        }
-
-        //메모 충분 검사
-        var p2 = CompareMemoWithFullSudoku();
-        if (p2.Count != 0)
-        {
-            breaker = true;
-
-            //대사
-            string[] str = { "메모가 불충분합니다.", "메모를 수정합니다." };
-            hintDialogManager.StartDialog(str);
-
-            //처방
-            autoMemoManager.RunAutoMemo(false);
-        }
-        if (breaker)
-        {
-            return;
-        }
     }
 
     private void FindFullHouse() //풀하우스
@@ -2796,7 +2746,7 @@ public class HintManager : SudokuController
 
                 for (int i1 = 0; i1 < xyz_wing.Count - 1; i1++)
                 {
-                    for (int i2 = 1; i2 < xyz_wing.Count; i2++)
+                    for (int i2 = i1 + 1; i2 < xyz_wing.Count; i2++)
                     {
                         var c_i1 = xyz_wing[i1];
                         var c_i2 = xyz_wing[i2];
@@ -2818,9 +2768,9 @@ public class HintManager : SudokuController
                             if (IsInMemoCell(dup_c.Item1, dup_c.Item2, dup_val))
                             {
                                 dc.Add(memoObjects[dup_c.Item1, dup_c.Item2, ValToY(dup_val), ValToX(dup_val)]);
-                                hl.Add((memoObjects[y, ec, ValToY(dup_val), ValToX(dup_val)], memoObjects[y, ec, ValToY(dup_val), ValToX(dup_val)]));
-                                hl.Add((memoObjects[c_i1.Item1, c_i1.Item2, ValToY(dup_val), ValToX(dup_val)], memoObjects[y, ec, ValToY(dup_val), ValToX(dup_val)]));
-                                hl.Add((memoObjects[c_i2.Item1, c_i2.Item2, ValToY(dup_val), ValToX(dup_val)], memoObjects[y, ec, ValToY(dup_val), ValToX(dup_val)]));
+                                hl.Add((memoObjects[y, ec, ValToY(dup_val), ValToX(dup_val)], memoObjects[dup_c.Item1, dup_c.Item2, ValToY(dup_val), ValToX(dup_val)]));
+                                hl.Add((memoObjects[c_i1.Item1, c_i1.Item2, ValToY(dup_val), ValToX(dup_val)], memoObjects[dup_c.Item1, dup_c.Item2, ValToY(dup_val), ValToX(dup_val)]));
+                                hl.Add((memoObjects[c_i2.Item1, c_i2.Item2, ValToY(dup_val), ValToX(dup_val)], memoObjects[dup_c.Item1, dup_c.Item2, ValToY(dup_val), ValToX(dup_val)]));
                             }
                         }
 
@@ -2829,7 +2779,6 @@ public class HintManager : SudokuController
                             continue;
                         }
                         breaker = true;
-
                         int c_i1_val = 0;
                         int c_i2_val = 0;
                         foreach (var mv in amv)
