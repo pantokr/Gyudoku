@@ -731,6 +731,7 @@ MonoBehaviour:
   hintButton: {fileID: 2243453640546199226}
   autoSingleButton: {fileID: 173523154}
   hintDialogManager: {fileID: 961736335}
+  hintManager: {fileID: 2243453640546199228}
 --- !u!1 &217108291
 GameObject:
   m_ObjectHideFlags: 0
@@ -26671,7 +26672,6 @@ MonoBehaviour:
   undoIndex: -1
   sudokuController: {fileID: 1435379898}
   hintDialogManager: {fileID: 961736335}
-  autoMemoManager: {fileID: 1023497761045936293}
 --- !u!222 &2243453640546199231
 CanvasRenderer:
   m_ObjectHideFlags: 0
