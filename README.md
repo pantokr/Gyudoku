@@ -1,48 +1,12 @@
-# Sudoku Game
+# 규도쿠
 
-# Concepts used
+각종 스도쿠 공식을 통해 스도쿠 문제를 해결할 수 있는 Windows에서 실행 가능한 스도쿠 애플리케이션입니다. 자세한 설명은 [pantokr.github.io](https://pantokr.github.io/2021/05/17/unity-csharp-gyudoku.html)에서 확인하실 수 있습니다.
 
--   Menu UI
-    - Custom Sliders
-    - Custom Progess Bar
-    - Images as borders
-    - Buttons
+---
 
-- Loading Scene
-- Scene Change
-- Game Pausing 
-- Dialog showing
-- Prefabs Creation and Usage
-- Static settings passing.
+## 📥 설치
 
-
-
-# Game Play
-
--   Select the difficulty to play the game.
--   Random board will be generated, according to the difficulty.
--   All same numbers will be highlighted.
--   The vicotry dialog will appear once you win the game. 
--   Press escape to pause the game.
--   Use the volume slider to change volume of background music.
-
-# Screen shots
-
-![](https://raw.githubusercontent.com/Arose-Niazi/Sudoku-Unity/main/Screenshots/1.png)
-
-![](https://raw.githubusercontent.com/Arose-Niazi/Sudoku-Unity/main/Screenshots/2.png)
-
-![](https://raw.githubusercontent.com/Arose-Niazi/Sudoku-Unity/main/Screenshots/3.png)
-
-![](https://raw.githubusercontent.com/Arose-Niazi/Sudoku-Unity/main/Screenshots/4.png)
-
-![](https://raw.githubusercontent.com/Arose-Niazi/Sudoku-Unity/main/Screenshots/5.png)
-
-![](https://raw.githubusercontent.com/Arose-Niazi/Sudoku-Unity/main/Screenshots/6.png)
-
-![](https://raw.githubusercontent.com/Arose-Niazi/Sudoku-Unity/main/Screenshots/7.png)
-
-![](https://raw.githubusercontent.com/Arose-Niazi/Sudoku-Unity/main/Screenshots/8.png)
-
-
-Youtube Preview: https://youtu.be/jCxcFt0i4Zs
+### 1. Git Clone  
+```bash
+git clone https://github.com/pantokr/unity-csharp-gyudoku.git
+```
