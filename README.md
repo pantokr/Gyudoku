@@ -9,5 +9,5 @@
 
 ### 1. Git Clone  
 ```bash
-git clone https://github.com/pantokr/unity-csharp-gyudoku.git
+git clone https://github.com/pantokr/unity3d-csharp-gyudoku.git
 ```
